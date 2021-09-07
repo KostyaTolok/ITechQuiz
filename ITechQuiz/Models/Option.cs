@@ -19,5 +19,9 @@ namespace ITechQuiz.Models
 
         [MaxLength(150)]
         public string Subtitle { get; set; }
+
+        public Question Question { get; set; }
+
+        public Guid QuestionId { get; set; }
     }
 }

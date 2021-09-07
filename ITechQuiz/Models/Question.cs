@@ -22,7 +22,11 @@ namespace ITechQuiz.Models
         [Required]
         public bool Required { get; set; }
 
-        public List<Option> Options { get; set; }
+        public ICollection<Option> Options { get; set; }
+
+        public Survey Survey { get; set; }
+
+        public string SurveyName { get; set; }
 
     }
 }

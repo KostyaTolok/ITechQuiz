@@ -15,7 +15,7 @@ namespace ITechQuiz.Models
         public string Title { get; set; }
 
         [Required]
-        public Type Type { get; set; }
+        public SurveyType Type { get; set; }
 
         [MaxLength(150)]
         public string Subtitle { get; set; }
@@ -24,11 +24,11 @@ namespace ITechQuiz.Models
         [Required]
         public DateTime CreatedDate { get; set; }
 
-        public List<Question> Questions { get; set; }
+        public ICollection<Question> Questions { get; set; }
 
     }
 
-    public enum Type
+    public enum SurveyType
     {
         ForStatistics,
         ForQuiz

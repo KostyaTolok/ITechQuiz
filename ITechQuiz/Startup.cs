@@ -2,7 +2,8 @@ using ITechQuiz.Data;
 using ITechQuiz.Managers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using ITechQuiz.Data.Interfaces;
+using ITechQuiz.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,10 @@ namespace ITechQuiz
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<ISurveysRepository, EFSurveysRepository>();
+            services.AddTransient<IQuestionsRepository, EFQuestionsRepository>();
+            services.AddTransient<IOptionsRepository, EFOptionsRepository>();
+
             services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<IdentityUser, IdentityRole>(options =>
