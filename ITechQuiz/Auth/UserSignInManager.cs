@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace ITechQuiz.Managers
 {
+    [ExcludeFromCodeCoverage]
     public class UserSignInManager : SignInManager<IdentityUser>
     {
         public UserSignInManager(UserManager<IdentityUser> userManager, IHttpContextAccessor contextAccessor,

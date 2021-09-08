@@ -34,7 +34,7 @@ namespace ITechQuiz.Data.Repositories
 
         public async Task AddSurveyAsync(Survey survey)
         {
-            context.Entry(survey).State = EntityState.Added;
+            await context.Surveys.AddAsync(survey);
             await context.SaveChangesAsync();
         }
 
@@ -47,7 +47,7 @@ namespace ITechQuiz.Data.Repositories
 
         public async Task UpdateSurveyAsync(Survey survey)
         {
-            context.Entry(survey).State = EntityState.Modified;
+            context.Surveys.Update(survey);
             await context.SaveChangesAsync();
         }
     }

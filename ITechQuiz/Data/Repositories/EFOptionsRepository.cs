@@ -18,7 +18,7 @@ namespace ITechQuiz.Data.Repositories
 
         public async Task AddOptionAsync(Option option)
         {
-            context.Entry(option).State = EntityState.Added;
+            await context.Options.AddAsync(option);
             await context.SaveChangesAsync();
         }
 
@@ -47,7 +47,7 @@ namespace ITechQuiz.Data.Repositories
 
         public async Task UpdateOptionAsync(Option option)
         {
-            context.Entry(option).State = EntityState.Modified;
+            context.Options.Update(option);
             await context.SaveChangesAsync();
         }
     }

@@ -19,7 +19,7 @@ namespace ITechQuiz.Data.Repositories
 
         public async Task AddQuestionAsync(Question question)
         {
-            context.Entry(question).State = EntityState.Added;
+            await context.Questions.AddAsync(question);
             await context.SaveChangesAsync();
         }
 
@@ -48,7 +48,7 @@ namespace ITechQuiz.Data.Repositories
 
         public async Task UpdateQuestionAsync(Question question)
         {
-            context.Entry(question).State = EntityState.Modified;
+            context.Questions.Update(question);
             await context.SaveChangesAsync();
         }
     }

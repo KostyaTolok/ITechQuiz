@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace ITechQuiz.Data.Interfaces
 {
-    public interface ISurveysRepository
+    public interface ISurveyService
     {
         Task<IEnumerable<Survey>> GetSurveysAsync();
 
         Task<Survey> GetSurveyAsync(string Name);
 
         Task AddSurveyAsync(Survey survey);
-
         Task UpdateSurveyAsync(Survey survey);
 
         Task DeleteSurveyAsync(string Name);

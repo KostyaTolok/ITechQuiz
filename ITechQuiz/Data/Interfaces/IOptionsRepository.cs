@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ITechQuiz.Data.Interfaces
 {
-    interface IOptionsRepository
+    public interface IOptionsRepository
     {
         Task<IEnumerable<Option>> GetOptionsAsync();
 

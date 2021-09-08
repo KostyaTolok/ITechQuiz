@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ITechQuiz.Data.Interfaces
 {
-    interface IQuestionsRepository
+    public interface IQuestionsRepository
     {
         Task<IEnumerable<Question>> GetQuestionsAsync();
 
@@ -17,5 +17,6 @@ namespace ITechQuiz.Data.Interfaces
         Task UpdateQuestionAsync(Question question);
 
         Task DeleteQuestionAsync(Guid id);
+
     }
 }
