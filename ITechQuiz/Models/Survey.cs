@@ -8,6 +8,10 @@ namespace ITechQuiz.Models
     {
         [Key]
         [Required]
+        public Guid Id { get; set; }
+
+        [MaxLength(50)]
+        [Required]
         public string Name { get; set; }
 
         [MaxLength(50)]

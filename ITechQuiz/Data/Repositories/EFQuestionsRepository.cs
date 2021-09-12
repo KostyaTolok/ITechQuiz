@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using ITechQuiz.Data.Interfaces;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ITechQuiz.Data.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class EFQuestionsRepository : IQuestionsRepository
     {
         private readonly QuizDbContext context;

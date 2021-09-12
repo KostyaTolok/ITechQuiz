@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ITechQuiz.Data.Interfaces;
 using ITechQuiz.Models;
+using ITechQuiz.Service.Commands;
+using ITechQuiz.Service.Queries;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace ITechQuiz.Data.Services
 {
     public class SurveyService : ISurveyService
     {
-        private readonly ISurveysRepository surveysRepository;
         private readonly ILogger<SurveyService> logger;
+        private readonly IMediator mediator;
 
-        public SurveyService(ISurveysRepository surveysRepository, ILogger<SurveyService> logger)
+        public SurveyService(IMediator mediator, ILogger<SurveyService> logger)
         {
-            this.surveysRepository = surveysRepository;
             this.logger = logger;
+            this.mediator = mediator;
         }
 
-        public async Task UpdateSurveyAsync(Survey survey)
+        public async Task UpdateSurveyAsync(Survey survey, CancellationToken token)
         {
             if (survey == null)
             {
@@ -28,16 +30,17 @@ namespace ITechQuiz.Data.Services
                 throw new ArgumentException("Failed to update survey. Survey is null");
             }
 
-            if (string.IsNullOrEmpty(survey.Name) || survey.CreatedDate == default || string.IsNullOrEmpty(survey.Title))
+            if (survey.Id == default || string.IsNullOrEmpty(survey.Name) ||
+                survey.CreatedDate == default || string.IsNullOrEmpty(survey.Title))
             {
                 logger.LogError("Failed to update survey. Missing required fields");
                 throw new ArgumentException("Failed to update survey. Missing required fields");
             }
 
-            await surveysRepository.UpdateSurveyAsync(survey);
+            await mediator.Send(new UpdateSurveyCommand(survey), token);
         }
 
-        public async Task AddSurveyAsync(Survey survey)
+        public async Task AddSurveyAsync(Survey survey, CancellationToken token)
         {
             if (survey == null)
             {
@@ -45,28 +48,30 @@ namespace ITechQuiz.Data.Services
                 throw new ArgumentException("Failed to add survey. Survey is null");
             }
 
-            if (string.IsNullOrEmpty(survey.Name) || survey.CreatedDate == default || string.IsNullOrEmpty(survey.Title))
+            if (survey.Id == default || string.IsNullOrEmpty(survey.Name) ||
+                survey.CreatedDate == default || string.IsNullOrEmpty(survey.Title))
             {
                 logger.LogError("Failed to add survey. Missing required fields");
                 throw new ArgumentException("Failed to add survey. Missing required fields");
             }
 
-            await surveysRepository.AddSurveyAsync(survey);
+            await mediator.Send(new AddSurveyCommand(survey), token);
         }
 
-        public async Task DeleteSurveyAsync(string Name)
+        public async Task DeleteSurveyAsync(Guid id, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(Name))
+            if (id == default)
             {
                 logger.LogError("Failed to delete survey. Empty name");
                 throw new ArgumentException("Failed to delete survey. Empty name");
             }
-            await surveysRepository.DeleteSurveyAsync(Name);
+
+            await mediator.Send(new DeleteSurveyCommand(id), token);
         }
 
-        public async Task<Survey> GetSurveyAsync(string Name)
+        public async Task<Survey> GetSurveyAsync(Guid id, CancellationToken token)
         {
-            var survey = await surveysRepository.GetSurveyAsync(Name);
+            Survey survey = await mediator.Send(new GetSurveyByIdQuery(id), token);
 
             if (survey != null)
             {
@@ -77,9 +82,9 @@ namespace ITechQuiz.Data.Services
             throw new ArgumentException("Failed to get survey. Wrong name");
         }
 
-        public async Task<IEnumerable<Survey>> GetSurveysAsync()
+        public async Task<IEnumerable<Survey>> GetSurveysAsync(CancellationToken token)
         {
-            var surveys = await surveysRepository.GetSurveysAsync();
+            var surveys = await mediator.Send(new GetSurveysQuery(),token);
 
             if (surveys != null)
             {

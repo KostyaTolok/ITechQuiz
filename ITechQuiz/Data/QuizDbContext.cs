@@ -2,14 +2,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ITechQuiz.Data
 {
+    [ExcludeFromCodeCoverage]
     public class QuizDbContext : IdentityDbContext<IdentityUser>
     {
         public DbSet<Survey> Surveys { get; set; }

@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using MediatR;
+using System.Reflection;
 
 namespace ITechQuiz
 {
@@ -41,8 +43,11 @@ namespace ITechQuiz
                 options.Password.RequireLowercase = false;
             }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<UserSignInManager>();
 
+            services.AddMediatR(Assembly.GetExecutingAssembly());
+
             services.AddControllers()
                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

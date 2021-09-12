@@ -3,10 +3,12 @@ using ITechQuiz.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace ITechQuiz.Data.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class EFOptionsRepository: IOptionsRepository
     {
         private readonly QuizDbContext context;
