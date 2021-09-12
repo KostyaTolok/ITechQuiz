@@ -12,6 +12,9 @@ using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using System.IO;
+using ITechQuiz.Models;
 
 namespace ITechQuiz
 {
@@ -33,7 +36,7 @@ namespace ITechQuiz
 
             services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<User, Role>(options =>
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = 6;
@@ -50,8 +53,10 @@ namespace ITechQuiz
 
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), Configuration["LogsFileName"]));
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

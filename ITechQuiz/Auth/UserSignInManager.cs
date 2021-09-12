@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using ITechQuiz.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -9,11 +10,11 @@ using System.Threading.Tasks;
 namespace ITechQuiz.Managers
 {
     [ExcludeFromCodeCoverage]
-    public class UserSignInManager : SignInManager<IdentityUser>
+    public class UserSignInManager : SignInManager<User>
     {
-        public UserSignInManager(UserManager<IdentityUser> userManager, IHttpContextAccessor contextAccessor,
-            IUserClaimsPrincipalFactory<IdentityUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor,
-            ILogger<SignInManager<IdentityUser>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<IdentityUser> confirmation)
+        public UserSignInManager(UserManager<User> userManager, IHttpContextAccessor contextAccessor,
+            IUserClaimsPrincipalFactory<User> claimsFactory, IOptions<IdentityOptions> optionsAccessor,
+            ILogger<SignInManager<User>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<User> confirmation)
         : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
         {
 

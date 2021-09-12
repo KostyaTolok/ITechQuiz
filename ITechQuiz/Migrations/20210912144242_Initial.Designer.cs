@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITechQuiz.Migrations
 {
     [DbContext(typeof(QuizDbContext))]
-    [Migration("20210906102334_Initial")]
+    [Migration("20210912144242_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,7 +30,7 @@ namespace ITechQuiz.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("QuestionId")
+                    b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Subtitle")
@@ -64,8 +64,11 @@ namespace ITechQuiz.Migrations
                     b.Property<bool>("Required")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("SurveyName")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -74,43 +77,22 @@ namespace ITechQuiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SurveyName");
+                    b.HasIndex("SurveyId");
 
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("ITechQuiz.Models.Survey", b =>
+            modelBuilder.Entity("ITechQuiz.Models.Role", b =>
                 {
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Subtitle")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Name");
-
-                    b.ToTable("Surveys");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -133,55 +115,63 @@ namespace ITechQuiz.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "fb96bb35-90fd-4f70-99a0-954fcfb14baf",
-                            ConcurrencyStamp = "611d11a9-993a-4183-a0e5-e3f1831c3da7",
+                            Id = new Guid("fb96bb35-90fd-4f70-99a0-954fcfb14baf"),
+                            ConcurrencyStamp = "e2d31f2d-b29f-4df8-97bb-8ed54c1fafe9",
+                            Description = "Управляет добавлением и удалением клиентов",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "f7d36113-51ff-4b07-8b5f-64fccc8091d5",
-                            ConcurrencyStamp = "5b079f6f-8c5c-45dd-a7a1-91c8111f1251",
+                            Id = new Guid("f7d36113-51ff-4b07-8b5f-64fccc8091d5"),
+                            ConcurrencyStamp = "c27180bd-4d5c-47d5-9f6d-2fe1f637f981",
+                            Description = "Создает, удаляет и изменяет опросы. Имеет доступ к статистике ",
                             Name = "client",
                             NormalizedName = "CLIENT"
-                        },
-                        new
-                        {
-                            Id = "2c408920-31d7-45a5-8f8a-a473f5760d85",
-                            ConcurrencyStamp = "8ae347da-0205-46ba-98da-53d0f1489262",
-                            Name = "vip",
-                            NormalizedName = "VIP"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("ITechQuiz.Models.Survey", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("Surveys");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+            modelBuilder.Entity("ITechQuiz.Models.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -245,23 +235,37 @@ namespace ITechQuiz.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d91046a9-d12b-4c14-9810-ac3af195066a",
+                            Id = new Guid("d91046a9-d12b-4c14-9810-ac3af195066a"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "14303086-242c-4ff6-87f8-8def87e7a7e5",
+                            ConcurrencyStamp = "7e52e54e-4274-42fa-be92-692773cb555a",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEAmwrIssmYGiGsp+BEOdbS9fGE/jA18K4nC8JODEZKyeifj10dR8tLvGKZ1AAzuDTA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELe2ziNqDLcqsgzb7aVoSUYZcr3femTXDmYCs23t3TNZ/HGYL1XFSq7F7niaHhB5Rg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3b242181-fdec-4750-ab5d-ef29e409f6d3",
                             TwoFactorEnabled = false,
                             UserName = "admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("52f4c7c6-7f95-4d40-8308-b36a3ce86a52"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "7d056835-0936-4c32-b494-66c39c31fc2e",
+                            Email = "client@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "CLIENT@GMAIL.COM",
+                            NormalizedUserName = "CLIENT",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKpjVCXRKRzARHVojoSgS+mKZK/9z6j5XhBrCJyPOMlFypA/AcnfUz6Jf/J6DHHeaw==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "client"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -274,9 +278,31 @@ namespace ITechQuiz.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -285,7 +311,7 @@ namespace ITechQuiz.Migrations
                     b.ToTable("AspNetUserClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -296,9 +322,8 @@ namespace ITechQuiz.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -307,13 +332,13 @@ namespace ITechQuiz.Migrations
                     b.ToTable("AspNetUserLogins");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -324,15 +349,20 @@ namespace ITechQuiz.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "d91046a9-d12b-4c14-9810-ac3af195066a",
-                            RoleId = "fb96bb35-90fd-4f70-99a0-954fcfb14baf"
+                            UserId = new Guid("d91046a9-d12b-4c14-9810-ac3af195066a"),
+                            RoleId = new Guid("fb96bb35-90fd-4f70-99a0-954fcfb14baf")
+                        },
+                        new
+                        {
+                            UserId = new Guid("52f4c7c6-7f95-4d40-8308-b36a3ce86a52"),
+                            RoleId = new Guid("f7d36113-51ff-4b07-8b5f-64fccc8091d5")
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -350,63 +380,80 @@ namespace ITechQuiz.Migrations
 
             modelBuilder.Entity("ITechQuiz.Models.Option", b =>
                 {
-                    b.HasOne("ITechQuiz.Models.Question", null)
+                    b.HasOne("ITechQuiz.Models.Question", "Question")
                         .WithMany("Options")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("ITechQuiz.Models.Question", b =>
                 {
-                    b.HasOne("ITechQuiz.Models.Survey", null)
+                    b.HasOne("ITechQuiz.Models.Survey", "Survey")
                         .WithMany("Questions")
-                        .HasForeignKey("SurveyName");
+                        .HasForeignKey("SurveyId");
+
+                    b.Navigation("Survey");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("ITechQuiz.Models.Survey", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("ITechQuiz.Models.User", "User")
+                        .WithMany("Surveys")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("ITechQuiz.Models.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("ITechQuiz.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("ITechQuiz.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("ITechQuiz.Models.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("ITechQuiz.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("ITechQuiz.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -421,6 +468,11 @@ namespace ITechQuiz.Migrations
             modelBuilder.Entity("ITechQuiz.Models.Survey", b =>
                 {
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("ITechQuiz.Models.User", b =>
+                {
+                    b.Navigation("Surveys");
                 });
 #pragma warning restore 612, 618
         }

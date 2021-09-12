@@ -30,6 +30,10 @@ namespace ITechQuiz.Models
 
         public ICollection<Question> Questions { get; set; }
 
+        public User User { get; set; }
+
+        public Guid UserId { get; set; }
+
     }
 
     public enum SurveyType
