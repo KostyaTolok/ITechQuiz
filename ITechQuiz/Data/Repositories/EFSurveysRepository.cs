@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +23,14 @@ namespace ITechQuiz.Data.Repositories
         public async Task<IEnumerable<Survey>> GetSurveysAsync(CancellationToken token)
         {
             return await context.Surveys
+                                .Include("Questions.Options")
+                                .ToListAsync(token);
+        }
+
+        public async Task<IEnumerable<Survey>> GetSurveysByUserIdAsync(Guid id, CancellationToken token)
+        {
+            return await context.Surveys
+                                .Where(survey=>survey.UserId == id)
                                 .Include("Questions.Options")
                                 .ToListAsync(token);
         }

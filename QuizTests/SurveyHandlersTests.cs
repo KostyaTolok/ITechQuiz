@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using ITechQuiz.Service.Queries;
-using ITechQuiz.Service.Commands;
-using ITechQuiz.Service.Handlers;
+using ITechQuiz.Services.SurveyServices.Queries;
+using ITechQuiz.Services.SurveyServices.Commands;
+using ITechQuiz.Services.SurveyServices.Handlers;
 
 namespace QuizTests
 {
@@ -40,6 +40,22 @@ namespace QuizTests
 
             GetSurveyByIdHandler handler = new GetSurveyByIdHandler(surveysRepository.Object);
             var actual = await handler.Handle(new GetSurveyByIdQuery(expected.Id), default);
+
+            surveysRepository.Verify();
+
+            actual.Should().BeEquivalentTo(expected, config: c => c.IgnoringCyclicReferences());
+        }
+
+        [Fact]
+        public async Task GetSurveysByUserIdHandlerTest()
+        {
+            Guid userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
+            var expected = GetTestSurveys().Where(survey => survey.UserId == userId);
+
+            surveysRepository.Setup(m => m.GetSurveysByUserIdAsync(userId, default)).ReturnsAsync(expected).Verifiable();
+
+            GetSurveysByUserIdHandler handler = new GetSurveysByUserIdHandler(surveysRepository.Object);
+            var actual = await handler.Handle(new GetSurveysByUserIdQuery(userId), default);
 
             surveysRepository.Verify();
 
@@ -92,6 +108,7 @@ namespace QuizTests
                 Title = "Это опрос",
                 Subtitle = "Спасибо за прохождение опроса",
                 Type = SurveyType.ForStatistics,
+                UserId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2"),
                 Questions = new List<Question>()
                 {
                     new Question()

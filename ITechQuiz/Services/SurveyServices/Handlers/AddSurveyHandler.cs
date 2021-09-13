@@ -1,11 +1,11 @@
 ﻿using ITechQuiz.Data.Interfaces;
 using ITechQuiz.Models;
-using ITechQuiz.Service.Commands;
+using ITechQuiz.Services.SurveyServices.Commands;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Service.Handlers
+namespace ITechQuiz.Services.SurveyServices.Handlers
 {
     public class AddSurveyHandler : IRequestHandler<AddSurveyCommand, Unit>
     {

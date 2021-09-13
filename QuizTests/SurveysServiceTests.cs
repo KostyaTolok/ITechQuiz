@@ -4,15 +4,15 @@ using Moq;
 using ITechQuiz.Data.Interfaces;
 using ITechQuiz.Models;
 using System.Collections.Generic;
-using ITechQuiz.Data.Services;
+using ITechQuiz.Services.SurveyServices;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using System.Threading;
 using MediatR;
-using ITechQuiz.Service.Queries;
-using ITechQuiz.Service.Commands;
+using ITechQuiz.Services.SurveyServices.Queries;
+using ITechQuiz.Services.SurveyServices.Commands;
 
 namespace QuizTests
 {
@@ -50,7 +50,42 @@ namespace QuizTests
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
             ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysAsync(default));
-            var expected = GetTestSurveys();
+
+            mediator.Verify();
+
+            Assert.Equal("Failed to get surveys", exception.Message);
+        }
+
+        [Fact]
+        public async Task GetSurveysByUserIdTest()
+        {
+            Guid userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
+            var expected = GetTestSurveys().Where(survey => survey.UserId == userId);
+
+            mediator.Setup(m => m.Send(It.IsAny<GetSurveysByUserIdQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expected)
+                .Verifiable();
+
+            ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
+
+            var actual = await surveyService.GetSurveysByUserIdAsync(userId, default);
+
+            mediator.Verify();
+            var actualSurveys = actual.ToList();
+
+            actualSurveys.Should().BeEquivalentTo(expected, config: c => c.IgnoringCyclicReferences());
+        }
+
+        [Fact]
+        public async Task GetSurveysByUserIdTestTrowsArgumentException()
+        {
+            mediator.Setup(m => m.Send(It.IsAny<GetSurveysByUserIdQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((IEnumerable<Survey>)null)
+                .Verifiable();
+
+            ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
+
+            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysByUserIdAsync(new Guid(), default));
 
             mediator.Verify();
 
@@ -222,6 +257,7 @@ namespace QuizTests
                 Title = "Это опрос",
                 Subtitle = "Спасибо за прохождение опроса",
                 Type = SurveyType.ForStatistics,
+                UserId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2"),
                 Questions = new List<Question>()
                 {
                     new Question()

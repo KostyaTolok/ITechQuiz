@@ -2,7 +2,7 @@
 using MediatR;
 using System;
 
-namespace ITechQuiz.Service.Queries
+namespace ITechQuiz.Services.SurveyServices.Queries
 {
     public record GetSurveyByIdQuery(Guid Id) : IRequest<Survey>;
 }

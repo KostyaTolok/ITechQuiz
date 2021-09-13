@@ -1,11 +1,11 @@
 ﻿using ITechQuiz.Data.Interfaces;
 using ITechQuiz.Models;
-using ITechQuiz.Service.Queries;
+using ITechQuiz.Services.SurveyServices.Queries;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Service.Handlers
+namespace ITechQuiz.Services.SurveyServices.Handlers
 {
     public class GetSurveyByIdHandler : IRequestHandler<GetSurveyByIdQuery, Survey>
     {

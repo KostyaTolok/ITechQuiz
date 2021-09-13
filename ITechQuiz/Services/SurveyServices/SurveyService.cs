@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using ITechQuiz.Data.Interfaces;
 using ITechQuiz.Models;
-using ITechQuiz.Service.Commands;
-using ITechQuiz.Service.Queries;
+using ITechQuiz.Services.SurveyServices.Commands;
+using ITechQuiz.Services.SurveyServices.Queries;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace ITechQuiz.Data.Services
+namespace ITechQuiz.Services.SurveyServices
 {
     public class SurveyService : ISurveyService
     {
@@ -85,6 +85,19 @@ namespace ITechQuiz.Data.Services
         public async Task<IEnumerable<Survey>> GetSurveysAsync(CancellationToken token)
         {
             var surveys = await mediator.Send(new GetSurveysQuery(),token);
+
+            if (surveys != null)
+            {
+                return surveys;
+            }
+
+            logger.LogError("Failed to get surveys");
+            throw new ArgumentException("Failed to get surveys");
+        }
+
+        public async Task<IEnumerable<Survey>> GetSurveysByUserIdAsync(Guid id, CancellationToken token)
+        {
+            var surveys = await mediator.Send(new GetSurveysByUserIdQuery(id), token);
 
             if (surveys != null)
             {

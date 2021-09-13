@@ -2,7 +2,7 @@
 using MediatR;
 using System.Collections.Generic;
 
-namespace ITechQuiz.Service.Queries
+namespace ITechQuiz.Services.SurveyServices.Queries
 {
     public record GetSurveysQuery() : IRequest<IEnumerable<Survey>>;
 }

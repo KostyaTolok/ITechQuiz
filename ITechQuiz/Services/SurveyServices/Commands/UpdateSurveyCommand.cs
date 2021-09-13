@@ -1,7 +1,7 @@
 ﻿using ITechQuiz.Models;
 using MediatR;
 
-namespace ITechQuiz.Service.Commands
+namespace ITechQuiz.Services.SurveyServices.Commands
 {
     public record UpdateSurveyCommand(Survey Survey) : IRequest<Unit>;
 }
