@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Data.Interfaces
+namespace ITechQuiz.Services.SurveyServices
 {
     public interface ISurveyService
     {

@@ -1,5 +1,4 @@
 using ITechQuiz.Data;
-using ITechQuiz.Managers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using ITechQuiz.Data.Interfaces;
@@ -15,6 +14,7 @@ using System.Reflection;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using ITechQuiz.Models;
+using ITechQuiz.Auth;
 
 namespace ITechQuiz
 {

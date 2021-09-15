@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Managers
+namespace ITechQuiz.Auth
 {
     [ExcludeFromCodeCoverage]
     public class UserSignInManager : SignInManager<User>

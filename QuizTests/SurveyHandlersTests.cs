@@ -22,7 +22,7 @@ namespace QuizTests
         {
             surveysRepository.Setup(m => m.GetSurveysAsync(default)).ReturnsAsync(GetTestSurveys()).Verifiable();
 
-            GetSurveysHandler handler = new GetSurveysHandler(surveysRepository.Object);
+            var handler = new GetSurveysHandler(surveysRepository.Object);
             var actual = await handler.Handle(new GetSurveysQuery(), default);
             var expected = GetTestSurveys();
 
@@ -38,7 +38,7 @@ namespace QuizTests
             var expected = GetTestSurveys()[0];
             surveysRepository.Setup(m => m.GetSurveyAsync(expected.Id, default)).ReturnsAsync(expected).Verifiable();
 
-            GetSurveyByIdHandler handler = new GetSurveyByIdHandler(surveysRepository.Object);
+            var handler = new GetSurveyByIdHandler(surveysRepository.Object);
             var actual = await handler.Handle(new GetSurveyByIdQuery(expected.Id), default);
 
             surveysRepository.Verify();
@@ -49,12 +49,12 @@ namespace QuizTests
         [Fact]
         public async Task GetSurveysByUserIdHandlerTest()
         {
-            Guid userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
+            var userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
             var expected = GetTestSurveys().Where(survey => survey.UserId == userId);
 
             surveysRepository.Setup(m => m.GetSurveysByUserIdAsync(userId, default)).ReturnsAsync(expected).Verifiable();
 
-            GetSurveysByUserIdHandler handler = new GetSurveysByUserIdHandler(surveysRepository.Object);
+            var handler = new GetSurveysByUserIdHandler(surveysRepository.Object);
             var actual = await handler.Handle(new GetSurveysByUserIdQuery(userId), default);
 
             surveysRepository.Verify();
@@ -68,7 +68,7 @@ namespace QuizTests
             var testSurvey = GetTestSurveys()[0];
             surveysRepository.Setup(m => m.AddSurveyAsync(testSurvey, default)).Verifiable();
 
-            AddSurveyHandler handler = new AddSurveyHandler(surveysRepository.Object);
+            var handler = new AddSurveyHandler(surveysRepository.Object);
             var actual = await handler.Handle(new AddSurveyCommand(testSurvey), default);
 
             surveysRepository.Verify();
@@ -80,7 +80,7 @@ namespace QuizTests
             var testSurvey = GetTestSurveys()[0];
             surveysRepository.Setup(m => m.DeleteSurveyAsync(testSurvey.Id, default)).Verifiable();
 
-            DeleteSurveyHandler handler = new DeleteSurveyHandler(surveysRepository.Object);
+            var handler = new DeleteSurveyHandler(surveysRepository.Object);
             var actual = await handler.Handle(new DeleteSurveyCommand(testSurvey.Id), default);
 
             surveysRepository.Verify();
@@ -92,7 +92,7 @@ namespace QuizTests
             var testSurvey = GetTestSurveys()[0];
             surveysRepository.Setup(m => m.UpdateSurveyAsync(testSurvey, default)).Verifiable();
 
-            UpdateSurveyHandler handler = new UpdateSurveyHandler(surveysRepository.Object);
+            var handler = new UpdateSurveyHandler(surveysRepository.Object);
             var actual = await handler.Handle(new UpdateSurveyCommand(testSurvey), default);
 
             surveysRepository.Verify();
@@ -100,7 +100,7 @@ namespace QuizTests
 
         private static List<Survey> GetTestSurveys()
         {
-            Survey survey = new Survey()
+            var survey = new Survey()
             {
                 Id = new Guid("827f753c-7544-463b-9fa4-d9c5c051cf17"),
                 Name = "MySurv",
@@ -133,7 +133,7 @@ namespace QuizTests
                 }
             };
 
-            List<Survey> surveys = new List<Survey>()
+            var surveys = new List<Survey>()
             {
                 survey
             };

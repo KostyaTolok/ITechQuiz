@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ITechQuiz.Data.Interfaces;
 using ITechQuiz.Models;
 using ITechQuiz.Services.SurveyServices.Commands;
 using ITechQuiz.Services.SurveyServices.Queries;
@@ -78,8 +77,8 @@ namespace ITechQuiz.Services.SurveyServices
                 return survey;
             }
 
-            logger.LogError("Failed to delete survey. Wrong name");
-            throw new ArgumentException("Failed to get survey. Wrong name");
+            logger.LogError("Failed to delete survey. Wrong id");
+            throw new ArgumentException("Failed to get survey. Wrong id");
         }
 
         public async Task<IEnumerable<Survey>> GetSurveysAsync(CancellationToken token)

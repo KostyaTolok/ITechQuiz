@@ -18,8 +18,8 @@ namespace QuizTests
 {
     public class SurveyServiceTests
     {
-        private readonly Mock<IMediator> mediator = new Mock<IMediator>();
-        private readonly Mock<ILogger<SurveyService>> logger = new Mock<ILogger<SurveyService>>();
+        private readonly Mock<IMediator> mediator = new ();
+        private readonly Mock<ILogger<SurveyService>> logger = new ();
 
 
         [Fact]
@@ -49,7 +49,7 @@ namespace QuizTests
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysAsync(default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysAsync(default));
 
             mediator.Verify();
 
@@ -59,7 +59,7 @@ namespace QuizTests
         [Fact]
         public async Task GetSurveysByUserIdTest()
         {
-            Guid userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
+            var userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
             var expected = GetTestSurveys().Where(survey => survey.UserId == userId);
 
             mediator.Setup(m => m.Send(It.IsAny<GetSurveysByUserIdQuery>(), It.IsAny<CancellationToken>()))
@@ -85,7 +85,7 @@ namespace QuizTests
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysByUserIdAsync(new Guid(), default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysByUserIdAsync(new Guid(), default));
 
             mediator.Verify();
 
@@ -120,18 +120,18 @@ namespace QuizTests
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveyAsync(new Guid(), default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveyAsync(new Guid(), default));
 
             mediator.Verify();
 
-            Assert.Equal("Failed to get survey. Wrong name", exception.Message);
+            Assert.Equal("Failed to get survey. Wrong id", exception.Message);
 
         }
 
         [Fact]
         public async Task AddSurveyTest()
         {
-            Survey testSurvey = GetTestSurveys()[0];
+            var testSurvey = GetTestSurveys()[0];
 
             mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()))
                .Verifiable();
@@ -147,14 +147,14 @@ namespace QuizTests
         [Fact]
         public async Task AddSurveyTestThrowsArgumentException()
         {
-            Survey testSurvey = GetTestSurveys()[0];
+            var testSurvey = GetTestSurveys()[0];
             testSurvey.Name = "";
 
             mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()));
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(testSurvey, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(testSurvey, default));
 
             Assert.Equal("Failed to add survey. Missing required fields", exception.Message);
         }
@@ -168,7 +168,7 @@ namespace QuizTests
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(testSurvey, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(testSurvey, default));
 
             Assert.Equal("Failed to add survey. Survey is null", exception.Message);
         }
@@ -176,7 +176,7 @@ namespace QuizTests
         [Fact]
         public async Task DeleteSurveyTest()
         {
-            Survey testSurvey = GetTestSurveys()[0];
+            var testSurvey = GetTestSurveys()[0];
 
             mediator.Setup(m => m.Send(It.IsAny<DeleteSurveyCommand>(), It.IsAny<CancellationToken>())).Verifiable();
 
@@ -191,14 +191,14 @@ namespace QuizTests
         [Fact]
         public async Task DeleteSurveyTestThrowsArgumentException()
         {
-            Survey testSurvey = GetTestSurveys()[0];
+            var testSurvey = GetTestSurveys()[0];
             testSurvey.Id = new Guid();
 
             mediator.Setup(m => m.Send(It.IsAny<DeleteSurveyCommand>(), It.IsAny<CancellationToken>()));
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.DeleteSurveyAsync(testSurvey.Id, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.DeleteSurveyAsync(testSurvey.Id, default));
 
             Assert.Equal("Failed to delete survey. Empty name", exception.Message);
         }
@@ -206,7 +206,7 @@ namespace QuizTests
         [Fact]
         public async Task UpdateSurveyTest()
         {
-            Survey testSurvey = GetTestSurveys()[0];
+            var testSurvey = GetTestSurveys()[0];
 
             mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>())).Verifiable();
 
@@ -221,14 +221,14 @@ namespace QuizTests
         [Fact]
         public async Task UpdateSurveyTestThrowsArgumentException()
         {
-            Survey testSurvey = GetTestSurveys()[0];
+            var testSurvey = GetTestSurveys()[0];
             testSurvey.Title = "";
 
             mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(testSurvey, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(testSurvey, default));
 
             Assert.Equal("Failed to update survey. Missing required fields", exception.Message);
         }
@@ -242,14 +242,14 @@ namespace QuizTests
 
             ISurveyService surveyService = new SurveyService(mediator.Object, logger.Object);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(testSurvey, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(testSurvey, default));
 
             Assert.Equal("Failed to update survey. Survey is null", exception.Message);
         }
 
         private static List<Survey> GetTestSurveys()
         {
-            Survey survey = new Survey()
+            var survey = new Survey()
             {
                 Id = new Guid("827f753c-7544-463b-9fa4-d9c5c051cf17"),
                 Name = "MySurv",
@@ -282,7 +282,7 @@ namespace QuizTests
                 }
             };
 
-            List<Survey> surveys = new List<Survey>()
+            var surveys = new List<Survey>()
             {
                 survey
             };
