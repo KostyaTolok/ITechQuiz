@@ -1,12 +1,12 @@
 ﻿using ITechQuiz.Models;
-using ITechQuiz.Services.UserServices.Queries;
+using ITechQuiz.Services.AuthServices.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Services.UserServices.Handlers
+namespace ITechQuiz.Services.AuthServices.Handlers
 {
     public class GetUserByEmailHandler : IRequestHandler<GetUserByEmailQuery, User>
     {

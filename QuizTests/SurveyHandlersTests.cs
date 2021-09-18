@@ -15,42 +15,42 @@ namespace QuizTests
 {
     public class SurveyHandlersTests
     {
-        private readonly Mock<ISurveysRepository> surveysRepository = new Mock<ISurveysRepository>();
+        private readonly Mock<ISurveysRepository> surveysRepository = new();
+        private readonly IEnumerable<Survey> surveys = TestData.GetTestSurveys();
+        private readonly Survey survey = TestData.GetTestSurveys()[0];
 
         [Fact]
         public async Task GetSurveysHandlerTest()
         {
-            surveysRepository.Setup(m => m.GetSurveysAsync(default)).ReturnsAsync(GetTestSurveys()).Verifiable();
+            surveysRepository.Setup(m => m.GetSurveysAsync(default)).ReturnsAsync(surveys).Verifiable();
 
             var handler = new GetSurveysHandler(surveysRepository.Object);
             var actual = await handler.Handle(new GetSurveysQuery(), default);
-            var expected = GetTestSurveys();
 
             surveysRepository.Verify();
             var actualSurveys = actual.ToList();
 
-            actualSurveys.Should().BeEquivalentTo(expected, config: c => c.IgnoringCyclicReferences());
+            actualSurveys.Should().BeEquivalentTo(surveys, config: c => c.IgnoringCyclicReferences());
         }
 
         [Fact]
         public async Task GetSurveyByIdHandlerTest()
         {
-            var expected = GetTestSurveys()[0];
-            surveysRepository.Setup(m => m.GetSurveyAsync(expected.Id, default)).ReturnsAsync(expected).Verifiable();
+            surveysRepository.Setup(m => m.GetSurveyAsync(survey.Id, default)).ReturnsAsync(survey).Verifiable();
 
             var handler = new GetSurveyByIdHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new GetSurveyByIdQuery(expected.Id), default);
+            var actual = await handler.Handle(new GetSurveyByIdQuery(survey.Id), default);
 
             surveysRepository.Verify();
 
-            actual.Should().BeEquivalentTo(expected, config: c => c.IgnoringCyclicReferences());
+            actual.Should().BeEquivalentTo(survey, config: c => c.IgnoringCyclicReferences());
         }
 
         [Fact]
         public async Task GetSurveysByUserIdHandlerTest()
         {
             var userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
-            var expected = GetTestSurveys().Where(survey => survey.UserId == userId);
+            var expected = surveys.Where(survey => survey.UserId == userId);
 
             surveysRepository.Setup(m => m.GetSurveysByUserIdAsync(userId, default)).ReturnsAsync(expected).Verifiable();
 
@@ -65,11 +65,10 @@ namespace QuizTests
         [Fact]
         public async Task AddSurveyHandlerTest()
         {
-            var testSurvey = GetTestSurveys()[0];
-            surveysRepository.Setup(m => m.AddSurveyAsync(testSurvey, default)).Verifiable();
+            surveysRepository.Setup(m => m.AddSurveyAsync(survey, default)).Verifiable();
 
             var handler = new AddSurveyHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new AddSurveyCommand(testSurvey), default);
+            var actual = await handler.Handle(new AddSurveyCommand(survey), default);
 
             surveysRepository.Verify();
         }
@@ -77,11 +76,10 @@ namespace QuizTests
         [Fact]
         public async Task DeleteSurveyHandlerTest()
         {
-            var testSurvey = GetTestSurveys()[0];
-            surveysRepository.Setup(m => m.DeleteSurveyAsync(testSurvey.Id, default)).Verifiable();
+            surveysRepository.Setup(m => m.DeleteSurveyAsync(survey.Id, default)).Verifiable();
 
             var handler = new DeleteSurveyHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new DeleteSurveyCommand(testSurvey.Id), default);
+            var actual = await handler.Handle(new DeleteSurveyCommand(survey.Id), default);
 
             surveysRepository.Verify();
         }
@@ -89,56 +87,13 @@ namespace QuizTests
         [Fact]
         public async Task UpdateSurveyHandlerTest()
         {
-            var testSurvey = GetTestSurveys()[0];
-            surveysRepository.Setup(m => m.UpdateSurveyAsync(testSurvey, default)).Verifiable();
+            surveysRepository.Setup(m => m.UpdateSurveyAsync(survey, default)).Verifiable();
 
             var handler = new UpdateSurveyHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new UpdateSurveyCommand(testSurvey), default);
+            var actual = await handler.Handle(new UpdateSurveyCommand(survey), default);
 
             surveysRepository.Verify();
         }
 
-        private static List<Survey> GetTestSurveys()
-        {
-            var survey = new Survey()
-            {
-                Id = new Guid("827f753c-7544-463b-9fa4-d9c5c051cf17"),
-                Name = "MySurv",
-                CreatedDate = DateTime.Now.Date,
-                Title = "Это опрос",
-                Subtitle = "Спасибо за прохождение опроса",
-                Type = SurveyType.ForStatistics,
-                UserId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2"),
-                Questions = new List<Question>()
-                {
-                    new Question()
-                    {
-                        Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
-                        Title = "Первый вопрос",
-                        Multiple = false,
-                        MaxSelected = 1,
-                        Required = false,
-                        SurveyName = "MySurv",
-                        Options = new List<Option>()
-                        {
-                            new Option()
-                            {
-                                Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a438"),
-                                Title = "Это вариант",
-                                IsCorrect = true,
-                                Subtitle = "Блаблабла"
-                            }
-                        }
-                    }
-                }
-            };
-
-            var surveys = new List<Survey>()
-            {
-                survey
-            };
-
-            return surveys;
-        }
     }
 }

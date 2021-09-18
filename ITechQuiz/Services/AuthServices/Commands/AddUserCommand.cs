@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace ITechQuiz.Services.UserServices.Commands
+namespace ITechQuiz.Services.AuthServices.Commands
 {
     public record AddUserCommand(User User, string Password) : IRequest<IdentityResult>;
 }

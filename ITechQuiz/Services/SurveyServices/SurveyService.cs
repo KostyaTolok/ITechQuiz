@@ -12,12 +12,12 @@ namespace ITechQuiz.Services.SurveyServices
 {
     public class SurveyService : ISurveyService
     {
-        private readonly ILogger<SurveyService> logger;
+        private readonly ILogger<ISurveyService> logger;
         private readonly IMediator mediator;
 
-        public SurveyService(IMediator mediator, ILogger<SurveyService> logger)
+        public SurveyService(IMediator mediator, ILoggerFactory factory)
         {
-            this.logger = logger;
+            this.logger = factory.CreateLogger<ISurveyService>();
             this.mediator = mediator;
         }
 
@@ -39,7 +39,7 @@ namespace ITechQuiz.Services.SurveyServices
             await mediator.Send(new UpdateSurveyCommand(survey), token);
         }
 
-        public async Task AddSurveyAsync(Survey survey, CancellationToken token)
+        public async Task<Guid> AddSurveyAsync(Survey survey, CancellationToken token)
         {
             if (survey == null)
             {
@@ -47,22 +47,22 @@ namespace ITechQuiz.Services.SurveyServices
                 throw new ArgumentException("Failed to add survey. Survey is null");
             }
 
-            if (survey.Id == default || string.IsNullOrEmpty(survey.Name) ||
-                survey.CreatedDate == default || string.IsNullOrEmpty(survey.Title))
+            if (string.IsNullOrEmpty(survey.Name) || survey.CreatedDate == default
+                || string.IsNullOrEmpty(survey.Title))
             {
                 logger.LogError("Failed to add survey. Missing required fields");
                 throw new ArgumentException("Failed to add survey. Missing required fields");
             }
 
-            await mediator.Send(new AddSurveyCommand(survey), token);
+            return await mediator.Send(new AddSurveyCommand(survey), token);
         }
 
         public async Task DeleteSurveyAsync(Guid id, CancellationToken token)
         {
             if (id == default)
             {
-                logger.LogError("Failed to delete survey. Empty name");
-                throw new ArgumentException("Failed to delete survey. Empty name");
+                logger.LogError("Failed to delete survey. Wrong id");
+                throw new ArgumentException("Failed to delete survey. Wrong id");
             }
 
             await mediator.Send(new DeleteSurveyCommand(id), token);
@@ -77,7 +77,7 @@ namespace ITechQuiz.Services.SurveyServices
                 return survey;
             }
 
-            logger.LogError("Failed to delete survey. Wrong id");
+            logger.LogError("Failed to get survey. Wrong id");
             throw new ArgumentException("Failed to get survey. Wrong id");
         }
 

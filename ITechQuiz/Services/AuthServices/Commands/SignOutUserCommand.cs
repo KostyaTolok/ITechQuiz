@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace ITechQuiz.Services.UserServices.Commands
+namespace ITechQuiz.Services.AuthServices.Commands
 {
     public record SignOutUserCommand() : IRequest<Unit>;
 }

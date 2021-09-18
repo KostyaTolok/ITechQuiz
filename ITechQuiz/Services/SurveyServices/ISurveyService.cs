@@ -14,7 +14,7 @@ namespace ITechQuiz.Services.SurveyServices
 
         Task<Survey> GetSurveyAsync(Guid id, CancellationToken token);
 
-        Task AddSurveyAsync(Survey survey, CancellationToken token);
+        Task<Guid> AddSurveyAsync(Survey survey, CancellationToken token);
 
         Task UpdateSurveyAsync(Survey survey, CancellationToken token);
 

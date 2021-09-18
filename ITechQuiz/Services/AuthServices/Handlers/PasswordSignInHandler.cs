@@ -1,11 +1,11 @@
 ﻿using ITechQuiz.Auth;
-using ITechQuiz.Services.UserServices.Commands;
+using ITechQuiz.Services.AuthServices.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Services.UserServices.Handlers
+namespace ITechQuiz.Services.AuthServices.Handlers
 {
     public class PasswordSignInUserHandler : IRequestHandler<PasswordSignInUserCommand, SignInResult>
     {

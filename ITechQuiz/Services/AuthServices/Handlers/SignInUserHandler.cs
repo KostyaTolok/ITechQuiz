@@ -1,10 +1,10 @@
-﻿using ITechQuiz.Services.UserServices.Commands;
+﻿using ITechQuiz.Services.AuthServices.Commands;
 using MediatR;
 using ITechQuiz.Auth;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace ITechQuiz.Services.UserServices.Handlers
+namespace ITechQuiz.Services.AuthServices.Handlers
 {
     public class SignInUserHandler : IRequestHandler<SignInUserCommand, Unit>
     {

@@ -14,61 +14,13 @@ namespace ITechQuiz.Services.UserServices
         private readonly IMediator mediator;
         private readonly ILogger logger;
 
-        public UserService(IMediator mediator, ILogger logger)
+        public UserService(IMediator mediator, ILoggerFactory factory)
         {
             this.mediator = mediator;
-            this.logger = logger;
+            this.logger = factory.CreateLogger<UserService>();
         }
 
-        public async Task Login(LoginModel model)
-        {
-            var signInResult = await mediator.Send(new PasswordSignInUserCommand(model.Email, model.Password, model.RememberMe), default);
-
-            if (!signInResult.Succeeded)
-            {
-                throw new ArgumentException("Wrong login or password");
-            }
-            logger.LogInformation($"User {model.Email} signed in");
-        }
-
-        public async Task Register(RegisterModel model)
-        {
-            var user = await mediator.Send(new GetUserByEmailQuery(model.Email), default);
-
-            if (user != null)
-            {
-                user = new User() { Email = model.Email, UserName = model.Name };
-
-                var registerResult = await mediator.Send(new AddUserCommand(user, model.Password), default);
-
-                if (registerResult.Succeeded)
-                {
-                    await mediator.Send(new SignInUserCommand(user), default);
-                    logger.LogInformation($"User {user.UserName} registered");
-                }
-                else
-                {
-                    throw new ArgumentException("Failed to register");
-                }
-            }
-            else
-            {
-                throw new ArgumentException("User with this email already exists");
-            }
-        }
-
-        public async Task LogOut()
-        {
-            try
-            {
-                await mediator.Send(new SignOutUserCommand(), default);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Failed to logout: {ex}");
-                throw new Exception($"Failed to logout: {ex.Message}");
-            }
-        }
+       
 
         public async Task<IEnumerable<User>> GetUsersAsync()
         {

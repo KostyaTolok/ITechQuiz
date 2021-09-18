@@ -26,7 +26,7 @@ namespace ITechQuiz.Models
 
         public Survey Survey { get; set; }
 
-        public string SurveyName { get; set; }
+        public Guid SurveyId { get; set; }
 
     }
 }

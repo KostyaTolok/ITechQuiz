@@ -15,6 +15,9 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using ITechQuiz.Models;
 using ITechQuiz.Auth;
+using ITechQuiz.Services.SurveyServices;
+using ITechQuiz.Services.UserServices;
+using ITechQuiz.Services.AuthServices;
 
 namespace ITechQuiz
 {
@@ -33,6 +36,9 @@ namespace ITechQuiz
             services.AddTransient<ISurveysRepository, EFSurveysRepository>();
             services.AddTransient<IQuestionsRepository, EFQuestionsRepository>();
             services.AddTransient<IOptionsRepository, EFOptionsRepository>();
+            services.AddTransient<ISurveyService, SurveyService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IAuthService, AuthService>();
 
             services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -48,9 +54,14 @@ namespace ITechQuiz
 
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
-            services.AddControllers()
-               .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+            services.AddControllers().AddNewtonsoftJson(options => {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                })
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
 
+            services.AddMvcCore();
+
+            services.AddSwaggerGen();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
@@ -66,6 +77,14 @@ namespace ITechQuiz
             app.UseRouting();
             app.UseAuthorization();
             app.UseAuthentication();
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ITechQuiz API V1");
+                c.DocumentTitle = "ITechQuiz API";
+                c.RoutePrefix = string.Empty;
+            });
 
             app.UseEndpoints(endpoints =>
             {
