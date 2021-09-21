@@ -1,21 +1,20 @@
 ﻿using System;
 using Xunit;
 using Moq;
-using ITechQuiz.Data.Interfaces;
-using ITechQuiz.Models;
 using System.Collections.Generic;
-using ITechQuiz.Services.SurveyServices;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using System.Threading;
 using MediatR;
-using ITechQuiz.Services.SurveyServices.Queries;
-using ITechQuiz.Services.SurveyServices.Commands;
 using Microsoft.Extensions.Logging.Abstractions;
+using Domain.Entities.Surveys;
+using Application.Queries.Surveys;
+using Application.Interfaces.Services;
+using Infrastructure.Services;
+using Application.Commands.Surveys;
 
-namespace QuizTests
+namespace Application.UnitTests
 {
     public class SurveyServiceTests
     {

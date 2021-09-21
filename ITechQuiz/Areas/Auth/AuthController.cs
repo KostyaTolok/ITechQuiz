@@ -2,32 +2,33 @@
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Application.Interfaces.Services;
-using Domain.Entities.Auth;
+using Domain.Models;
 
-namespace ITechQuiz.Areas.Admin
+namespace ITechQuiz.Areas.Auth
 {
     [ApiController]
-    [Route("api/admin/[Controller]")]
+    [Route("api/[Controller]")]
     [Produces("application/json")]
-    public class UsersController : Controller
+    public class AuthController : Controller
     {
-        private readonly IUserService userService;
+        private readonly IAuthService authService;
 
-        public UsersController(IUserService userService)
+        public AuthController(IAuthService authService)
         {
-            this.userService = userService;
+            this.authService = authService;
         }
 
-        [HttpGet]
+        [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<User>>> Get()
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             try
             {
-                return Ok(await userService.GetUsersAsync());
+                await authService.Login(model);
+                return Ok($"User {model.Email} successfully signed in");
             }
             catch (ArgumentException ex)
             {
@@ -39,14 +40,15 @@ namespace ITechQuiz.Areas.Admin
             }
         }
 
-        [HttpGet("{id:Guid}")]
+        [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<User>> Get(Guid id)
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             try
             {
-                return Ok(await userService.GetUserAsync(id));
+                await authService.Register(model);
+                return Ok($"User {model.Email} successfully registered");
             }
             catch (ArgumentException ex)
             {
@@ -58,15 +60,15 @@ namespace ITechQuiz.Areas.Admin
             }
         }
 
-        [HttpDelete("{id:Guid}")]
+        [HttpPost("logout")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Logout()
         {
             try
             {
-                await userService.DeleteUserAsync(id);
-                return Ok("User successfully deleted");
+                await authService.Logout();
+                return Ok($"User successfully signed out");
             }
             catch (ArgumentException ex)
             {

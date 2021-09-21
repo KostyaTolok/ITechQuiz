@@ -1,5 +1,5 @@
-﻿using ITechQuiz.Models;
-using ITechQuiz.Services.SurveyServices;
+﻿using Application.Interfaces.Services;
+using Domain.Entities.Surveys;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -80,6 +80,10 @@ namespace ITechQuiz.Areas.Client
             {
                 return BadRequest(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete("{id:Guid}")]
@@ -89,12 +93,23 @@ namespace ITechQuiz.Areas.Client
         {
             try
             {
-                await surveyService.DeleteSurveyAsync(id, token);
-                return Ok("Survey successfully deleted");
+                if (await surveyService.DeleteSurveyAsync(id, token))
+                {
+                    return Ok("Survey successfully deleted");
+                }
+                else
+                {
+                    return NotFound("Survey not found");
+                }
+                
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -111,6 +126,10 @@ namespace ITechQuiz.Areas.Client
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }

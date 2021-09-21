@@ -1,17 +1,17 @@
 ﻿using System;
 using Xunit;
 using Moq;
-using ITechQuiz.Data.Interfaces;
-using ITechQuiz.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using ITechQuiz.Services.SurveyServices.Queries;
-using ITechQuiz.Services.SurveyServices.Commands;
-using ITechQuiz.Services.SurveyServices.Handlers;
+using Application.Interfaces.Data;
+using Domain.Entities.Surveys;
+using Infrastructure.Handlers.Surveys;
+using Application.Queries.Surveys;
+using Application.Commands.Surveys;
 
-namespace QuizTests
+namespace Application.UnitTests
 {
     public class SurveyHandlersTests
     {

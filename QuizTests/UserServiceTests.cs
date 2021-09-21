@@ -1,23 +1,22 @@
 ﻿using FluentAssertions;
-using ITechQuiz.Models;
-using ITechQuiz.Services.SurveyServices;
-using ITechQuiz.Services.UserServices;
-using ITechQuiz.Services.UserServices.Queries;
-using ITechQuiz.Services.UserServices.Commands;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
+using Domain.Entities.Auth;
+using Application.Queries.Users;
+using Application.Interfaces.Services;
+using Infrastructure.Services;
+using Application.Commands.Users;
 
-namespace QuizTests
+namespace Application.UnitTests
 {
     public class UserServiceTests
     {

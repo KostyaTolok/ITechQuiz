@@ -1,10 +1,11 @@
-﻿using ITechQuiz.Models;
-using ITechQuiz.Services.AuthServices;
-using ITechQuiz.Services.AuthServices.Commands;
-using ITechQuiz.Services.AuthServices.Queries;
+﻿using Application.Commands.Auth;
+using Application.Interfaces.Services;
+using Application.Queries.Auth;
+using Domain.Entities.Auth;
+using Domain.Models;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
@@ -13,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace QuizTests
+namespace Application.UnitTests
 {
     public class AuthServiceTests
     {

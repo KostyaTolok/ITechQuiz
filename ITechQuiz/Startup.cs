@@ -1,8 +1,5 @@
-using ITechQuiz.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using ITechQuiz.Data.Interfaces;
-using ITechQuiz.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,11 +10,13 @@ using MediatR;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using ITechQuiz.Models;
-using ITechQuiz.Auth;
-using ITechQuiz.Services.SurveyServices;
-using ITechQuiz.Services.UserServices;
-using ITechQuiz.Services.AuthServices;
+using Application.Interfaces.Data;
+using Infrastructure.Data.Repositories;
+using Infrastructure.Services;
+using Application.Interfaces.Services;
+using Infrastructure.Data;
+using Domain.Entities.Auth;
+using System;
 
 namespace ITechQuiz
 {
@@ -52,7 +51,8 @@ namespace ITechQuiz
                 options.Password.RequireLowercase = false;
             }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<UserSignInManager>();
 
-            services.AddMediatR(Assembly.GetExecutingAssembly());
+            var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
+            services.AddMediatR(assembly);
 
             services.AddControllers().AddNewtonsoftJson(options => {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
