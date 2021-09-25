@@ -48,7 +48,8 @@ namespace Infrastructure.Data
                 Email = "admin@gmail.com",
                 NormalizedEmail = "ADMIN@GMAIL.COM",
                 EmailConfirmed = true,
-                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "admin")
+                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "admin"),
+                SecurityStamp = string.Empty
             }, new User()
             {
                 Id = new Guid("52f4c7c6-7f95-4d40-8308-b36a3ce86a52"),
@@ -57,7 +58,8 @@ namespace Infrastructure.Data
                 Email = "client@gmail.com",
                 NormalizedEmail = "CLIENT@GMAIL.COM",
                 EmailConfirmed = true,
-                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "client")
+                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "client"),
+                SecurityStamp = string.Empty
             });
 
             builder.Entity<IdentityUserRole<Guid>>().HasData(new IdentityUserRole<Guid>()

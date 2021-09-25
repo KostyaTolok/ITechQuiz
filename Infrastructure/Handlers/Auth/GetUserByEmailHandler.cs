@@ -18,7 +18,7 @@ namespace Infrastructure.Handlers.Auth
         }
 
         public async Task<User> Handle(GetUserByEmailQuery request, CancellationToken token)
-        {
+        { 
             return await userManager.Users
                                     .Include(user => user.Surveys)
                                     .FirstOrDefaultAsync(user => user.Email == request.Email, token);

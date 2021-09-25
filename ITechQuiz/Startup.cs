@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using MediatR;
-using System.Reflection;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using Application.Interfaces.Data;
@@ -18,7 +17,7 @@ using Infrastructure.Data;
 using Domain.Entities.Auth;
 using System;
 
-namespace ITechQuiz
+namespace WebApplication
 {
     [ExcludeFromCodeCoverage]
     public class Startup
@@ -49,7 +48,7 @@ namespace ITechQuiz
                 options.Password.RequireDigit = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
-            }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<UserSignInManager>();
+            }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<SignInManager<User>>();
 
             var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
             services.AddMediatR(assembly);

@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 using Application.Interfaces.Services;
 using Domain.Models;
 
-namespace ITechQuiz.Areas.Auth
+namespace WebApplication.Areas.Auth
 {
     [ApiController]
     [Route("api/[Controller]")]
-    [Produces("application/json")]
     public class AuthController : Controller
     {
         private readonly IAuthService authService;

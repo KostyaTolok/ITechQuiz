@@ -8,11 +8,15 @@ namespace Application.Interfaces.Services
     public interface IUserService
     {
 
-        public Task<IEnumerable<User>> GetUsersAsync();
+        Task<IEnumerable<User>> GetUsersAsync();
 
-        public Task<User> GetUserAsync(Guid id);
+        Task<User> GetUserAsync(Guid id);
 
-        public Task DeleteUserAsync(Guid id);
+        Task<bool> DeleteUserAsync(Guid id);
+
+        Task<bool> AddToClientRoleAsync(Guid id);
+
+        Task<bool> LockoutUserAsync(Guid id);
 
     }
 }

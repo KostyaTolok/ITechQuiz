@@ -5,10 +5,10 @@ namespace Application.Interfaces.Services
 {
     public interface IAuthService
     {
-        public Task Login(LoginModel model);
+        Task Login(LoginModel model);
 
-        public Task Register(RegisterModel model);
+        Task Register(RegisterModel model);
 
-        public Task Logout();
+        Task Logout();
     }
 }

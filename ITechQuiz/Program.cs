@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ITechQuiz
+namespace WebApplication
 {
     [ExcludeFromCodeCoverage]
     public class Program

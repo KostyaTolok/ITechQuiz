@@ -76,7 +76,7 @@ namespace Application.UnitTests
         [Fact]
         public async Task DeleteSurveyHandlerTest()
         {
-            surveysRepository.Setup(m => m.DeleteSurveyAsync(survey.Id, default)).Verifiable();
+            surveysRepository.Setup(m => m.DeleteSurveyAsync(survey, default)).Verifiable();
 
             var handler = new DeleteSurveyHandler(surveysRepository.Object);
             var actual = await handler.Handle(new DeleteSurveyCommand(survey.Id), default);

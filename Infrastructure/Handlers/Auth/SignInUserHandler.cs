@@ -3,14 +3,16 @@ using System.Threading.Tasks;
 using System.Threading;
 using Application.Commands.Auth;
 using Infrastructure.Services;
+using Domain.Entities.Auth;
+using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Handlers.Auth
 {
     public class SignInUserHandler : IRequestHandler<SignInUserCommand, Unit>
     {
-        private readonly UserSignInManager signInManager;
+        private readonly SignInManager<User> signInManager;
 
-        public SignInUserHandler(UserSignInManager signInManager)
+        public SignInUserHandler(SignInManager<User> signInManager)
         {
             this.signInManager = signInManager;
         }

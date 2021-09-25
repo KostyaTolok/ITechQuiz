@@ -1,4 +1,5 @@
 ﻿using Application.Commands.Auth;
+using Domain.Entities.Auth;
 using Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -9,16 +10,27 @@ namespace Infrastructure.Handlers.Auth
 {
     public class PasswordSignInUserHandler : IRequestHandler<PasswordSignInUserCommand, SignInResult>
     {
-        private readonly UserSignInManager signInManager;
+        private readonly SignInManager<User> signInManager;
+        private readonly UserManager<User> userManager;
 
-        public PasswordSignInUserHandler(UserSignInManager signInManager)
+        public PasswordSignInUserHandler(SignInManager<User> signInManager, UserManager<User> userManager)
         {
             this.signInManager = signInManager;
+            this.userManager = userManager;
         }
 
         public async Task<SignInResult> Handle(PasswordSignInUserCommand request, CancellationToken token)
         {
-            return await signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, false);
+            var user = await userManager.FindByEmailAsync(request.Email);
+            if (await userManager.IsLockedOutAsync(user))
+            {
+                return SignInResult.LockedOut;
+            }
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+            return await signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, false);
         }
     }
 }

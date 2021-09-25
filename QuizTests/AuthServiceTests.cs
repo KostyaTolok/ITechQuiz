@@ -19,7 +19,6 @@ namespace Application.UnitTests
     public class AuthServiceTests
     {
         private readonly Mock<IMediator> mediator = new();
-        private readonly IEnumerable<User> users = TestData.GetTestUsers();
         private readonly User user = TestData.GetTestUsers()[0];
 
         [Fact]

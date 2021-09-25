@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using Application.Interfaces.Services;
 using Domain.Entities.Auth;
 
-namespace ITechQuiz.Areas.Admin
+namespace WebApplication.Areas.Admin
 {
     [ApiController]
     [Route("api/admin/[Controller]")]
-    [Produces("application/json")]
     public class UsersController : Controller
     {
         private readonly IUserService userService;
@@ -23,6 +22,7 @@ namespace ITechQuiz.Areas.Admin
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces("application/json")]
         public async Task<ActionResult<IEnumerable<User>>> Get()
         {
             try
@@ -42,6 +42,7 @@ namespace ITechQuiz.Areas.Admin
         [HttpGet("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces("application/json")]
         public async Task<ActionResult<User>> Get(Guid id)
         {
             try
@@ -61,12 +62,73 @@ namespace ITechQuiz.Areas.Admin
         [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                await userService.DeleteUserAsync(id);
-                return Ok("User successfully deleted");
+                if (await userService.DeleteUserAsync(id))
+                {
+                    return Ok("User successfully deleted");
+                }
+                else
+                {
+                    return NotFound("User not found");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("addToClientRole")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddToClientRole(Guid id)
+        {
+            try
+            {
+                if (await userService.AddToClientRoleAsync(id))
+                {
+                    return Ok("User successfully added to client role");
+                }
+                else
+                {
+                    return NotFound("User not found");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("lockout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> LockoutUser(Guid id)
+        {
+            try
+            {
+                if (await userService.LockoutUserAsync(id))
+                {
+                    return Ok("User successfully locked out");
+                }
+                else
+                {
+                    return NotFound("User not found");
+                }
             }
             catch (ArgumentException ex)
             {

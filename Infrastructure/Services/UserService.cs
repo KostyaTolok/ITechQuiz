@@ -47,14 +47,51 @@ namespace Infrastructure.Services
             throw new ArgumentException("Failed to get user. Wrong id");
         }
 
-        public async Task DeleteUserAsync(Guid id)
+        public async Task<bool> DeleteUserAsync(Guid id)
         {
             var deleteResult = await mediator.Send(new DeleteUserCommand(id), default);
 
             if (!deleteResult.Succeeded)
             {
-                logger.LogError("Failed to delete survey. Wrong id");
-                throw new ArgumentException("Failed to delete survey. Wrong id");
+                logger.LogError("Failed to delete user. Wrong id");
+                return false;
+            }
+            else
+            {
+                logger.LogInformation($"User with {id} deleted");
+                return true;
+            }
+        }
+
+        public async Task<bool> AddToClientRoleAsync(Guid id)
+        {
+            var addToRoleResult = await mediator.Send(new AddToRoleCommand(id, "client"), default);
+
+            if (!addToRoleResult.Succeeded)
+            {
+                logger.LogError("Failed to add user to client role. Wrong id");
+                return false;
+            }
+            else
+            {
+                logger.LogInformation($"User with {id} added to client role");
+                return true;
+            }
+        }
+
+        public async Task<bool> LockoutUserAsync(Guid id)
+        {
+            var lockoutResult = await mediator.Send(new LockoutUserCommand(id, DateTime.Now.AddMinutes(1)), default);
+
+            if (!lockoutResult.Succeeded)
+            {
+                logger.LogError("Failed to lockout user. Wrong id");
+                return false;
+            }
+            else
+            {
+                logger.LogInformation($"User with {id} locked out");
+                return true;
             }
         }
     }

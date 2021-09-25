@@ -7,11 +7,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITechQuiz.Areas.Client
+namespace WebApplication.Areas.Client
 {
     [ApiController]
     [Route("api/[Controller]")]
-    [Produces("application/json")]
     public class SurveysController : Controller
     {
         private readonly ISurveyService surveyService;
@@ -24,6 +23,7 @@ namespace ITechQuiz.Areas.Client
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces("application/json")]
         public async Task<ActionResult<IEnumerable<Survey>>> Get(CancellationToken token)
         {
             try
@@ -39,6 +39,7 @@ namespace ITechQuiz.Areas.Client
         [HttpGet("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<ActionResult<Survey>> Get(Guid id, CancellationToken token)
         {
             try
@@ -54,6 +55,7 @@ namespace ITechQuiz.Areas.Client
         [HttpGet("userId/{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<ActionResult<Survey>> GetByUserId(Guid id, CancellationToken token)
         {
             try
@@ -69,6 +71,7 @@ namespace ITechQuiz.Areas.Client
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces("application/json")]
         public async Task<ActionResult<Survey>> Post(Survey survey, CancellationToken token)
         {
             try

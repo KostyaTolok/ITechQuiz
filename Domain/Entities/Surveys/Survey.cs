@@ -7,7 +7,6 @@ namespace Domain.Entities.Surveys
 {
     public class Survey
     {
-        [Key]
         [Required]
         public Guid Id { get; set; }
 
