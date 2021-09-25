@@ -24,7 +24,13 @@ namespace Infrastructure.Services
         public async Task Login(LoginModel model)
         {
             var signInResult = await mediator.Send(new PasswordSignInUserCommand(model.Email, model.Password, model.RememberMe), default);
-            if (signInResult.IsLockedOut)
+
+            if (signInResult.IsNotAllowed)
+            {
+                logger.LogError($"User {model.Email} is disabled");
+                throw new ArgumentException($"User {model.Email}  is disabled");
+            }
+            else if (signInResult.IsLockedOut)
             {
                 logger.LogError($"User {model.Email} is locked out");
                 throw new ArgumentException($"User {model.Email}  is locked out");
@@ -34,6 +40,7 @@ namespace Infrastructure.Services
                 logger.LogError($"User {model.Email} failed to sign in");
                 throw new ArgumentException("Wrong login or password");
             }
+
             logger.LogInformation($"User {model.Email} signed in");
         }
 

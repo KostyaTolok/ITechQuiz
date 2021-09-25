@@ -38,7 +38,8 @@ namespace WebApplication
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IAuthService, AuthService>();
 
-            services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                x => x.MigrationsAssembly("Infrastructure")));
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -48,14 +49,18 @@ namespace WebApplication
                 options.Password.RequireDigit = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
+                options.Lockout.MaxFailedAccessAttempts = 3;
             }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<SignInManager<User>>();
 
             var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
             services.AddMediatR(assembly);
 
-            services.AddControllers().AddNewtonsoftJson(options => {
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                })
+            })
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
 
             services.AddMvcCore();

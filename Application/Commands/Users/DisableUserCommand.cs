@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace Application.Commands.Users
 {
-    public record LockoutUserCommand(Guid Id, DateTime EndDate) : IRequest<IdentityResult>;
+    public record DisableUserCommand(Guid Id, DateTime EndDate) : IRequest<bool>;
 }

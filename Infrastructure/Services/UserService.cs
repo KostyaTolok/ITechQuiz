@@ -7,6 +7,7 @@ using Application.Interfaces.Services;
 using Domain.Entities.Auth;
 using Application.Queries.Users;
 using Application.Commands.Users;
+using Domain.Models;
 
 namespace Infrastructure.Services
 {
@@ -63,34 +64,56 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> AddToClientRoleAsync(Guid id)
+        public async Task<bool> AddToRoleAsync(AddToRoleModel model)
         {
-            var addToRoleResult = await mediator.Send(new AddToRoleCommand(id, "client"), default);
+            var addToRoleResult = await mediator.Send(new AddToRoleCommand(model.UserId, model.Role), default);
 
             if (!addToRoleResult.Succeeded)
             {
-                logger.LogError("Failed to add user to client role. Wrong id");
+                logger.LogError($"Failed to add user to {model.Role} role. Wrong id");
                 return false;
             }
             else
             {
-                logger.LogInformation($"User with {id} added to client role");
+                logger.LogInformation($"User with {model.UserId} added to {model.Role} role");
                 return true;
             }
         }
 
-        public async Task<bool> LockoutUserAsync(Guid id)
+        public async Task<bool> DisableUserAsync(DisableModel model)
         {
-            var lockoutResult = await mediator.Send(new LockoutUserCommand(id, DateTime.Now.AddMinutes(1)), default);
-
-            if (!lockoutResult.Succeeded)
+            if (model.DisableEnd < DateTime.Now)
             {
-                logger.LogError("Failed to lockout user. Wrong id");
+                logger.LogError("Failed to disable user. Disable end time is incorrect");
+                throw new ArgumentException("Failed to disable user. Disable end time is incorrect");
+            }
+
+            var disableResult = await mediator.Send(new DisableUserCommand(model.UserId, model.DisableEnd), default);
+
+            if (!disableResult)
+            {
+                logger.LogError("Failed to disable user. Wrong id");
                 return false;
             }
             else
             {
-                logger.LogInformation($"User with {id} locked out");
+                logger.LogInformation($"User with {model.UserId} disabled");
+                return true;
+            }
+        }
+
+        public async Task<bool> EnableUserAsync(Guid id)
+        {
+            var disableResult = await mediator.Send(new EnableUserCommand(id), default);
+
+            if (!disableResult)
+            {
+                logger.LogError("Failed to enable user. Wrong id");
+                return false;
+            }
+            else
+            {
+                logger.LogInformation($"User with {id} enabled");
                 return true;
             }
         }

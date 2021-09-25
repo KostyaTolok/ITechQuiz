@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Application.Interfaces.Services;
 using Domain.Entities.Auth;
+using Domain.Models;
 
 namespace WebApplication.Areas.Admin
 {
@@ -86,17 +87,17 @@ namespace WebApplication.Areas.Admin
             }
         }
 
-        [HttpPost("addToClientRole")]
+        [HttpPost("AddToRole")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddToClientRole(Guid id)
+        public async Task<IActionResult> AddToRole(AddToRoleModel model)
         {
             try
             {
-                if (await userService.AddToClientRoleAsync(id))
+                if (await userService.AddToRoleAsync(model))
                 {
-                    return Ok("User successfully added to client role");
+                    return Ok($"User successfully added to {model.Role} role");
                 }
                 else
                 {
@@ -113,17 +114,44 @@ namespace WebApplication.Areas.Admin
             }
         }
 
-        [HttpPost("lockout")]
+        [HttpPost("disable")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> LockoutUser(Guid id)
+        public async Task<IActionResult> DisableUser(DisableModel model)
         {
             try
             {
-                if (await userService.LockoutUserAsync(id))
+                if (await userService.DisableUserAsync(model))
                 {
-                    return Ok("User successfully locked out");
+                    return Ok("User successfully disabled");
+                }
+                else
+                {
+                    return NotFound("User not found");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("enable")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> EnableUser(Guid id)
+        {
+            try
+            {
+                if (await userService.EnableUserAsync(id))
+                {
+                    return Ok("User successfully enabled");
                 }
                 else
                 {

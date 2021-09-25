@@ -22,15 +22,30 @@ namespace Infrastructure.Handlers.Auth
         public async Task<SignInResult> Handle(PasswordSignInUserCommand request, CancellationToken token)
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (await userManager.IsLockedOutAsync(user))
-            {
-                return SignInResult.LockedOut;
-            }
+
             if (user == null)
             {
                 return SignInResult.Failed;
             }
-            return await signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, false);
+
+            if (await userManager.IsLockedOutAsync(user))
+            {
+                return SignInResult.LockedOut;
+            }
+
+            if (user.IsDisabled)
+            {
+                if (!(user.DisabledEnd.HasValue && user.DisabledEnd < System.DateTime.Now))
+                {
+                    return SignInResult.NotAllowed;
+                }
+                else
+                {
+                    user.IsDisabled = false;
+                }
+            }
+
+            return await signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
         }
     }
 }
