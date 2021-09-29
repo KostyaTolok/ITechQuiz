@@ -1,11 +1,14 @@
 ﻿using Domain.Entities.Auth;
+using Domain.Entities.Surveys;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Domain.Entities.Surveys
+namespace Application.DTO
 {
-    public class Survey
+    public class SurveyDTO
     {
         public Guid Id { get; set; }
 
@@ -17,19 +20,12 @@ namespace Domain.Entities.Surveys
 
         public string Subtitle { get; set; }
 
-        public DateTime CreatedDate { get; set; }
+        public string CreatedDate { get; set; }
 
-        public ICollection<Question> Questions { get; set; }
+        public ICollection<QuestionDTO> Questions { get; set; }
 
         public User User { get; set; }
 
         public Guid UserId { get; set; }
-
-    }
-
-    public enum SurveyType
-    {
-        ForStatistics,
-        ForQuiz
     }
 }

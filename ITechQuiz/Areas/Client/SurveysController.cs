@@ -1,5 +1,5 @@
-﻿using Application.Interfaces.Services;
-using Domain.Entities.Surveys;
+﻿using Application.DTO;
+using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,15 +24,19 @@ namespace WebApplication.Areas.Client
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<Survey>>> Get(CancellationToken token)
+        public async Task<ActionResult<IEnumerable<SurveyDTO>>> Get(Guid? userId, CancellationToken token)
         {
             try
             {
-                return Ok(await surveyService.GetSurveysAsync(token));
+                return Ok(await surveyService.GetSurveysAsync(userId, token));
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -40,7 +44,7 @@ namespace WebApplication.Areas.Client
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
-        public async Task<ActionResult<Survey>> Get(Guid id, CancellationToken token)
+        public async Task<ActionResult<SurveyDTO>> Get(Guid id, CancellationToken token)
         {
             try
             {
@@ -50,21 +54,9 @@ namespace WebApplication.Areas.Client
             {
                 return NotFound(ex.Message);
             }
-        }
-
-        [HttpGet("userId/{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces("application/json")]
-        public async Task<ActionResult<Survey>> GetByUserId(Guid id, CancellationToken token)
-        {
-            try
+            catch (Exception ex)
             {
-                return Ok(await surveyService.GetSurveysByUserIdAsync(id, token));
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -72,7 +64,7 @@ namespace WebApplication.Areas.Client
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
-        public async Task<ActionResult<Survey>> Post(Survey survey, CancellationToken token)
+        public async Task<ActionResult<SurveyDTO>> Post(SurveyDTO survey, CancellationToken token)
         {
             try
             {
@@ -119,7 +111,7 @@ namespace WebApplication.Areas.Client
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> Put(Survey survey, CancellationToken token)
+        public async Task<ActionResult> Put(SurveyDTO survey, CancellationToken token)
         {
             try
             {

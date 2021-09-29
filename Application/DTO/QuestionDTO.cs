@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Domain.Entities.Surveys
+namespace Application.DTO
 {
-    public class Question
+    public class QuestionDTO
     {
         public Guid Id { get; set; }
 
@@ -16,11 +18,8 @@ namespace Domain.Entities.Surveys
 
         public bool Required { get; set; }
 
-        public ICollection<Option> Options { get; set; }
-
-        public Survey Survey { get; set; }
+        public ICollection<OptionDTO> Options { get; set; }
 
         public Guid SurveyId { get; set; }
-
     }
 }

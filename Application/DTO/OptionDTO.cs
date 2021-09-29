@@ -1,9 +1,12 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Domain.Entities.Surveys
+namespace Application.DTO
 {
-    public class Option
+    public class OptionDTO
     {
         public Guid Id { get; set; }
 
@@ -12,8 +15,6 @@ namespace Domain.Entities.Surveys
         public bool IsCorrect { get; set; }
 
         public string Subtitle { get; set; }
-
-        public Question Question { get; set; }
 
         public Guid QuestionId { get; set; }
     }

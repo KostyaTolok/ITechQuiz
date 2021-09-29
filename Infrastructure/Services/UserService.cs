@@ -8,6 +8,8 @@ using Domain.Entities.Auth;
 using Application.Queries.Users;
 using Application.Commands.Users;
 using Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Domain.Enums;
 
 namespace Infrastructure.Services
 {
@@ -22,9 +24,25 @@ namespace Infrastructure.Services
             logger = factory.CreateLogger<UserService>();
         }
 
-        public async Task<IEnumerable<User>> GetUsersAsync()
+        public async Task<IEnumerable<User>> GetUsersAsync(Roles? role)
         {
-            var users = await mediator.Send(new GetUsersQuery(), default);
+            IEnumerable<User> users;
+            try
+            {
+                if (role.HasValue)
+                {
+                    users = await mediator.Send(new GetUsersInRoleQuery(role.Value), default);
+                }
+                else
+                {
+                    users = await mediator.Send(new GetUsersQuery(), default);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while getting users: {ex}");
+                throw new Exception("An internal error occured while getting users");
+            }
 
             if (users != null)
             {
@@ -37,7 +55,16 @@ namespace Infrastructure.Services
 
         public async Task<User> GetUserAsync(Guid id)
         {
-            var user = await mediator.Send(new GetUserByIdQuery(id), default);
+            User user;
+            try
+            {
+                user = await mediator.Send(new GetUserByIdQuery(id), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while getting user: {ex}");
+                throw new Exception("An internal error occured while getting user");
+            }
 
             if (user != null)
             {
@@ -50,7 +77,16 @@ namespace Infrastructure.Services
 
         public async Task<bool> DeleteUserAsync(Guid id)
         {
-            var deleteResult = await mediator.Send(new DeleteUserCommand(id), default);
+            IdentityResult deleteResult;
+            try
+            {
+                 deleteResult = await mediator.Send(new DeleteUserCommand(id), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while deleting user: {ex}");
+                throw new Exception("An internal error occured while deleting user");
+            }
 
             if (!deleteResult.Succeeded)
             {
@@ -66,9 +102,18 @@ namespace Infrastructure.Services
 
         public async Task<bool> AddToRoleAsync(AddToRoleModel model)
         {
-            var addToRoleResult = await mediator.Send(new AddToRoleCommand(model.UserId, model.Role), default);
+            bool addToRoleResult;
+            try
+            {
+                addToRoleResult = await mediator.Send(new AddToRoleCommand(model.UserId, model.Role), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while adding user to role: {ex}");
+                throw new Exception("An internal error occured while adding user to role");
+            }
 
-            if (!addToRoleResult.Succeeded)
+            if (!addToRoleResult)
             {
                 logger.LogError($"Failed to add user to {model.Role} role. Wrong id");
                 return false;
@@ -82,13 +127,22 @@ namespace Infrastructure.Services
 
         public async Task<bool> DisableUserAsync(DisableModel model)
         {
-            if (model.DisableEnd < DateTime.Now)
+            if (model.DisableEnd.HasValue && model.DisableEnd < DateTime.Now)
             {
                 logger.LogError("Failed to disable user. Disable end time is incorrect");
                 throw new ArgumentException("Failed to disable user. Disable end time is incorrect");
             }
 
-            var disableResult = await mediator.Send(new DisableUserCommand(model.UserId, model.DisableEnd), default);
+            bool disableResult;
+            try
+            {
+                disableResult = await mediator.Send(new DisableUserCommand(model.UserId, model.DisableEnd), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while disabling user: {ex}");
+                throw new Exception("An internal error occured while disabling user");
+            }
 
             if (!disableResult)
             {
@@ -104,9 +158,18 @@ namespace Infrastructure.Services
 
         public async Task<bool> EnableUserAsync(Guid id)
         {
-            var disableResult = await mediator.Send(new EnableUserCommand(id), default);
+            bool enableResult;
+            try
+            {
+                enableResult = await mediator.Send(new EnableUserCommand(id), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while enabling user: {ex}");
+                throw new Exception("An internal error occured while enabling user");
+            }
 
-            if (!disableResult)
+            if (!enableResult)
             {
                 logger.LogError("Failed to enable user. Wrong id");
                 return false;

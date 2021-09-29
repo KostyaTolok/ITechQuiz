@@ -1,16 +1,14 @@
 ﻿using Application.Commands.Users;
 using Domain.Entities.Auth;
-using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Handlers.Users
 {
-    public class AddToRoleHandler : IRequestHandler<AddToRoleCommand, IdentityResult>
+    public class AddToRoleHandler : IRequestHandler<AddToRoleCommand, bool>
     {
         private readonly UserManager<User> userManager;
 
@@ -19,17 +17,15 @@ namespace Infrastructure.Handlers.Users
             this.userManager = userManager;
         }
 
-        public async Task<IdentityResult> Handle(AddToRoleCommand request, CancellationToken token)
+        public async Task<bool> Handle(AddToRoleCommand request, CancellationToken token)
         {
             var user = await userManager.Users.FirstOrDefaultAsync(user => user.Id == request.Id, token);
-            if (request.Role == Roles.Admin)
+            if (user == null)
             {
-                return await userManager.AddToRoleAsync(user, "admin");
+                return false;
             }
-            else
-            {
-                return await userManager.AddToRoleAsync(user, "client");
-            }
+            await userManager.AddToRoleAsync(user, request.Role.ToString());
+            return true;
         }
     }
 }

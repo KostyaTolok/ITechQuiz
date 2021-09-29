@@ -2,8 +2,10 @@
 using Application.Interfaces.Services;
 using Application.Queries.Auth;
 using Domain.Entities.Auth;
+using Domain.Exceptions;
 using Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -23,22 +25,31 @@ namespace Infrastructure.Services
 
         public async Task Login(LoginModel model)
         {
-            var signInResult = await mediator.Send(new PasswordSignInUserCommand(model.Email, model.Password, model.RememberMe), default);
+            SignInResult signInResult;
+            try
+            {
+                signInResult = await mediator.Send(new PasswordSignInUserCommand(model.Email, model.Password, model.RememberMe), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while logging: {ex}");
+                throw new Exception("An internal error occured while signing in");
+            }
 
             if (signInResult.IsNotAllowed)
             {
                 logger.LogError($"User {model.Email} is disabled");
-                throw new ArgumentException($"User {model.Email}  is disabled");
+                throw new BusinessLogicException($"User {model.Email}  is disabled");
             }
             else if (signInResult.IsLockedOut)
             {
                 logger.LogError($"User {model.Email} is locked out");
-                throw new ArgumentException($"User {model.Email}  is locked out");
+                throw new BusinessLogicException($"User {model.Email}  is locked out");
             }
             else if (!signInResult.Succeeded)
             {
                 logger.LogError($"User {model.Email} failed to sign in");
-                throw new ArgumentException("Wrong login or password");
+                throw new BusinessLogicException("Wrong login or password");
             }
 
             logger.LogInformation($"User {model.Email} signed in");
@@ -46,27 +57,55 @@ namespace Infrastructure.Services
 
         public async Task Register(RegisterModel model)
         {
-            var user = await mediator.Send(new GetUserByEmailQuery(model.Email), default);
+            User user;
+
+            try
+            {
+                user = await mediator.Send(new GetUserByEmailQuery(model.Email), default);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while registration: {ex}");
+                throw new Exception("An internal error occured while registration");
+            }
 
             if (user == null)
             {
                 user = new User() { Email = model.Email, UserName = model.Name };
 
-                var registerResult = await mediator.Send(new AddUserCommand(user, model.Password), default);
+                IdentityResult registerResult;
+                try
+                {
+                    registerResult = await mediator.Send(new AddUserCommand(user, model.Password), default);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error occured while registration: {ex}");
+                    throw new Exception("An internal error occured while registration");
+                }
 
                 if (registerResult.Succeeded)
                 {
-                    await mediator.Send(new SignInUserCommand(user), default);
+                    try
+                    {
+                        await mediator.Send(new SignInUserCommand(user), default);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError($"Error occured while registration: {ex}");
+                        throw new Exception("An internal error occured while registration");
+                    }
+
                     logger.LogInformation($"User {user.UserName} registered");
                 }
                 else
                 {
-                    throw new ArgumentException("Failed to register");
+                    throw new BusinessLogicException("Failed to register");
                 }
             }
             else
             {
-                throw new ArgumentException("User with this email already exists");
+                throw new BusinessLogicException("User with this email already exists");
             }
         }
 
@@ -79,7 +118,7 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 logger.LogError($"Failed to logout: {ex}");
-                throw new Exception($"Failed to logout: {ex.Message}");
+                throw new Exception($"Failed to logout");
             }
         }
     }

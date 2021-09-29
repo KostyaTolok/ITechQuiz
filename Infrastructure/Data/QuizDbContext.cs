@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Auth;
 using Domain.Entities.Surveys;
+using Infrastructure.Data.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,11 @@ namespace Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.ApplyConfiguration(new SurveysConfiguration());
+            builder.ApplyConfiguration(new QuestionsConfiguration());
+            builder.ApplyConfiguration(new OptionsConfiguration());
+            builder.ApplyConfiguration(new UsersConfiguration());
 
             builder.Entity<Role>().HasData(new Role()
             {

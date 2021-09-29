@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Commands.Surveys;
+using Application.DTO;
 using Application.Interfaces.Services;
 using Application.Queries.Surveys;
+using AutoMapper;
 using Domain.Entities.Surveys;
+using Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -15,47 +18,90 @@ namespace Infrastructure.Services
     {
         private readonly ILogger<ISurveyService> logger;
         private readonly IMediator mediator;
+        private readonly IMapper mapper;
 
-        public SurveyService(IMediator mediator, ILoggerFactory factory)
+        public SurveyService(IMediator mediator, ILoggerFactory factory, IMapper mapper)
         {
             logger = factory.CreateLogger<ISurveyService>();
             this.mediator = mediator;
+            this.mapper = mapper;
         }
 
-        public async Task UpdateSurveyAsync(Survey survey, CancellationToken token)
+        public async Task UpdateSurveyAsync(SurveyDTO surveyDTO, CancellationToken token)
         {
+            var survey = mapper.Map<Survey>(surveyDTO);
             if (survey == null)
             {
                 logger.LogError("Failed to update survey. Survey is null");
-                throw new ArgumentException("Failed to update survey. Survey is null");
+                throw new ArgumentNullException("Failed to update survey. Survey is null");
             }
 
-            if (survey.Id == default || string.IsNullOrEmpty(survey.Name) ||
-                survey.CreatedDate == default || string.IsNullOrEmpty(survey.Title))
+            if (survey.Id == default)
             {
-                logger.LogError("Failed to update survey. Missing required fields");
-                throw new ArgumentException("Failed to update survey. Missing required fields");
+                logger.LogError("Failed to update survey. Missing id");
+                throw new ArgumentException("Failed to update survey. Missing id");
+            }
+            else if (string.IsNullOrEmpty(survey.Name))
+            {
+                logger.LogError("Failed to update survey. Missing Name");
+                throw new ArgumentException("Failed to update survey. Missing Name");
+            }
+            else if (survey.CreatedDate == default)
+            {
+                logger.LogError("Failed to update survey. Missing date of creation");
+                throw new ArgumentException("Failed to update survey. Missing date of creation");
+            }
+            else if (string.IsNullOrEmpty(survey.Title))
+            {
+                logger.LogError("Failed to update survey. Missing required title");
+                throw new ArgumentException("Failed to update survey. Missing title");
             }
 
-            await mediator.Send(new UpdateSurveyCommand(survey), token);
+            try
+            {
+                await mediator.Send(new UpdateSurveyCommand(survey), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while updating survey: {ex}");
+                throw new Exception("An internal error occured while updating survey");
+            }
         }
 
-        public async Task<Guid> AddSurveyAsync(Survey survey, CancellationToken token)
+        public async Task<Guid> AddSurveyAsync(SurveyDTO surveyDTO, CancellationToken token)
         {
+            var survey = mapper.Map<Survey>(surveyDTO);
             if (survey == null)
             {
                 logger.LogError("Failed to add survey. Survey is null");
-                throw new ArgumentException("Failed to add survey. Survey is null");
+                throw new ArgumentNullException("Failed to add survey. Survey is null");
             }
 
-            if (string.IsNullOrEmpty(survey.Name) || survey.CreatedDate == default
-                || string.IsNullOrEmpty(survey.Title))
+            if (string.IsNullOrEmpty(survey.Name))
             {
-                logger.LogError("Failed to add survey. Missing required fields");
-                throw new ArgumentException("Failed to add survey. Missing required fields");
+                logger.LogError("Failed to add survey. Missing Name");
+                throw new ArgumentException("Failed to add survey. Missing Name");
+            }
+            else if (survey.CreatedDate == default)
+            {
+                logger.LogError("Failed to add survey. Missing date of creation");
+                throw new ArgumentException("Failed to add survey. Missing date of creation");
+            }
+            else if (string.IsNullOrEmpty(survey.Title))
+            {
+                logger.LogError("Failed to add survey. Missing required title");
+                throw new ArgumentException("Failed to add survey. Missing title");
             }
 
-            return await mediator.Send(new AddSurveyCommand(survey), token);
+            try
+            {
+                return await mediator.Send(new AddSurveyCommand(survey), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while adding survey: {ex}");
+                throw new Exception("An internal error occured while adding survey");
+            }
         }
 
         public async Task<bool> DeleteSurveyAsync(Guid id, CancellationToken token)
@@ -66,47 +112,67 @@ namespace Infrastructure.Services
                 throw new ArgumentException("Failed to delete survey. Wrong id");
             }
 
-            return await mediator.Send(new DeleteSurveyCommand(id), token);
-            
+            try
+            {
+                return await mediator.Send(new DeleteSurveyCommand(id), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while deleting survey: {ex}");
+                throw new Exception("An internal error occured while deleting survey");
+            }
         }
 
-        public async Task<Survey> GetSurveyAsync(Guid id, CancellationToken token)
+        public async Task<SurveyDTO> GetSurveyAsync(Guid id, CancellationToken token)
         {
-            Survey survey = await mediator.Send(new GetSurveyByIdQuery(id), token);
+            Survey survey;
+            try
+            {
+                survey = await mediator.Send(new GetSurveyByIdQuery(id), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while getting survey: {ex}");
+                throw new Exception("An internal error occured while getting survey");
+            }
 
             if (survey != null)
             {
-                return survey;
+                return mapper.Map<SurveyDTO>(survey);
             }
 
             logger.LogError("Failed to get survey. Wrong id");
             throw new ArgumentException("Failed to get survey. Wrong id");
         }
 
-        public async Task<IEnumerable<Survey>> GetSurveysAsync(CancellationToken token)
+        public async Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId, CancellationToken token)
         {
-            var surveys = await mediator.Send(new GetSurveysQuery(), token);
+            IEnumerable<Survey> surveys;
+            try
+            {
+                if (userId.HasValue)
+                {
+                    surveys = await mediator.Send(new GetSurveysByUserIdQuery(userId.Value), token);
+                }
+                else
+                {
+                    surveys = await mediator.Send(new GetSurveysQuery(), token);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occured while getting surveys: {ex}");
+                throw new Exception("An internal error occured while getting surveys");
+            }
 
             if (surveys != null)
             {
-                return surveys;
+                return mapper.Map<IEnumerable<SurveyDTO>>(surveys);
             }
 
             logger.LogError("Failed to get surveys");
-            throw new ArgumentException("Failed to get surveys");
+            throw new BusinessLogicException("Failed to get surveys");
         }
 
-        public async Task<IEnumerable<Survey>> GetSurveysByUserIdAsync(Guid id, CancellationToken token)
-        {
-            var surveys = await mediator.Send(new GetSurveysByUserIdQuery(id), token);
-
-            if (surveys != null)
-            {
-                return surveys;
-            }
-
-            logger.LogError("Failed to get surveys");
-            throw new ArgumentException("Failed to get surveys");
-        }
     }
 }

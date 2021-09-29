@@ -29,7 +29,14 @@ namespace Infrastructure.Handlers.Users
                 return false;
             }
             user.IsDisabled = true;
-            user.DisabledEnd = request.EndDate;
+            if (request.EndDate.HasValue)
+            {
+                user.DisabledEnd = request.EndDate;
+            }
+            else
+            {
+                user.DisabledEnd = DateTime.Now.AddDays(7);
+            }
             await userManager.UpdateAsync(user);
 
             return true;

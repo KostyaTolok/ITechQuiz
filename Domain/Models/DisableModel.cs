@@ -6,6 +6,6 @@ namespace Domain.Models
     {
         public Guid UserId { get; set; }
 
-        public DateTime DisableEnd { get; set; }
+        public DateTime? DisableEnd { get; set; }
     }
 }

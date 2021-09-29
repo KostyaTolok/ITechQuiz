@@ -1,9 +1,8 @@
-﻿using Domain.Models;
+﻿using Domain.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using System;
 
 namespace Application.Commands.Users
 {
-    public record AddToRoleCommand(Guid Id, Roles Role) : IRequest<IdentityResult>;
+    public record AddToRoleCommand(Guid Id, Roles Role) : IRequest<bool>;
 }

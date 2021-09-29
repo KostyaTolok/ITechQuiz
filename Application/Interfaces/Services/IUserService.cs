@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Auth;
+using Domain.Enums;
 using Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace Application.Interfaces.Services
     public interface IUserService
     {
 
-        Task<IEnumerable<User>> GetUsersAsync();
+        Task<IEnumerable<User>> GetUsersAsync(Roles? role);
 
         Task<User> GetUserAsync(Guid id);
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Application.Interfaces.Services;
 using Domain.Entities.Auth;
 using Domain.Models;
+using Domain.Enums;
 
 namespace WebApplication.Areas.Admin
 {
@@ -24,11 +25,11 @@ namespace WebApplication.Areas.Admin
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<User>>> Get()
+        public async Task<ActionResult<IEnumerable<User>>> Get(Roles? role)
         {
             try
             {
-                return Ok(await userService.GetUsersAsync());
+                return Ok(await userService.GetUsersAsync(role));
             }
             catch (ArgumentException ex)
             {

@@ -56,6 +56,7 @@ namespace WebApplication
 
             var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
             services.AddMediatR(assembly);
+            services.AddAutoMapper(assembly);
 
             services.AddControllers().AddNewtonsoftJson(options =>
             {

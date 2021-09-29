@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace Application.Commands.Users
 {
-    public record DisableUserCommand(Guid Id, DateTime EndDate) : IRequest<bool>;
+    public record DisableUserCommand(Guid Id, DateTime? EndDate) : IRequest<bool>;
 }
