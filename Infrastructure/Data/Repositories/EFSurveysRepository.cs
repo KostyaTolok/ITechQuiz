@@ -1,6 +1,5 @@
-﻿using Application.Interfaces.Data;
+﻿using Application.Interfaces.Repositories;
 using Domain.Entities.Surveys;
-using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

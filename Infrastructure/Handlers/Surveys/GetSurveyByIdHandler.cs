@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Data;
+﻿using Application.Interfaces.Repositories;
 using Application.Queries.Surveys;
 using Domain.Entities.Surveys;
 using MediatR;

@@ -13,9 +13,9 @@ namespace WebApplication.Areas.Client
     [Route("api/[Controller]")]
     public class SurveysController : Controller
     {
-        private readonly ISurveyService surveyService;
+        private readonly ISurveysService surveyService;
 
-        public SurveysController(ISurveyService surveyService)
+        public SurveysController(ISurveysService surveyService)
         {
             this.surveyService = surveyService;
         }
@@ -69,6 +69,7 @@ namespace WebApplication.Areas.Client
             try
             {
                 var id = await surveyService.AddSurveyAsync(survey, token);
+                survey.Id = id;
                 return Created($"api/surveys/{id}", survey);
             }
             catch (ArgumentException ex)

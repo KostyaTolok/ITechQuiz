@@ -1,7 +1,7 @@
 ﻿using Domain.Entities.Auth;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.Surveys
 {
@@ -13,7 +13,7 @@ namespace Domain.Entities.Surveys
 
         public string Title { get; set; }
 
-        public SurveyType Type { get; set; }
+        public SurveyTypes Type { get; set; }
 
         public string Subtitle { get; set; }
 
@@ -27,9 +27,4 @@ namespace Domain.Entities.Surveys
 
     }
 
-    public enum SurveyType
-    {
-        ForStatistics,
-        ForQuiz
-    }
 }

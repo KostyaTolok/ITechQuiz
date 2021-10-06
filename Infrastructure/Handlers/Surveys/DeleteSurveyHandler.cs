@@ -1,5 +1,5 @@
 ﻿using Application.Commands.Surveys;
-using Application.Interfaces.Data;
+using Application.Interfaces.Repositories;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;

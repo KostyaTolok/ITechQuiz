@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Application.Interfaces.Data;
+using Application.Interfaces.Repositories;
 using Domain.Entities.Surveys;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

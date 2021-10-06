@@ -18,6 +18,8 @@ namespace Infrastructure.Data
 
         public DbSet<Option> Options { get; set; }
 
+        public DbSet<AssignRequest> AssignRequests { get; set; }
+
         public QuizDbContext(DbContextOptions<QuizDbContext> options) : base(options)
         {
 
@@ -31,6 +33,7 @@ namespace Infrastructure.Data
             builder.ApplyConfiguration(new QuestionsConfiguration());
             builder.ApplyConfiguration(new OptionsConfiguration());
             builder.ApplyConfiguration(new UsersConfiguration());
+            builder.ApplyConfiguration(new AssignRequestsConfiguration());
 
             builder.Entity<Role>().HasData(new Role()
             {

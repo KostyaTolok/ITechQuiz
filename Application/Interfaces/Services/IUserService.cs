@@ -7,18 +7,15 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.Services
 {
-    public interface IUserService
+    public interface IUsersService
     {
-
-        Task<IEnumerable<User>> GetUsersAsync(Roles? role);
+        Task<IEnumerable<User>> GetUsersAsync(string role);
 
         Task<User> GetUserAsync(Guid id);
 
         Task<bool> DeleteUserAsync(Guid id);
 
-        Task<bool> AddToRoleAsync(AddToRoleModel model);
-
-        Task<bool> DisableUserAsync(DisableModel model);
+        Task<bool> DisableUserAsync(DisableUserModel model);
 
         Task<bool> EnableUserAsync(Guid id);
 

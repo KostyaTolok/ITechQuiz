@@ -3,7 +3,7 @@ using System;
 
 namespace Domain.Models
 {
-    public class AddToRoleModel
+    public class AddToRoleUserModel
     {
         public Guid UserId { get; set; }
 

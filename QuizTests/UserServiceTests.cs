@@ -32,9 +32,9 @@ namespace Application.UnitTests
                 .ReturnsAsync(users)
                 .Verifiable();
 
-            IUserService userService = new UserService(mediator.Object, logger.Object);
+            IUsersService userService = new UsersService(mediator.Object, logger.Object);
 
-            var actual = await userService.GetUsersAsync();
+            var actual = await userService.GetUsersAsync(null);
 
             mediator.Verify();
             var actualSurveys = actual.ToList();
@@ -49,9 +49,9 @@ namespace Application.UnitTests
                 .ReturnsAsync((IEnumerable<User>)null)
                 .Verifiable();
 
-            IUserService userService = new UserService(mediator.Object, NullLoggerFactory.Instance);
+            IUsersService userService = new UsersService(mediator.Object, NullLoggerFactory.Instance);
 
-            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await userService.GetUsersAsync());
+            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await userService.GetUsersAsync(null));
 
             mediator.Verify();
 
@@ -65,7 +65,7 @@ namespace Application.UnitTests
                 .ReturnsAsync(user)
                 .Verifiable();
 
-            IUserService surveyService = new UserService(mediator.Object, logger.Object);
+            IUsersService surveyService = new UsersService(mediator.Object, logger.Object);
 
             var actual = await surveyService.GetUserAsync(user.Id);
 
@@ -81,7 +81,7 @@ namespace Application.UnitTests
                 .ReturnsAsync((User)null)
                 .Verifiable();
 
-            IUserService userService = new UserService(mediator.Object, NullLoggerFactory.Instance);
+            IUsersService userService = new UsersService(mediator.Object, NullLoggerFactory.Instance);
 
             ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(async () => await userService.GetUserAsync(new Guid()));
 
@@ -97,7 +97,7 @@ namespace Application.UnitTests
                 .ReturnsAsync(IdentityResult.Success)
                 .Verifiable();
 
-            IUserService surveyService = new UserService(mediator.Object, logger.Object);
+            IUsersService surveyService = new UsersService(mediator.Object, logger.Object);
             await surveyService.DeleteUserAsync(user.Id);
 
             mediator.Verify();

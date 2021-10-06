@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.Services
 {
-    public interface ISurveyService
+    public interface ISurveysService
     {
         Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId, CancellationToken token);
 

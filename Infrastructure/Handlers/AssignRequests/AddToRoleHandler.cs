@@ -1,12 +1,12 @@
-﻿using Application.Commands.Users;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Application.Commands.AssignRequests;
 using Domain.Entities.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Infrastructure.Handlers.Users
+namespace Infrastructure.Handlers.AssignRequests
 {
     public class AddToRoleHandler : IRequestHandler<AddToRoleCommand, bool>
     {
@@ -24,7 +24,7 @@ namespace Infrastructure.Handlers.Users
             {
                 return false;
             }
-            await userManager.AddToRoleAsync(user, request.Role.ToString());
+            await userManager.AddToRoleAsync(user, request.Role.ToString().ToLower());
             return true;
         }
     }

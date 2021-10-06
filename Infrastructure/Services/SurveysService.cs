@@ -14,22 +14,32 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services
 {
-    public class SurveyService : ISurveyService
+    public class SurveysService : ISurveysService
     {
-        private readonly ILogger<ISurveyService> logger;
+        private readonly ILogger<ISurveysService> logger;
         private readonly IMediator mediator;
         private readonly IMapper mapper;
 
-        public SurveyService(IMediator mediator, ILoggerFactory factory, IMapper mapper)
+        public SurveysService(IMediator mediator, ILoggerFactory factory, IMapper mapper)
         {
-            logger = factory.CreateLogger<ISurveyService>();
+            logger = factory.CreateLogger<ISurveysService>();
             this.mediator = mediator;
             this.mapper = mapper;
         }
 
         public async Task UpdateSurveyAsync(SurveyDTO surveyDTO, CancellationToken token)
         {
-            var survey = mapper.Map<Survey>(surveyDTO);
+            Survey survey;
+            try
+            {
+                survey = mapper.Map<Survey>(surveyDTO);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error occured while updating survey: {Ex}", ex);
+                throw new Exception("An internal error occured while updating survey");
+            }
+
             if (survey == null)
             {
                 logger.LogError("Failed to update survey. Survey is null");
@@ -63,7 +73,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while updating survey: {ex}");
+                logger.LogError("Error occured while updating survey: {Ex}", ex);
                 throw new Exception("An internal error occured while updating survey");
             }
         }
@@ -99,7 +109,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while adding survey: {ex}");
+                logger.LogError("Error occured while adding survey: {Ex}", ex);
                 throw new Exception("An internal error occured while adding survey");
             }
         }
@@ -118,7 +128,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while deleting survey: {ex}");
+                logger.LogError("Error occured while deleting survey: {Ex}", ex);
                 throw new Exception("An internal error occured while deleting survey");
             }
         }
@@ -132,7 +142,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while getting survey: {ex}");
+                logger.LogError("Error occured while getting survey: {Ex}", ex);
                 throw new Exception("An internal error occured while getting survey");
             }
 
@@ -161,7 +171,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while getting surveys: {ex}");
+                logger.LogError("Error occured while getting surveys: {Ex}", ex);
                 throw new Exception("An internal error occured while getting surveys");
             }
 

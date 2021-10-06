@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using Application.Interfaces.Data;
+using Application.Interfaces.Repositories;
 using Infrastructure.Data.Repositories;
 using Infrastructure.Services;
 using Application.Interfaces.Services;
@@ -22,11 +22,11 @@ namespace WebApplication
     [ExcludeFromCodeCoverage]
     public class Startup
     {
-        public IConfiguration Configuration;
+        private readonly IConfiguration configuration;
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -34,12 +34,14 @@ namespace WebApplication
             services.AddTransient<ISurveysRepository, EFSurveysRepository>();
             services.AddTransient<IQuestionsRepository, EFQuestionsRepository>();
             services.AddTransient<IOptionsRepository, EFOptionsRepository>();
-            services.AddTransient<ISurveyService, SurveyService>();
-            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IAssignRequestsRepository, EFAssignRequestsRepository>();
+            services.AddTransient<ISurveysService, SurveysService>();
+            services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<IAssignRequestsService, AssignRequestsService>();
 
-            services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
-                x => x.MigrationsAssembly("Infrastructure")));
+            services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+                x => x.MigrationsAssembly("WebApplication")));
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -71,13 +73,14 @@ namespace WebApplication
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), Configuration["LogsFileName"]));
+            loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(),
+                configuration["LogsFileName"]));
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();

@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Data;
+﻿using Application.Interfaces.Repositories;
 using Domain.Entities.Surveys;
 using Microsoft.EntityFrameworkCore;
 using System;

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Application.Interfaces.Data;
 using Domain.Entities.Surveys;
 using Infrastructure.Handlers.Surveys;
 using Application.Queries.Surveys;
 using Application.Commands.Surveys;
+using Application.Interfaces.Repositories;
 
 namespace Application.UnitTests
 {

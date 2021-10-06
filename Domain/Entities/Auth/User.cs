@@ -10,6 +10,8 @@ namespace Domain.Entities.Auth
     {
         public ICollection<Survey> Surveys { get; set; }
 
+        public ICollection<AssignRequest> AssignRequests { get; set; }
+
         public bool IsDisabled { get; set; }
 
         public DateTime? DisabledEnd { get; set; }

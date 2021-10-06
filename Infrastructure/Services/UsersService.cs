@@ -13,37 +13,55 @@ using Domain.Enums;
 
 namespace Infrastructure.Services
 {
-    public class UserService : IUserService
+    public class UsersService : IUsersService
     {
         private readonly IMediator mediator;
         private readonly ILogger logger;
 
-        public UserService(IMediator mediator, ILoggerFactory factory)
+        public UsersService(IMediator mediator, ILoggerFactory factory)
         {
             this.mediator = mediator;
-            logger = factory.CreateLogger<UserService>();
+            logger = factory.CreateLogger<UsersService>();
         }
 
-        public async Task<IEnumerable<User>> GetUsersAsync(Roles? role)
+        public async Task<IEnumerable<User>> GetUsersAsync(string role)
         {
             IEnumerable<User> users;
-            try
+
+            if (string.IsNullOrEmpty(role))
             {
-                if (role.HasValue)
-                {
-                    users = await mediator.Send(new GetUsersInRoleQuery(role.Value), default);
-                }
-                else
+                try
                 {
                     users = await mediator.Send(new GetUsersQuery(), default);
                 }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error occured while getting users: {Ex}", ex);
+                    throw new Exception("An internal error occured while getting users");
+                }
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError($"Error occured while getting users: {ex}");
-                throw new Exception("An internal error occured while getting users");
+                Roles? roleEnum = Enum.TryParse(role, out Roles result) ? result : null;
+                if (roleEnum.HasValue)
+                {
+                    try
+                    {
+                        users = await mediator.Send(new GetUsersInRoleQuery(roleEnum.Value));
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("Error occured while getting users: {Ex}", ex);
+                        throw new Exception("An internal error occured while getting users");
+                    }
+                }
+                else
+                {
+                    logger.LogError("Failed to get users. Role is incorrect");
+                    throw new ArgumentException("Failed to get users. Role is incorrect");
+                }
             }
-
+            
             if (users != null)
             {
                 return users;
@@ -58,11 +76,11 @@ namespace Infrastructure.Services
             User user;
             try
             {
-                user = await mediator.Send(new GetUserByIdQuery(id), default);
+                user = await mediator.Send(new GetUserByIdQuery(id));
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while getting user: {ex}");
+                logger.LogError("Error occured while getting user: {Ex}", ex);
                 throw new Exception("An internal error occured while getting user");
             }
 
@@ -80,11 +98,11 @@ namespace Infrastructure.Services
             IdentityResult deleteResult;
             try
             {
-                 deleteResult = await mediator.Send(new DeleteUserCommand(id), default);
+                deleteResult = await mediator.Send(new DeleteUserCommand(id));
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while deleting user: {ex}");
+                logger.LogError("Error occured while deleting user: {Ex}", ex);
                 throw new Exception("An internal error occured while deleting user");
             }
 
@@ -95,37 +113,12 @@ namespace Infrastructure.Services
             }
             else
             {
-                logger.LogInformation($"User with {id} deleted");
+                logger.LogInformation("User with {Id} deleted", id);
                 return true;
             }
         }
 
-        public async Task<bool> AddToRoleAsync(AddToRoleModel model)
-        {
-            bool addToRoleResult;
-            try
-            {
-                addToRoleResult = await mediator.Send(new AddToRoleCommand(model.UserId, model.Role), default);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error occured while adding user to role: {ex}");
-                throw new Exception("An internal error occured while adding user to role");
-            }
-
-            if (!addToRoleResult)
-            {
-                logger.LogError($"Failed to add user to {model.Role} role. Wrong id");
-                return false;
-            }
-            else
-            {
-                logger.LogInformation($"User with {model.UserId} added to {model.Role} role");
-                return true;
-            }
-        }
-
-        public async Task<bool> DisableUserAsync(DisableModel model)
+        public async Task<bool> DisableUserAsync(DisableUserModel model)
         {
             if (model.DisableEnd.HasValue && model.DisableEnd < DateTime.Now)
             {
@@ -140,7 +133,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while disabling user: {ex}");
+                logger.LogError("Error occured while disabling user: {Ex}", ex);
                 throw new Exception("An internal error occured while disabling user");
             }
 
@@ -151,7 +144,7 @@ namespace Infrastructure.Services
             }
             else
             {
-                logger.LogInformation($"User with {model.UserId} disabled");
+                logger.LogInformation("User with {model.UserId} disabled", model.UserId);
                 return true;
             }
         }
@@ -161,11 +154,11 @@ namespace Infrastructure.Services
             bool enableResult;
             try
             {
-                enableResult = await mediator.Send(new EnableUserCommand(id), default);
+                enableResult = await mediator.Send(new EnableUserCommand(id));
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while enabling user: {ex}");
+                logger.LogError("Error occured while enabling user: {Ex}", ex);
                 throw new Exception("An internal error occured while enabling user");
             }
 
@@ -176,7 +169,7 @@ namespace Infrastructure.Services
             }
             else
             {
-                logger.LogInformation($"User with {id} enabled");
+                logger.LogInformation("User with {Id} enabled", id);
                 return true;
             }
         }
