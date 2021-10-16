@@ -1,0 +1,45 @@
+<header>
+    <nav class="navbar navbar-expand-md navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand">{{title}}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="statistic-surveys">Опросы</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="quiz-surveys">Викторины</a>
+                    </li>
+                    <li class="nav-item" *ngIf="(authService.isAdmin ||
+                        authService.isClient) && !authService.loginRequired">
+                        <a class="nav-link" routerLink="admin">Администрирование</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav" *ngIf="authService.loginRequired; else profile">
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="login">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="register">Зарегистрироваться</a>
+                    </li>
+                </ul>
+                <ng-template #profile>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" (click)="authService.logoutUser()"
+                               routerLink="/">Выйти из аккаунта</a>
+                        </li>
+                    </ul>
+                </ng-template>
+            </div>
+        </div>
+    </nav>
+</header>

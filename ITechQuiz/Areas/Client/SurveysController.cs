@@ -6,6 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Entities.Auth;
+using Domain.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication.Areas.Client
 {
@@ -24,11 +28,12 @@ namespace WebApplication.Areas.Client
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<SurveyDTO>>> Get(Guid? userId, CancellationToken token)
+        public async Task<ActionResult<IEnumerable<SurveyDTO>>> Get(Guid? userId,
+            string surveyType, CancellationToken token)
         {
             try
             {
-                return Ok(await surveyService.GetSurveysAsync(userId, token));
+                return Ok(await surveyService.GetSurveysAsync(userId, surveyType, token));
             }
             catch (ArgumentException ex)
             {
@@ -64,6 +69,8 @@ namespace WebApplication.Areas.Client
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
+        [Authorize(Roles = "client",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<SurveyDTO>> Post(SurveyDTO survey, CancellationToken token)
         {
             try
@@ -97,7 +104,6 @@ namespace WebApplication.Areas.Client
                 {
                     return NotFound("Survey not found");
                 }
-                
             }
             catch (ArgumentException ex)
             {

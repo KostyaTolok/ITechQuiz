@@ -8,6 +8,9 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Services
@@ -23,16 +26,18 @@ namespace Infrastructure.Services
             logger = factory.CreateLogger<AuthService>();
         }
 
-        public async Task Login(LoginModel model)
+        public async Task<string> Login(LoginModel model)
         {
             SignInResult signInResult;
             try
             {
-                signInResult = await mediator.Send(new PasswordSignInUserCommand(model.Email, model.Password, model.RememberMe), default);
+                signInResult =
+                    await mediator.Send(new CheckPasswordSignInCommand(model.Email,
+                            model.Password, model.RememberMe), default);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while logging: {ex}");
+                logger.LogError("Error occured while logging: {Ex}", ex);
                 throw new Exception("An internal error occured while signing in");
             }
 
@@ -51,17 +56,21 @@ namespace Infrastructure.Services
                 logger.LogError($"User {model.Email} failed to sign in");
                 throw new BusinessLogicException("Wrong login or password");
             }
-
-            logger.LogInformation($"User {model.Email} signed in");
+            else
+            {
+                logger.LogInformation($"User {model.Email} signed in");
+                return await mediator.Send(new CreateTokenCommand(model.Email));
+            }
+            
         }
 
-        public async Task Register(RegisterModel model)
+        public async Task<string> Register(RegisterModel model)
         {
             User user;
 
             try
             {
-                user = await mediator.Send(new GetUserByEmailQuery(model.Email), default);
+                user = await mediator.Send(new GetUserByEmailQuery(model.Email));
             }
             catch (Exception ex)
             {
@@ -71,12 +80,13 @@ namespace Infrastructure.Services
 
             if (user == null)
             {
-                user = new User() { Email = model.Email, UserName = model.Name };
+                user = new User() {Email = model.Email, UserName = model.Name};
 
                 IdentityResult registerResult;
                 try
                 {
-                    registerResult = await mediator.Send(new AddUserCommand(user, model.Password), default);
+                    registerResult = await mediator.Send(new CreateUserCommand(user,
+                        model.Password));
                 }
                 catch (Exception ex)
                 {
@@ -88,15 +98,14 @@ namespace Infrastructure.Services
                 {
                     try
                     {
-                        await mediator.Send(new SignInUserCommand(user), default);
+                        logger.LogInformation($"User {user.UserName} registered");
+                        return await mediator.Send(new CreateTokenCommand(model.Email));
                     }
                     catch (Exception ex)
                     {
                         logger.LogError($"Error occured while registration: {ex}");
                         throw new Exception("An internal error occured while registration");
                     }
-
-                    logger.LogInformation($"User {user.UserName} registered");
                 }
                 else
                 {

@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Application.Interfaces.Services;
 using Domain.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApplication.Areas.Auth
 {
@@ -26,8 +27,8 @@ namespace WebApplication.Areas.Auth
         {
             try
             {
-                await authService.Login(model);
-                return Ok($"User {model.Email} successfully signed in");
+                var token = await authService.Login(model);
+                return Created("", token);
             }
             catch (ArgumentException ex)
             {
@@ -46,8 +47,8 @@ namespace WebApplication.Areas.Auth
         {
             try
             {
-                await authService.Register(model);
-                return Ok($"User {model.Email} successfully registered");
+                var token = await authService.Register(model);
+                return Created("", token);
             }
             catch (ArgumentException ex)
             {

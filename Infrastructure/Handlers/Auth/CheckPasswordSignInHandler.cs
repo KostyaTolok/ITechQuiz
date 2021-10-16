@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Handlers.Auth
 {
-    public class PasswordSignInUserHandler : IRequestHandler<PasswordSignInUserCommand, SignInResult>
+    public class CheckPasswordSignInHandler : IRequestHandler<CheckPasswordSignInCommand, SignInResult>
     {
         private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
 
-        public PasswordSignInUserHandler(SignInManager<User> signInManager, UserManager<User> userManager)
+        public CheckPasswordSignInHandler(SignInManager<User> signInManager, UserManager<User> userManager)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
         }
 
-        public async Task<SignInResult> Handle(PasswordSignInUserCommand request, CancellationToken token)
+        public async Task<SignInResult> Handle(CheckPasswordSignInCommand request, CancellationToken token)
         {
             var user = await userManager.FindByEmailAsync(request.Email);
 
@@ -45,7 +45,7 @@ namespace Infrastructure.Handlers.Auth
                 }
             }
 
-            return await signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
+            return await signInManager.CheckPasswordSignInAsync(user, request.Password, true);
         }
     }
 }

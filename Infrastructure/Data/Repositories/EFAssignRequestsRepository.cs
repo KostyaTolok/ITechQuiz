@@ -44,8 +44,7 @@ namespace Infrastructure.Data.Repositories
         {
             return await context.AssignRequests
                 .Include(a => a.User)
-                .Where(a => includeRejected ?
-                    a.IsRejected ==false || a.IsRejected==true : a.IsRejected == false)
+                .Where(a => includeRejected ? true : a.IsRejected == false)
                 .OrderBy(a => a.CreatedDate)
                 .ToListAsync(token);
         }
@@ -62,9 +61,9 @@ namespace Infrastructure.Data.Repositories
         {
             return await context.AssignRequests
                 .Include(a => a.User)
-                .Where(a => includeRejected ? 
-                    a.IsRejected ==false || a.IsRejected==true : a.IsRejected == false)
+                .Where(a => includeRejected ? true : a.IsRejected == false)
                 .ToListAsync(token);
         }
+        
     }
 }

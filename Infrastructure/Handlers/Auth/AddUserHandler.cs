@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Handlers.Users
 {
-    public class AddUserHandler : IRequestHandler<AddUserCommand, IdentityResult>
+    public class AddUserHandler : IRequestHandler<CreateUserCommand, IdentityResult>
     {
         private readonly UserManager<User> userManager;
 
@@ -16,7 +16,7 @@ namespace Infrastructure.Handlers.Users
             this.userManager = userManager;
         }
 
-        public async Task<IdentityResult> Handle(AddUserCommand request, CancellationToken token)
+        public async Task<IdentityResult> Handle(CreateUserCommand request, CancellationToken token)
         {
             return await userManager.CreateAsync(request.User, request.Password);
         }

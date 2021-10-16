@@ -16,6 +16,9 @@ using Application.Interfaces.Services;
 using Infrastructure.Data;
 using Domain.Entities.Auth;
 using System;
+using System.Text;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.IdentityModel.Tokens;
 
 namespace WebApplication
 {
@@ -40,8 +43,12 @@ namespace WebApplication
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IAssignRequestsService, AssignRequestsService>();
 
-            services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                x => x.MigrationsAssembly("WebApplication")));
+            services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                x =>
+                {
+                    x.MigrationsAssembly("WebApplication");
+                }));
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -55,20 +62,42 @@ namespace WebApplication
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
                 options.Lockout.MaxFailedAccessAttempts = 3;
             }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<SignInManager<User>>();
-
+            var a = configuration["Token:Issuer"];
+            services.AddAuthentication()
+                .AddCookie().AddJwtBearer(
+                    options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters()
+                        {
+                            ValidateIssuer = true,
+                            ValidIssuer = configuration["Token:Issuer"],
+                            ValidateAudience = true,
+                            ValidAudience = configuration["Token:Audience"],
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey
+                                (Encoding.UTF8.GetBytes(configuration["Token:Key"])),
+                            ValidateLifetime = true
+                        };
+                    });
+            
             var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
             services.AddMediatR(assembly);
             services.AddAutoMapper(assembly);
 
             services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            })
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                })
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
 
             services.AddMvcCore();
 
             services.AddSwaggerGen();
+
+            services.AddSpaStaticFiles(options =>
+            {
+                options.RootPath = "client/dist";
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
@@ -80,7 +109,7 @@ namespace WebApplication
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
@@ -91,13 +120,20 @@ namespace WebApplication
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ITechQuiz API V1");
                 c.DocumentTitle = "ITechQuiz API";
-                c.RoutePrefix = string.Empty;
+                c.RoutePrefix = "swagger";
             });
-
-            app.UseEndpoints(endpoints =>
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            
+            app.UseSpa(spa =>
             {
-                endpoints.MapControllers();
+                spa.Options.SourcePath = "client";
+ 
+                if (env.IsDevelopment())
+                {
+                    spa.UseAngularCliServer(npmScript: "start");
+                }
             });
+            
         }
     }
 }

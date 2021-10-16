@@ -1,0 +1,19 @@
+:root{
+    --main-color: peachpuff;
+}
+body{ height:100vh; margin:0; }
+
+body{
+    display:flex;
+    flex-direction:column;
+}
+header{ min-height:50px; background:var(--main-color); }
+footer{ min-height:50px; background:var(--main-color); }
+
+footer{
+    margin-top:auto;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+

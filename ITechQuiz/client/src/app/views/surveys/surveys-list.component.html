@@ -1,0 +1,16 @@
+<mat-spinner
+        class="mt-3" style="margin:0 auto;" color="accent"
+        *ngIf="surveys.length == 0; else list">
+</mat-spinner>
+
+<ng-template #list>
+    <div class="list-group mt-3">
+        <a class="list-group-item list-group-item-action" *ngFor="let s of surveys"
+           [routerLink]="[s?.id]">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{s?.title}}</h5>
+                <small>{{s?.createdDate}}</small>
+            </div>
+        </a>
+    </div>
+</ng-template>

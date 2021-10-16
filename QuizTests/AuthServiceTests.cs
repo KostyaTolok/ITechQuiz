@@ -24,7 +24,7 @@ namespace Application.UnitTests
         [Fact]
         public async Task LoginUserTest()
         {
-            mediator.Setup(m => m.Send(It.IsAny<PasswordSignInUserCommand>(), It.IsAny<CancellationToken>()))
+            mediator.Setup(m => m.Send(It.IsAny<CheckPasswordSignInCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(SignInResult.Success)
                 .Verifiable();
 
@@ -38,7 +38,7 @@ namespace Application.UnitTests
         [Fact]
         public async Task LoginUserTestThrowsArgumentException()
         {
-            mediator.Setup(m => m.Send(It.IsAny<PasswordSignInUserCommand>(), It.IsAny<CancellationToken>()))
+            mediator.Setup(m => m.Send(It.IsAny<CheckPasswordSignInCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(SignInResult.Failed)
                 .Verifiable();
 
@@ -58,7 +58,7 @@ namespace Application.UnitTests
             mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null)
                 .Verifiable();
-            mediator.Setup(m => m.Send(It.IsAny<AddUserCommand>(), It.IsAny<CancellationToken>()))
+            mediator.Setup(m => m.Send(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(IdentityResult.Success)
                 .Verifiable();
             mediator.Setup(m => m.Send(It.IsAny<SignInUserCommand>(), It.IsAny<CancellationToken>()))

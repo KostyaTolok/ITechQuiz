@@ -17,9 +17,10 @@ namespace Infrastructure.Handlers.Surveys
             this.surveysRepository = surveysRepository;
         }
 
-        public async Task<IEnumerable<Survey>> Handle(GetSurveysQuery request, CancellationToken token)
+        public async Task<IEnumerable<Survey>> Handle(GetSurveysQuery request,
+            CancellationToken token)
         {
-            return await surveysRepository.GetSurveysAsync(token);
+            return await surveysRepository.GetSurveysAsync(request.UserId, request.Type, token);
         }
     }
 }

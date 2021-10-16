@@ -8,6 +8,7 @@ using Application.Interfaces.Services;
 using Application.Queries.Surveys;
 using AutoMapper;
 using Domain.Entities.Surveys;
+using Domain.Enums;
 using Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -155,19 +156,16 @@ namespace Infrastructure.Services
             throw new ArgumentException("Failed to get survey. Wrong id");
         }
 
-        public async Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId, CancellationToken token)
+        public async Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId,
+            string type,CancellationToken token)
         {
             IEnumerable<Survey> surveys;
             try
             {
-                if (userId.HasValue)
-                {
-                    surveys = await mediator.Send(new GetSurveysByUserIdQuery(userId.Value), token);
-                }
-                else
-                {
-                    surveys = await mediator.Send(new GetSurveysQuery(), token);
-                }
+                SurveyTypes? surveyType =
+                    Enum.TryParse(type, out SurveyTypes result) ? result : null;
+                
+                surveys = await mediator.Send(new GetSurveysQuery(userId, surveyType), token);
             }
             catch (Exception ex)
             {
@@ -183,6 +181,5 @@ namespace Infrastructure.Services
             logger.LogError("Failed to get surveys");
             throw new BusinessLogicException("Failed to get surveys");
         }
-
     }
 }

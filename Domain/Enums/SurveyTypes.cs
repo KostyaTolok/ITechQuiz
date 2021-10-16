@@ -8,7 +8,7 @@ namespace Domain.Enums
 {
     public enum SurveyTypes
     {
-        ForStatistics,
-        ForQuiz
+        ForStatistics = 1,
+        ForQuiz = 2
     }
 }

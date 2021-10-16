@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Infrastructure.Data.Repositories
 {
@@ -20,26 +21,25 @@ namespace Infrastructure.Data.Repositories
             this.context = context;
         }
 
-        public async Task<IEnumerable<Survey>> GetSurveysAsync(CancellationToken token)
+        public async Task<IEnumerable<Survey>> GetSurveysAsync(Guid? userId, SurveyTypes? type,
+            CancellationToken token)
         {
             return await context.Surveys
-                                .Include("Questions.Options")
-                                .ToListAsync(token);
-        }
-
-        public async Task<IEnumerable<Survey>> GetSurveysByUserIdAsync(Guid id, CancellationToken token)
-        {
-            return await context.Surveys
-                                .Where(survey => survey.UserId == id)
-                                .Include("Questions.Options")
-                                .ToListAsync(token);
+                .Where(survey => userId.HasValue && type.HasValue ? 
+                    survey.UserId == userId && survey.Type == type :
+                    userId.HasValue ? survey.UserId == userId :
+                    type.HasValue ? survey.Type == type : true)
+                .OrderBy(survey => survey.CreatedDate)
+                .ToListAsync(token);
         }
 
         public async Task<Survey> GetSurveyAsync(Guid id, CancellationToken token)
         {
             return await context.Surveys
-                                .Include("Questions.Options")
-                                .SingleOrDefaultAsync(survey => survey.Id == id, token);
+                .Include("Questions.Options")
+                .OrderBy(survey => survey.CreatedDate)
+                .AsSplitQuery()
+                .SingleOrDefaultAsync(survey => survey.Id == id, token);
         }
 
         public async Task AddSurveyAsync(Survey survey, CancellationToken token)

@@ -4,5 +4,5 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.Commands.Auth
 {
-    public record AddUserCommand(User User, string Password) : IRequest<IdentityResult>;
+    public record CreateUserCommand(User User, string Password) : IRequest<IdentityResult>;
 }
