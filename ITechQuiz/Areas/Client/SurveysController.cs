@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Entities.Auth;
@@ -15,6 +16,7 @@ namespace WebApplication.Areas.Client
 {
     [ApiController]
     [Route("api/[Controller]")]
+    [AutoValidateAntiforgeryToken]
     public class SurveysController : Controller
     {
         private readonly ISurveysService surveyService;
@@ -25,8 +27,6 @@ namespace WebApplication.Areas.Client
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
         public async Task<ActionResult<IEnumerable<SurveyDTO>>> Get(Guid? userId,
             string surveyType, CancellationToken token)
@@ -46,8 +46,6 @@ namespace WebApplication.Areas.Client
         }
 
         [HttpGet("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
         public async Task<ActionResult<SurveyDTO>> Get(Guid id, CancellationToken token)
         {
@@ -66,18 +64,17 @@ namespace WebApplication.Areas.Client
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
         [Authorize(Roles = "client",
             AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<SurveyDTO>> Post(SurveyDTO survey, CancellationToken token)
+        public async Task<ActionResult<Guid>> Post(SurveyDTO surveyDto, CancellationToken token)
         {
             try
             {
-                var id = await surveyService.AddSurveyAsync(survey, token);
-                survey.Id = id;
-                return Created($"api/surveys/{id}", survey);
+                var userEmail = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var id = await surveyService.AddSurveyAsync(surveyDto, userEmail, token);
+                surveyDto.Id = id;
+                return Created($"api/surveys/{id}", surveyDto);
             }
             catch (ArgumentException ex)
             {
@@ -90,8 +87,8 @@ namespace WebApplication.Areas.Client
         }
 
         [HttpDelete("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "client",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Delete(Guid id, CancellationToken token)
         {
             try
@@ -116,8 +113,8 @@ namespace WebApplication.Areas.Client
         }
 
         [HttpPut]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "client",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Put(SurveyDTO survey, CancellationToken token)
         {
             try

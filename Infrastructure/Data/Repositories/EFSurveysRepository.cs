@@ -29,7 +29,7 @@ namespace Infrastructure.Data.Repositories
                     survey.UserId == userId && survey.Type == type :
                     userId.HasValue ? survey.UserId == userId :
                     type.HasValue ? survey.Type == type : true)
-                .OrderBy(survey => survey.CreatedDate)
+                .OrderByDescending(survey => survey.CreatedDate)
                 .ToListAsync(token);
         }
 
@@ -37,7 +37,7 @@ namespace Infrastructure.Data.Repositories
         {
             return await context.Surveys
                 .Include("Questions.Options")
-                .OrderBy(survey => survey.CreatedDate)
+                .OrderByDescending(survey => survey.CreatedDate)
                 .AsSplitQuery()
                 .SingleOrDefaultAsync(survey => survey.Id == id, token);
         }
@@ -56,6 +56,19 @@ namespace Infrastructure.Data.Repositories
 
         public async Task UpdateSurveyAsync(Survey survey, CancellationToken token)
         {
+            foreach (var question in survey.Questions)
+            {
+                var deletedOptions = context.Options
+                    .Where(o => o.QuestionId == question.Id).AsEnumerable()
+                    .Except(question.Options);
+                context.Options.RemoveRange(deletedOptions);
+            }
+            
+            var deletedQuestions = context.Questions
+                .Where(q => q.SurveyId == survey.Id).AsEnumerable().Except(survey.Questions);
+            
+            context.Questions.RemoveRange(deletedQuestions);
+
             context.Surveys.Update(survey);
             await context.SaveChangesAsync(token);
         }

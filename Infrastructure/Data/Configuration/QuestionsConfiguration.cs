@@ -16,7 +16,9 @@ namespace Infrastructure.Data.Configuration
             builder.Property(q => q.MaxSelected).IsRequired();
             builder.Property(q => q.Required).IsRequired();
             builder.HasMany(q => q.Options).WithOne(q => q.Question);
-            builder.HasOne(q => q.Survey).WithMany(s => s.Questions);
+            builder.HasOne(q => q.Survey).WithMany(s => s.Questions)
+                .HasForeignKey(q => q.SurveyId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

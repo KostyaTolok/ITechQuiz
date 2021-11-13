@@ -1,0 +1,124 @@
+﻿<form #surveyForm="ngForm" method="post" (submit)="saveSurvey()">
+    <div class="form-group">
+        <input class="form-control mt-3" placeholder="Название Опроса"
+               value="{{survey.title}}" [(ngModel)]="survey.title"
+               name="survey-title" id="survey-title"
+               #title="ngModel" required>
+        <span class="text-danger" *ngIf="title.touched && title.invalid
+              && title.errors?.required">
+                Требуется ввести название опроса
+            </span>
+
+        <select [(ngModel)]="survey.type" name="type"
+                class="form-select form-select-sm mt-3"
+                aria-label=".form-select-sm example">
+            <option *ngFor="let type of types|mapToArray" value="{{type.key}}">{{type.value}}</option>
+        </select>
+    </div>
+
+    <div class="card mt-3" *ngFor="let q of survey.questions; let i=index">
+        <div class="card-body">
+            <div class="form-group">
+                <input class="form-control" name="question-{{i}}"
+                       value="{{q.title}}" id="question-{{i}}"
+                       [(ngModel)]="q.title" placeholder="Вопрос"
+                       #questionTitle="ngModel" required/>
+                <span class="text-danger" *ngIf="questionTitle.touched && questionTitle.invalid
+                        && questionTitle.errors?.required">
+                        Требуется ввести вопрос
+                    </span>
+            </div>
+
+            <div class="form-check mt-2">
+                <input type="checkbox" id="question-multiple-{{i}}"
+                       name="question-multiple-{{i}}" value="{{q.multiple}}"
+                       [(ngModel)]="q.multiple"/>
+                <label for="question-multiple-{{i}}" class="ps-2">
+                    Несколько вариантов ответа
+                </label>
+            </div>
+
+            <div class="form-check mt-2">
+                <input type="checkbox" id="question-required-{{i}}"
+                       name="question-required-{{i}}" value="{{q.required}}"
+                       [(ngModel)]="q.required"/>
+                <label for="question-required-{{i}}" class="ps-2">
+                    Обязательный вопрос
+                </label>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="question-max-selected-{{i}}" class="pe-2">
+                    Максимальное количество выбранных ответов
+                </label>
+                <input type="number" id="question-max-selected-{{i}}"
+                       name="question-max-selected-{{i}}" value="{{q.maxSelected}}"
+                       [(ngModel)]="q.maxSelected" min="1" max="{{q.options?.length}}"
+                       class="ps-2" required #maxSelected="ngModel"/>
+                <br/>
+                <span class="text-danger" *ngIf="maxSelected.touched && maxSelected.invalid
+                        && maxSelected.errors">
+                        Неверное максимальное количество выбранных ответов
+                    </span>
+            </div>
+
+
+            <div *ngFor="let o of q.options; let j=index">
+                <div class="form-group">
+                    <input class="form-control form-control-sm mt-2"
+                           name="option-title-{{i}}-{{j}}" id="option-title-{{i}}-{{j}}"
+                           value="{{o.title}}" [(ngModel)]="o.title" placeholder="Ответ"
+                           #optionTitle="ngModel" required/>
+                    <span class="text-danger" *ngIf="optionTitle.touched && optionTitle.invalid
+                              && optionTitle.errors?.required">
+                            Требуется ввести ответ
+                        </span>
+                </div>
+                <div class="form-group">
+                    <input class="form-control form-control-sm mt-2"
+                           name="option-subtitle-{{i}}-{{j}}" id="option-subtitle-{{i}}-{{j}}"
+                           value="{{o.subtitle}}" [(ngModel)]="o.subtitle"
+                           placeholder="Подзаголовок ответа"/>
+                </div>
+                <div class="form-check mt-2">
+                    <input type="checkbox" name="option-is-correct-{{i}}-{{j}}"
+                           id='option-is-correct-{{i}}-{{j}}' value="{{o.isCorrect}}"
+                           [(ngModel)]="o.isCorrect"/>
+                    <label for="option-is-correct-{{i}}-{{j}}" class="ps-2">
+                        Правильный ответ
+                    </label>
+                </div>
+                <button type="button" class="btn btn-submit mt-3 ps-2"
+                        (click)="deleteOption(q, o)">
+                    Удалить ответ
+                </button>
+            </div>
+            <button type="button" class="btn btn-submit mt-3"
+                    (click)="addOption(q)">
+                Добавить ответ
+            </button>
+            <button type="button" class="btn btn-submit mt-3 ms-2" (click)="deleteQuestion(q)">
+                Удалить вопрос
+            </button>
+        </div>
+
+    </div>
+    <button type="button" class="btn btn-submit mt-3" (click)="addQuestion()">
+        Добавить вопрос
+    </button>
+    <div class="form-group">
+        <input class="form-control form-control-sm mt-3"
+               placeholder="Подзаголовок Опроса" value="{{survey.subtitle}}"
+               [(ngModel)]="survey.subtitle" name="survey-subtitle"
+               id="survey-subtitle"/>
+    </div>
+    <div class="form-group">
+        <input [disabled]="surveyForm.form.invalid || survey.questions.length == 0"
+               type="submit" value="Сохранить" class="btn btn-submit mt-3 mb-3"/>
+        <button *ngIf="id" type="button"
+                class="btn btn-submit ms-3" (click)="deleteSurvey()">
+            Удалить опрос
+        </button>
+    </div>
+
+</form>

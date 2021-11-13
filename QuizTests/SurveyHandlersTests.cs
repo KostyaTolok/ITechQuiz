@@ -3,6 +3,7 @@ using Xunit;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Domain.Entities.Surveys;
@@ -22,15 +23,16 @@ namespace Application.UnitTests
         [Fact]
         public async Task GetSurveysHandlerTest()
         {
-            surveysRepository.Setup(m => m.GetSurveysAsync(default)).ReturnsAsync(surveys).Verifiable();
+            surveysRepository
+                .Setup(m => m.GetSurveysAsync(null, null, CancellationToken.None)).ReturnsAsync(surveys).Verifiable();
 
             var handler = new GetSurveysHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new GetSurveysQuery(), default);
+            var actual = await handler.Handle(new GetSurveysQuery(null, null), CancellationToken.None);
 
             surveysRepository.Verify();
             var actualSurveys = actual.ToList();
 
-            actualSurveys.Should().BeEquivalentTo(surveys, config: c => c.IgnoringCyclicReferences());
+            actualSurveys.Should().BeEquivalentTo(surveys, c => c.IgnoringCyclicReferences());
         }
 
         [Fact]
@@ -43,23 +45,7 @@ namespace Application.UnitTests
 
             surveysRepository.Verify();
 
-            actual.Should().BeEquivalentTo(survey, config: c => c.IgnoringCyclicReferences());
-        }
-
-        [Fact]
-        public async Task GetSurveysByUserIdHandlerTest()
-        {
-            var userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
-            var expected = surveys.Where(survey => survey.UserId == userId);
-
-            surveysRepository.Setup(m => m.GetSurveysByUserIdAsync(userId, default)).ReturnsAsync(expected).Verifiable();
-
-            var handler = new GetSurveysByUserIdHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new GetSurveysByUserIdQuery(userId), default);
-
-            surveysRepository.Verify();
-
-            actual.Should().BeEquivalentTo(expected, config: c => c.IgnoringCyclicReferences());
+            actual.Should().BeEquivalentTo(survey, c => c.IgnoringCyclicReferences());
         }
 
         [Fact]
@@ -77,9 +63,12 @@ namespace Application.UnitTests
         public async Task DeleteSurveyHandlerTest()
         {
             surveysRepository.Setup(m => m.DeleteSurveyAsync(survey, default)).Verifiable();
-
+            surveysRepository
+                .Setup(m => m.GetSurveyAsync(survey.Id, default)).
+                ReturnsAsync(survey).Verifiable();
+            
             var handler = new DeleteSurveyHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new DeleteSurveyCommand(survey.Id), default);
+            await handler.Handle(new DeleteSurveyCommand(survey.Id), default);
 
             surveysRepository.Verify();
         }
@@ -94,6 +83,5 @@ namespace Application.UnitTests
 
             surveysRepository.Verify();
         }
-
     }
 }

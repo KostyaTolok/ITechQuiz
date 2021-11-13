@@ -9,9 +9,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Commands.Users;
+using Domain.Service;
 
 namespace Infrastructure.Services
 {
@@ -33,35 +36,38 @@ namespace Infrastructure.Services
             {
                 signInResult =
                     await mediator.Send(new CheckPasswordSignInCommand(model.Email,
-                            model.Password, model.RememberMe), default);
+                        model.Password, model.RememberMe));
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while logging: {Ex}", ex);
-                throw new Exception("An internal error occured while signing in");
+                logger.LogError("{ExString}: {Ex}", AuthServiceStrings.LoginException, ex.Message);
+                throw new Exception(AuthServiceStrings.LoginException);
             }
 
             if (signInResult.IsNotAllowed)
             {
-                logger.LogError($"User {model.Email} is disabled");
-                throw new BusinessLogicException($"User {model.Email}  is disabled");
+                logger.LogError
+                    ("{ExString} {Email}", AuthServiceStrings.UserDisabledException, model.Email);
+                throw new ArgumentException(AuthServiceStrings.UserDisabledException);
             }
             else if (signInResult.IsLockedOut)
             {
-                logger.LogError($"User {model.Email} is locked out");
-                throw new BusinessLogicException($"User {model.Email}  is locked out");
+                logger.LogError
+                    ("{ExString} {Email}", AuthServiceStrings.UserDisabledException, model.Email);
+                throw new ArgumentException(AuthServiceStrings.UserLockedOutException);
             }
             else if (!signInResult.Succeeded)
             {
-                logger.LogError($"User {model.Email} failed to sign in");
-                throw new BusinessLogicException("Wrong login or password");
+                logger.LogError
+                    ("{ExString} {Email}", AuthServiceStrings.UserSignInException, model.Email);
+                throw new ArgumentException(AuthServiceStrings.UserLoginOrPasswordException);
             }
             else
             {
-                logger.LogInformation($"User {model.Email} signed in");
+                logger.LogInformation
+                    ("{ExString} {Email}", AuthServiceStrings.UserSignInInformation, model.Email);
                 return await mediator.Send(new CreateTokenCommand(model.Email));
             }
-            
         }
 
         public async Task<string> Register(RegisterModel model)
@@ -74,8 +80,8 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error occured while registration: {ex}");
-                throw new Exception("An internal error occured while registration");
+                logger.LogError("{ExString}: {Ex}", AuthServiceStrings.RegisterException, ex.Message);
+                throw new Exception(AuthServiceStrings.RegisterException);
             }
 
             if (user == null)
@@ -90,31 +96,32 @@ namespace Infrastructure.Services
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError($"Error occured while registration: {ex}");
-                    throw new Exception("An internal error occured while registration");
+                    logger.LogError("{ExString}: {Ex}", AuthServiceStrings.RegisterException, ex.Message);
+                    throw new Exception(AuthServiceStrings.RegisterException);
                 }
 
                 if (registerResult.Succeeded)
                 {
                     try
                     {
-                        logger.LogInformation($"User {user.UserName} registered");
+                        logger.LogInformation(AuthServiceStrings.RegisterException);
                         return await mediator.Send(new CreateTokenCommand(model.Email));
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"Error occured while registration: {ex}");
-                        throw new Exception("An internal error occured while registration");
+                        logger.LogError
+                            ("{ExString}: {Ex}", AuthServiceStrings.RegisterException, ex.Message);
+                        throw new Exception(AuthServiceStrings.RegisterException);
                     }
                 }
                 else
                 {
-                    throw new BusinessLogicException("Failed to register");
+                    throw new ArgumentException(AuthServiceStrings.RegisterFailedException);
                 }
             }
             else
             {
-                throw new BusinessLogicException("User with this email already exists");
+                throw new ArgumentException(AuthServiceStrings.UserExistsException);
             }
         }
 
@@ -126,8 +133,52 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"Failed to logout: {ex}");
-                throw new Exception($"Failed to logout");
+                logger.LogError("{ExString}: {Ex}", AuthServiceStrings.LogoutException, ex.Message);
+                throw new Exception(AuthServiceStrings.LogoutException);
+            }
+        }
+        
+        public async Task ChangePasswordAsync(ChangePasswordModel model,
+            CancellationToken token)
+        {
+            User user;
+
+            try
+            {
+                user = await mediator.Send(new GetUserByEmailQuery(model.Email), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}", AuthServiceStrings.ChangePasswordException, ex.Message);
+                throw new Exception(AuthServiceStrings.ChangePasswordException);
+            }
+
+            if (user == null)
+            {
+                logger.LogError(AuthServiceStrings.ChangePasswordExceptionUserNotFound);
+                throw new ArgumentException(AuthServiceStrings.ChangePasswordExceptionUserNotFound);
+            }
+            
+            IdentityResult changeResult;
+            try
+            {
+                changeResult = await mediator.Send(
+                    new ChangePasswordCommand(user, model.OldPassword,model.NewPassword), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}", AuthServiceStrings.ChangePasswordException, ex.Message);
+                throw new Exception(AuthServiceStrings.ChangePasswordException);
+            }
+
+            if (!changeResult.Succeeded)
+            {
+                logger.LogError(AuthServiceStrings.ChangePasswordExceptionMismatch);
+                throw new ArgumentException(changeResult.Errors.First().Description);
+            }
+            else
+            {
+                logger.LogInformation(AuthServiceStrings.PasswordChangeInformation);
             }
         }
     }

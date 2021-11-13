@@ -8,9 +8,9 @@ namespace Domain.Entities.Auth
 {
     public class User : IdentityUser<Guid>
     {
-        public ICollection<Survey> Surveys { get; set; }
+        public virtual ICollection<Survey> Surveys { get; set; }
 
-        public ICollection<AssignRequest> AssignRequests { get; set; }
+        public virtual ICollection<AssignRequest> AssignRequests { get; set; }
 
         public bool IsDisabled { get; set; }
 

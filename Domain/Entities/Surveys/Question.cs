@@ -16,7 +16,7 @@ namespace Domain.Entities.Surveys
 
         public bool Required { get; set; }
 
-        public ICollection<Option> Options { get; set; }
+        public virtual ICollection<Option> Options { get; set; }
 
         public Survey Survey { get; set; }
 

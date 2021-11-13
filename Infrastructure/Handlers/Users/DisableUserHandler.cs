@@ -21,22 +21,17 @@ namespace Infrastructure.Handlers.Users
             this.userManager = userManager;
         }
 
-        public async Task<bool> Handle(DisableUserCommand request, CancellationToken token)
+        public async Task<bool> Handle(DisableUserCommand command, CancellationToken token)
         {
-            var user = await userManager.Users.FirstOrDefaultAsync(user => user.Id == request.Id, token);
+            var user = await userManager.Users.FirstOrDefaultAsync(user => user.Id == command.Id, token);
             if (user == null)
             {
                 return false;
             }
             user.IsDisabled = true;
-            if (request.EndDate.HasValue)
-            {
-                user.DisabledEnd = request.EndDate;
-            }
-            else
-            {
-                user.DisabledEnd = DateTime.Now.AddDays(7);
-            }
+            
+            user.DisabledEnd = command.EndDate ?? DateTime.Now.AddDays(7);
+            
             await userManager.UpdateAsync(user);
 
             return true;

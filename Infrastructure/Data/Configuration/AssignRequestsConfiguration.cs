@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configuration
 {
-    public class AssignRequestsConfiguration: IEntityTypeConfiguration<AssignRequest>
+    public class AssignRequestsConfiguration : IEntityTypeConfiguration<AssignRequest>
     {
         public void Configure(EntityTypeBuilder<AssignRequest> builder)
         {
@@ -16,7 +16,8 @@ namespace Infrastructure.Data.Configuration
             builder.HasKey(a => a.Id);
             builder.Property(a => a.Id).ValueGeneratedOnAdd().IsRequired();
             builder.Property(s => s.CreatedDate).HasColumnType("date").IsRequired();
-            builder.HasOne(a => a.User).WithMany(u => u.AssignRequests);
+            builder.HasOne(a => a.User).WithMany(u => u.AssignRequests)
+                .HasForeignKey(a => a.UserId);
             builder.Property(a => a.UserRole).IsRequired();
         }
     }

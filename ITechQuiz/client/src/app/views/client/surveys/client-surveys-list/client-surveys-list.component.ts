@@ -1,15 +1,16 @@
-﻿import {Component} from "@angular/core";
+﻿import {Component, OnDestroy, OnInit} from "@angular/core";
 import {ActivatedRoute, Data} from "@angular/router";
 import {Subscription} from "rxjs";
 import {SurveysService} from "../../../../services/surveys.service";
 import {Survey} from "../../../../models/survey";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
-    selector: "admin-surveys-list",
-    templateUrl:"admin-surveys-list.component.html"
+    selector: "client-surveys-list",
+    templateUrl: "client-surveys-list.component.html"
 })
-export class AdminSurveysListComponent{
-    surveys: Survey[] = []
+export class ClientSurveysListComponent implements OnInit, OnDestroy {
+    surveys: Survey[] | undefined
     data: Data | undefined
 
     subscription?: Subscription

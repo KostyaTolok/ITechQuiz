@@ -3,15 +3,20 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading;
 using Application.Interfaces.Services;
 using Domain.Entities.Auth;
 using Domain.Models;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication.Areas.Admin
 {
     [ApiController]
     [Route("api/admin/[Controller]")]
+    [AutoValidateAntiforgeryToken]
     public class UsersController : Controller
     {
         private readonly IUsersService userService;
@@ -22,9 +27,9 @@ namespace WebApplication.Areas.Admin
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<IEnumerable<User>>> Get(string role)
         {
             try
@@ -42,14 +47,33 @@ namespace WebApplication.Areas.Admin
         }
 
         [HttpGet("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
-        public async Task<ActionResult<User>> Get(Guid id)
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<User>> GetUserById(Guid id)
         {
             try
             {
-                return Ok(await userService.GetUserAsync(id));
+                return Ok(await userService.GetUserByIdAsync(id));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        
+        [HttpGet("{email}")]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<User>> GetUserByEmail(string email)
+        {
+            try
+            {
+                return Ok(await userService.GetUserByEmailAsync(email));
             }
             catch (ArgumentException ex)
             {
@@ -62,9 +86,8 @@ namespace WebApplication.Areas.Admin
         }
 
         [HttpDelete("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
@@ -89,9 +112,8 @@ namespace WebApplication.Areas.Admin
         }
 
         [HttpPost("disable")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> DisableUser(DisableUserModel model)
         {
             try
@@ -115,10 +137,9 @@ namespace WebApplication.Areas.Admin
             }
         }
 
-        [HttpPost("enable")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("enable/{id:guid}")]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> EnableUser(Guid id)
         {
             try
@@ -141,5 +162,34 @@ namespace WebApplication.Areas.Admin
                 return StatusCode(500, ex.Message);
             }
         }
+        
+        [HttpPost("remove-from-role")]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> RemoveUserFromRole(RemoveUserFromRoleModel model,
+            CancellationToken token)
+        {
+            try
+            {
+                var currentEmail = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (await userService.RemoveUserFromRoleAsync(model, currentEmail, token))
+                {
+                    return Ok("User successfully removed from role");
+                }
+                else
+                {
+                    return NotFound("User not found");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        
     }
 }

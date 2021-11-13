@@ -1,3 +1,11 @@
 ﻿.btn-submit{
     background-color: var(--main-color);
 }
+
+.accepted-request{
+    background-color: #a8ff98;
+}
+
+.rejected-request{
+    background-color: #ff8989;
+}

@@ -1,26 +1,36 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Application.Interfaces.Services;
 using Domain.Entities.Auth;
 using Application.Queries.Users;
 using Application.Commands.Users;
+using Application.DTO;
+using Application.Queries.Auth;
+using AutoMapper;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Domain.Enums;
+using Domain.Service;
 
 namespace Infrastructure.Services
 {
     public class UsersService : IUsersService
     {
         private readonly IMediator mediator;
+        private readonly IMapper mapper;
         private readonly ILogger logger;
 
-        public UsersService(IMediator mediator, ILoggerFactory factory)
+        public UsersService(IMediator mediator, ILoggerFactory factory,
+            IMapper mapper)
         {
             this.mediator = mediator;
+            this.mapper = mapper;
             logger = factory.CreateLogger<UsersService>();
         }
 
@@ -32,17 +42,18 @@ namespace Infrastructure.Services
             {
                 try
                 {
-                    users = await mediator.Send(new GetUsersQuery(), default);
+                    users = await mediator.Send(new GetUsersQuery());
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError("Error occured while getting users: {Ex}", ex);
-                    throw new Exception("An internal error occured while getting users");
+                    logger.LogError
+                        ("{ExString}: {Ex}", UserServiceStrings.GetUsersException, ex.Message);
+                    throw new Exception(UserServiceStrings.GetUsersException);
                 }
             }
             else
             {
-                Roles? roleEnum = Enum.TryParse(role, out Roles result) ? result : null;
+                Roles? roleEnum = Enum.TryParse(role,true, out Roles result) ? result : null;
                 if (roleEnum.HasValue)
                 {
                     try
@@ -51,14 +62,15 @@ namespace Infrastructure.Services
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("Error occured while getting users: {Ex}", ex);
-                        throw new Exception("An internal error occured while getting users");
+                        logger.LogError
+                            ("{ExString}: {Ex}",UserServiceStrings.GetUsersException, ex.Message);
+                        throw new Exception(UserServiceStrings.GetUsersException);
                     }
                 }
                 else
                 {
-                    logger.LogError("Failed to get users. Role is incorrect");
-                    throw new ArgumentException("Failed to get users. Role is incorrect");
+                    logger.LogError(UserServiceStrings.GetUsersRoleException);
+                    throw new ArgumentException(UserServiceStrings.GetUsersRoleException);
                 }
             }
             
@@ -67,11 +79,11 @@ namespace Infrastructure.Services
                 return users;
             }
 
-            logger.LogError("Failed to get users");
-            throw new ArgumentException("Failed to get users");
+            logger.LogError(UserServiceStrings.GetUsersNullException);
+            throw new ArgumentException(UserServiceStrings.GetUsersNullException);
         }
 
-        public async Task<User> GetUserAsync(Guid id)
+        public async Task<UserDTO> GetUserByIdAsync(Guid id)
         {
             User user;
             try
@@ -80,17 +92,80 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while getting user: {Ex}", ex);
-                throw new Exception("An internal error occured while getting user");
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
+                throw new Exception(UserServiceStrings.GetUserException);
             }
 
             if (user != null)
             {
-                return user;
+                UserDTO userDto;
+                try
+                {
+                    userDto = mapper.Map<UserDTO>(user);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
+                    throw new Exception(UserServiceStrings.GetUserException);
+                }
+                
+                try
+                {
+                    userDto.Roles = await mediator.Send(new GetRolesByUserQuery(user));
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetRolesException, ex.Message);
+                    throw new Exception(UserServiceStrings.GetRolesException);
+                }
+
+                return userDto;
             }
 
-            logger.LogError("Failed to get user. Wrong id");
-            throw new ArgumentException("Failed to get user. Wrong id");
+            logger.LogError(UserServiceStrings.GetUserIdException);
+            throw new ArgumentException(UserServiceStrings.GetUserIdException);
+        }
+        
+        public async Task<UserDTO> GetUserByEmailAsync(string email)
+        {
+            User user;
+            try
+            {
+                user = await mediator.Send(new GetUserByEmailQuery(email));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
+                throw new Exception(UserServiceStrings.GetUserException);
+            }
+
+            if (user != null)
+            {
+                UserDTO userDto;
+                try
+                {
+                    userDto = mapper.Map<UserDTO>(user);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
+                    throw new Exception(UserServiceStrings.GetUserException);
+                }
+                
+                try
+                {
+                    userDto.Roles = await mediator.Send(new GetRolesByUserQuery(user));
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetRolesException, ex.Message);
+                    throw new Exception(UserServiceStrings.GetRolesException);
+                }
+                return userDto;
+            }
+
+            logger.LogError(UserServiceStrings.GetUserEmailException);
+            throw new ArgumentException(UserServiceStrings.GetUserEmailException);
         }
 
         public async Task<bool> DeleteUserAsync(Guid id)
@@ -102,18 +177,18 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while deleting user: {Ex}", ex);
-                throw new Exception("An internal error occured while deleting user");
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.DeleteUserException, ex.Message);
+                throw new Exception(UserServiceStrings.DeleteUserException);
             }
 
             if (!deleteResult.Succeeded)
             {
-                logger.LogError("Failed to delete user. Wrong id");
+                logger.LogError(UserServiceStrings.DeleteUserIdException);
                 return false;
             }
             else
             {
-                logger.LogInformation("User with {Id} deleted", id);
+                logger.LogInformation(UserServiceStrings.UserDeletedInformation);
                 return true;
             }
         }
@@ -122,8 +197,8 @@ namespace Infrastructure.Services
         {
             if (model.DisableEnd.HasValue && model.DisableEnd < DateTime.Now)
             {
-                logger.LogError("Failed to disable user. Disable end time is incorrect");
-                throw new ArgumentException("Failed to disable user. Disable end time is incorrect");
+                logger.LogError(UserServiceStrings.DisableUserTimeException);
+                throw new ArgumentException(UserServiceStrings.DisableUserTimeException);
             }
 
             bool disableResult;
@@ -133,18 +208,18 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while disabling user: {Ex}", ex);
-                throw new Exception("An internal error occured while disabling user");
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.DisableUserException, ex);
+                throw new Exception(UserServiceStrings.DisableUserException);
             }
 
             if (!disableResult)
             {
-                logger.LogError("Failed to disable user. Wrong id");
+                logger.LogError(UserServiceStrings.DisableUserIdException);
                 return false;
             }
             else
             {
-                logger.LogInformation("User with {model.UserId} disabled", model.UserId);
+                logger.LogInformation(UserServiceStrings.UserDisabledInformation);
                 return true;
             }
         }
@@ -158,18 +233,79 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while enabling user: {Ex}", ex);
-                throw new Exception("An internal error occured while enabling user");
+                logger.LogError("{ExString}: {Ex}",UserServiceStrings.EnableUserException, ex.Message);
+                throw new Exception(UserServiceStrings.EnableUserException);
             }
 
             if (!enableResult)
             {
-                logger.LogError("Failed to enable user. Wrong id");
+                logger.LogError(UserServiceStrings.EnableUserIdException);
                 return false;
             }
             else
             {
-                logger.LogInformation("User with {Id} enabled", id);
+                logger.LogInformation(UserServiceStrings.UserEnabledInformation);
+                return true;
+            }
+        }
+        
+        public async Task<bool> RemoveUserFromRoleAsync(RemoveUserFromRoleModel model,
+            string currentEmail, CancellationToken token)
+        {
+            if (!Enum.TryParse(model.Role, true, out Roles role))
+            {
+                logger.LogError(UserServiceStrings.RemoveUserFromRoleExceptionRole);
+                throw new Exception(UserServiceStrings.RemoveUserFromRoleExceptionRole);
+            }
+            
+            User currentUser;
+            try
+            {
+                currentUser = await mediator.Send(new GetUserByEmailQuery(currentEmail), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
+                throw new Exception(UserServiceStrings.GetUserException);
+            }
+
+            IEnumerable<string> currentRoles;
+            try
+            {
+                currentRoles = await mediator.Send(new GetRolesByUserQuery(currentUser), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetRolesException, ex.Message);
+                throw new Exception(UserServiceStrings.GetRolesException);
+            }
+
+            if (currentRoles.Contains(model.Role))
+            {
+                logger.LogError("{ExString}", UserServiceStrings.RemoveFromRoleCurrentRoleException);
+                throw new Exception(UserServiceStrings.RemoveFromRoleCurrentRoleException);
+            }
+            
+            bool removeResult;
+            try
+            {
+                removeResult = await mediator.Send(
+                    new RemoveUserFromRoleCommand(model.UserId, model.Role), token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.RemoveUserFromRoleException, ex);
+                throw new Exception(UserServiceStrings.RemoveUserFromRoleException);
+            }
+
+            if (!removeResult)
+            {
+                logger.LogError(UserServiceStrings.RemoveUserFromRoleIdException);
+                return false;
+            }
+            else
+            {
+                logger.LogInformation(UserServiceStrings.UserRemovedFromRoleInformation);
                 return true;
             }
         }

@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Http;
 using System.Threading;
 using Application.DTO;
 using Domain.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication.Areas.Admin
 {
     [ApiController]
     [Route("api/admin/[Controller]")]
+    [AutoValidateAntiforgeryToken]
     public class AssignRequestsController : Controller
     {
         private readonly IAssignRequestsService assignRequestsService;
@@ -25,6 +28,7 @@ namespace WebApplication.Areas.Admin
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<IEnumerable<AssignRequestDTO>>> Get(bool includeRejected,
             bool sorted, CancellationToken token)
         {
@@ -44,9 +48,7 @@ namespace WebApplication.Areas.Admin
         }
 
         [HttpDelete("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken token)
         {
             try
@@ -71,16 +73,15 @@ namespace WebApplication.Areas.Admin
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<CreateAssignRequestModel>> Post(CreateAssignRequestModel model,
             CancellationToken token)
         {
             try
             {
                 var id = await assignRequestsService.CreateAssignRequestAsync(model, token);
-                return Created($"api/surveys/{id}", model);
+                return Created($"api/AssignRequests/{id}", model);
             }
             catch (ArgumentException ex)
             {
@@ -92,10 +93,9 @@ namespace WebApplication.Areas.Admin
             }
         }
 
-        [HttpPost("accept")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("accept/{id:guid}")]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Accept(Guid id, CancellationToken token)
         {
             try
@@ -119,17 +119,16 @@ namespace WebApplication.Areas.Admin
             }
         }
 
-        [HttpPost("reject")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("reject/{id:guid}")]
+        [Authorize(Roles = "admin",
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Reject(Guid id, CancellationToken token)
         {
             try
             {
                 await assignRequestsService.RejectAssignRequestAsync(id, token);
 
-                return Ok($"Assign request rejected");
+                return Ok("Assign request rejected");
             }
             catch (ArgumentException ex)
             {

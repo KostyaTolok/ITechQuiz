@@ -3,7 +3,9 @@ using Domain.Enums;
 using Domain.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Application.DTO;
 
 namespace Application.Interfaces.Services
 {
@@ -11,7 +13,9 @@ namespace Application.Interfaces.Services
     {
         Task<IEnumerable<User>> GetUsersAsync(string role);
 
-        Task<User> GetUserAsync(Guid id);
+        Task<UserDTO> GetUserByIdAsync(Guid id);
+
+        Task<UserDTO> GetUserByEmailAsync(string email);
 
         Task<bool> DeleteUserAsync(Guid id);
 
@@ -19,5 +23,7 @@ namespace Application.Interfaces.Services
 
         Task<bool> EnableUserAsync(Guid id);
 
+        Task<bool> RemoveUserFromRoleAsync(RemoveUserFromRoleModel model,string currentEmail,
+            CancellationToken token);
     }
 }

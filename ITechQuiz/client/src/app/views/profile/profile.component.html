@@ -1,0 +1,23 @@
+﻿<div class="container">
+    <user-detail [user]="user" [isAdmin]="false"></user-detail>
+    <h5 class="mt-3" *ngIf="user?.assignRequests?.length != 0">Запросы пользователя</h5>
+    <assign-requests-list [requests]="user?.assignRequests"
+                          (updateRequestsEvent)="loadUser()" [isAdmin]="false">
+    </assign-requests-list>
+    <form method="post" (submit)="makeAssignRequest()" *ngIf="!user?.isDisabled">
+        <select [value]="role" [(ngModel)]="role"
+                name="role" class="mt-3">
+            <option *ngFor="let role of roles|mapToArray" value="{{role.key}}">{{role.value}}</option>
+        </select>
+        <input type="submit"
+               value="Подать заявку" class="btn btn-submit ms-3">
+    </form>
+    <button type="button" class="btn btn-submit mt-3 mb-3 me-3"
+            routerLink="change-password">
+        Изменить пароль
+    </button>
+    <button type="button" class="btn btn-submit mt-3 mb-3"
+            (click)="logout()">
+        Выйти из аккаунта
+    </button>
+</div>

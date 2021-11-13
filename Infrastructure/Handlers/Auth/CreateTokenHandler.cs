@@ -55,7 +55,7 @@ namespace Infrastructure.Handlers.Auth
                 configuration["Token:Issuer"],
                 configuration["Token:Audience"],
                 claims, signingCredentials: creds,
-                expires: DateTime.UtcNow.AddMinutes
+                expires: DateTime.UtcNow.AddYears
                     (Convert.ToInt32(configuration["Token:Lifetime"]))
             );
 

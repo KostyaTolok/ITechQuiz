@@ -1,19 +1,8 @@
-﻿<h3 class="mt-3">Панель администрирования</h3>
+﻿<h3 class="mt-3">Панель админа</h3>
 <div class="list-group mt-3">
-    <a class="list-group-item list-group-item-action"
-       routerLink="statistic-surveys">
-        <h5 class="mb-1">Опросы</h5>
-    </a>
-    <a class="list-group-item list-group-item-action"
-       routerLink="quiz-surveys">
-        <h5 class="mb-1">Викторины</h5>
-    </a>
-    <a class="list-group-item list-group-item-action"
-       routerLink="users">
-        <h5 class="mb-1">Пользователи</h5>
-    </a>
-    <a class="list-group-item list-group-item-action"
-       routerLink="requests">
-        <h5 class="mb-1">Запросы пользователей</h5>
+    <a *ngFor="let item of links | mapToArray"
+       class="list-group-item list-group-item-action"
+       routerLink="{{item.key}}">
+        <h5 class="mb-1">{{item.value}}</h5>
     </a>
 </div>

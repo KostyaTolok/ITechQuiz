@@ -6,8 +6,7 @@ import {Subscription} from "rxjs";
 
 @Component({
     selector: 'survey-detail',
-    templateUrl: 'survey-detail.component.html',
-    styleUrls: ['survey-detail.component.css']
+    templateUrl: 'survey-detail.component.html'
 })
 export class SurveyDetailComponent implements OnInit, OnDestroy {
     id?: string = undefined
@@ -31,7 +30,9 @@ export class SurveyDetailComponent implements OnInit, OnDestroy {
 
     loadSurvey(id: string) {
         this.subscription = this.surveysService.getSurvey(id)
-            .subscribe((data: Survey) => this.survey = data)
+            .subscribe((data: Survey) => {
+                this.survey = data
+            })
     }
 
 }

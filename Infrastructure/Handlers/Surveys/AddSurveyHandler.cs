@@ -19,7 +19,7 @@ namespace Infrastructure.Handlers.Surveys
 
         public async Task<Guid> Handle(AddSurveyCommand command, CancellationToken token)
         {
-            Survey survey = command.Survey;
+            var survey = command.Survey;
 
             await surveysRepository.AddSurveyAsync(survey, token);
             return survey.Id;

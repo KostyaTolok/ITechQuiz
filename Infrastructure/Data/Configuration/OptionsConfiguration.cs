@@ -14,7 +14,9 @@ namespace Infrastructure.Data.Configuration
             builder.Property(o => o.Title).HasMaxLength(100).IsRequired();
             builder.Property(o => o.IsCorrect).IsRequired();
             builder.Property(o => o.Subtitle).HasMaxLength(150);
-            builder.HasOne(o => o.Question).WithMany(q => q.Options);
+            builder.HasOne(o => o.Question).WithMany(q => q.Options)
+                .HasForeignKey(o=>o.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

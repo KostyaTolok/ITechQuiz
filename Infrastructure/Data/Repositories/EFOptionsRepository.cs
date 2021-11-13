@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Data.Repositories
@@ -18,39 +19,34 @@ namespace Infrastructure.Data.Repositories
             this.context = context;
         }
 
-        public async Task AddOptionAsync(Option option)
+        public async Task AddOptionAsync(Option option, CancellationToken token)
         {
-            await context.Options.AddAsync(option);
-            await context.SaveChangesAsync();
+            await context.Options.AddAsync(option, token);
+            await context.SaveChangesAsync(token);
         }
 
-        public async Task DeleteOptionAsync(Guid id)
+        public async Task DeleteOptionAsync(Option option, CancellationToken token)
         {
-            var option = await GetOptionAsync(id);
             context.Entry(option).State = EntityState.Deleted;
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(token);
         }
 
-        public async Task<Option> GetOptionAsync(Guid id)
+        public async Task<Option> GetOptionAsync(Guid id, CancellationToken token)
         {
             return await context.Options
-                        .Include(option => option.Question)
-                        .ThenInclude(question => question.Survey)
-                        .SingleOrDefaultAsync(option => option.Id == id);
+                .SingleOrDefaultAsync(option => option.Id == id, token);
         }
 
-        public async Task<IEnumerable<Option>> GetOptionsAsync()
+        public async Task<IEnumerable<Option>> GetOptionsAsync(CancellationToken token)
         {
             return await context.Options
-                        .Include(option => option.Question)
-                        .ThenInclude(question => question.Survey)
-                        .ToListAsync();
+                .ToListAsync(token);
         }
 
-        public async Task UpdateOptionAsync(Option option)
+        public async Task UpdateOptionAsync(Option option, CancellationToken token)
         {
             context.Options.Update(option);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(token);
         }
     }
 }

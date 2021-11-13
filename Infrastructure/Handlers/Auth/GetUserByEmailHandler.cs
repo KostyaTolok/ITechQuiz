@@ -1,4 +1,5 @@
-﻿using Application.Queries.Auth;
+﻿using System.Linq;
+using Application.Queries.Auth;
 using Domain.Entities.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -20,8 +21,11 @@ namespace Infrastructure.Handlers.Auth
         public async Task<User> Handle(GetUserByEmailQuery request, CancellationToken token)
         {
             return await userManager.Users
-                                    .Include(user => user.Surveys)
-                                    .FirstOrDefaultAsync(user => user.Email == request.Email, token);
+                .Include(user => user.Surveys.OrderByDescending(s => s.CreatedDate))
+                .Include(user => user.AssignRequests)
+                .AsSplitQuery()
+                .OrderBy(user => user.Email)
+                .FirstOrDefaultAsync(user => user.Email == request.Email, token);
         }
     }
 }

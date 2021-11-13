@@ -1,0 +1,35 @@
+﻿<spinner *ngIf="user == undefined; else detail"></spinner>
+
+<ng-template #detail>
+    <div class="container">
+        <user-detail [user]="user" [isAdmin]="true"></user-detail>
+        <h5 class="mt-3" *ngIf="user?.assignRequests?.length != 0">Запросы пользователя</h5>
+        <assign-requests-list (updateRequestsEvent)="loadUser(user.id)"
+                              [requests]="user?.assignRequests" [isAdmin]="true"></assign-requests-list>
+        <form method="post" (submit)="disableUser()" *ngIf="!user?.isDisabled">
+            <input type="datetime-local" id="disableEnd"
+                   name="disableEnd" min="{{dateNow}}"
+                   [value]="disableEnd"
+                   max="2050-12-31T00:00" [(ngModel)]="this.disableEnd"
+                   #disable="ngModel" required>
+            <span class="text-danger" *ngIf="disable.touched && disable.invalid
+              && disable.errors?.required">
+                Требуется выбрать дату окончания блокировки
+            </span>
+            <input [disabled]="disable.invalid" type="submit"
+                   value="Заблокировать" class="btn btn-submit ms-3 mt-3 mb-3">
+        </form>
+        <form method="post" (submit)="removeFromRole()" *ngIf="!user?.isDisabled">
+            <select [value]="role" [(ngModel)]="this.role"
+                    name="role" class="mt-3">
+                <option *ngFor="let role of user?.roles" value="{{role}}">{{role}}</option>
+            </select>
+            <input type="submit"
+                   value="Удалить роль" class="btn btn-submit ms-3 mt-3 mb-3">
+        </form>
+        <input *ngIf="user?.isDisabled" type="button" (click)="enableUser()"
+               value="Разблокировать" class="btn btn-submit me-3 mt-3 mb-3">
+        <input type="button" value="Удалить" (click)="deleteUser()"
+               class="btn btn-danger mt-3 mb-3">
+    </div>
+</ng-template>

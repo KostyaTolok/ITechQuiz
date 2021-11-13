@@ -8,7 +8,7 @@ export class Question{
         public maxSelected?:number,
         public required?:boolean,
         public surveyId?:string,
-        public options?: Option[]
+        public options: Option[] = []
     )
     { }
 }

@@ -1,0 +1,22 @@
+﻿<spinner *ngIf="!requests; else list"></spinner>
+
+<ng-template #list>
+    <h3 class="mt-3" *ngIf="requests?.length != 0">Запросы пользователей</h3>
+    <h3 class="mt-3" *ngIf="requests?.length === 0">Запросов пользователей нет</h3>
+    <div>
+        <input [(ngModel)]="includeRejected"
+               type="checkbox" id="includeRejected"
+               (change)="setIncludeRejected(includeRejected)">
+        <label for="includeRejected" class="ps-2">Включать отвергнутые запросы</label>
+    </div>
+    <div>
+        <input [(ngModel)]="sorted"
+               type="checkbox" id="sorted"
+               (change)="setSorted(sorted)">
+        <label for="sorted" class="ps-2">Сортировать по дате</label>
+    </div>
+    <assign-requests-list *ngIf="requests?.length != 0"
+                          (updateRequestsEvent)="loadAssignRequests()"
+                          [requests]="requests" [isAdmin]="true">
+    </assign-requests-list>
+</ng-template>

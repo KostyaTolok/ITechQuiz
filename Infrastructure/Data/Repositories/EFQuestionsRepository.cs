@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using Application.Interfaces.Repositories;
 using Domain.Entities.Surveys;
@@ -19,39 +20,40 @@ namespace Infrastructure.Data.Repositories
             this.context = context;
         }
 
-        public async Task AddQuestionAsync(Question question)
+        public async Task AddQuestionAsync(Question question,
+            CancellationToken token)
         {
-            await context.Questions.AddAsync(question);
-            await context.SaveChangesAsync();
+            await context.Questions.AddAsync(question, token);
+            await context.SaveChangesAsync(token);
         }
 
-        public async Task DeleteQuestionAsync(Guid id)
+        public async Task DeleteQuestionAsync(Question question,
+            CancellationToken token)
         {
-            var survey = await GetQuestionAsync(id);
-            context.Entry(survey).State = EntityState.Deleted;
-            await context.SaveChangesAsync();
+            context.Entry(question).State = EntityState.Deleted;
+            await context.SaveChangesAsync(token);
         }
 
-        public async Task<Question> GetQuestionAsync(Guid id)
-        {
-            return await context.Questions
-                        .Include(question => question.Options)
-                        .Include(question => question.Survey)
-                        .SingleOrDefaultAsync(question => question.Id == id);
-        }
-
-        public async Task<IEnumerable<Question>> GetQuestionsAsync()
+        public async Task<Question> GetQuestionAsync(Guid id,
+            CancellationToken token)
         {
             return await context.Questions
                         .Include(question => question.Options)
-                        .Include(question => question.Survey)
-                        .ToListAsync();
+                        .SingleOrDefaultAsync(question => question.Id == id, token);
         }
 
-        public async Task UpdateQuestionAsync(Question question)
+        public async Task<IEnumerable<Question>> GetQuestionsAsync(CancellationToken token)
+        {
+            return await context.Questions
+                        .Include(question => question.Options)
+                        .ToListAsync(token);
+        }
+
+        public async Task UpdateQuestionAsync(Question question,
+            CancellationToken token)
         {
             context.Questions.Update(question);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(token);
         }
     }
 }

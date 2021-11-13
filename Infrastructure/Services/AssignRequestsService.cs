@@ -12,6 +12,7 @@ using System.Threading;
 using Application.Commands.AssignRequests;
 using Application.Queries.AssignRequests;
 using Domain.Enums;
+using Domain.Service;
 
 namespace Infrastructure.Services
 {
@@ -30,6 +31,12 @@ namespace Infrastructure.Services
 
         public async Task<Guid> CreateAssignRequestAsync(CreateAssignRequestModel model, CancellationToken token)
         {
+            if (!Enum.TryParse(model.Role,true, out Roles _))
+            {
+                logger.LogError(AssignRequestsServiceStrings.AddAssignRequestRoleException);
+                throw new ArgumentException(AssignRequestsServiceStrings.AddAssignRequestRoleException);
+            }
+            
             AssignRequest request;
             try
             {
@@ -37,25 +44,21 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while adding assign request: {Ex}", ex);
-                throw new Exception("An internal error occured while adding assign request");
+                logger.LogError
+                    ("{ExString}: {Ex}", AssignRequestsServiceStrings.AddAssignRequestException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.AddAssignRequestException);
             }
 
             if (request == null)
             {
-                logger.LogError("Failed to add assign request. Assign request is null");
-                throw new ArgumentNullException("Failed to add assign request. Assign request is null");
+                logger.LogError(AssignRequestsServiceStrings.AddAssignRequestNullException);
+                throw new ArgumentException(AssignRequestsServiceStrings.AddAssignRequestNullException);
             }
 
             if (request.UserId == default)
             {
-                logger.LogError("Failed to add assign request. Missing user");
-                throw new ArgumentException("Failed to add assign request. Missing user");
-            }
-            else if (request.UserRole == default)
-            {
-                logger.LogError("Failed to add assign request. Missing role");
-                throw new ArgumentException("Failed to add assign request. Missing role");
+                logger.LogError(AssignRequestsServiceStrings.AddAssignRequestUserIdException);
+                throw new ArgumentException(AssignRequestsServiceStrings.AddAssignRequestUserIdException);
             }
 
             try
@@ -65,8 +68,9 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while adding assign request: {Ex}", ex);
-                throw new Exception("An internal error occured while adding assign request");
+                logger.LogError
+                    ("{ExString}: {Ex}", AssignRequestsServiceStrings.AddAssignRequestException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.AddAssignRequestException);
             }
         }
 
@@ -74,8 +78,8 @@ namespace Infrastructure.Services
         {
             if (id == default)
             {
-                logger.LogError("Failed to delete assign request. Wrong id");
-                throw new ArgumentException("Failed to delete assign request. Wrong id");
+                logger.LogError(AssignRequestsServiceStrings.DeleteAssignRequestIdException);
+                throw new ArgumentException(AssignRequestsServiceStrings.DeleteAssignRequestIdException);
             }
 
             try
@@ -84,75 +88,76 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while deleting assign request: {Ex}", ex);
-                throw new Exception("An internal error occured while deleting assign request");
+                logger.LogError
+                    ("{ExString}: {Ex}", AssignRequestsServiceStrings.DeleteAssignRequestException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.DeleteAssignRequestException);
             }
         }
 
         public async Task<IEnumerable<AssignRequestDTO>> GetAssignRequestsAsync(bool includeRejected,
             bool sorted, CancellationToken token)
         {
-            IEnumerable<AssignRequest> applications;
+            IEnumerable<AssignRequest> assignRequests;
             try
             {
                 if (sorted)
                 {
-                    applications = await mediator.Send(new GetAssignRequestsSortedByDate(includeRejected), token);
+                    assignRequests = await mediator.Send(new GetAssignRequestsSortedByDate(includeRejected), token);
                 }
                 else
                 {
-                    applications = await mediator.Send(new GetAssignRequestsQuery(includeRejected), token);
+                    assignRequests = await mediator.Send(new GetAssignRequestsQuery(includeRejected), token);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while getting assign requests: {Ex}", ex);
-                throw new Exception("An internal error occured while getting assign requests");
+                logger.LogError
+                    ("{ExString}: {Ex}",AssignRequestsServiceStrings.GetAssignRequestsException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.GetAssignRequestsException);
             }
 
-            if (applications != null)
+            if (assignRequests != null)
             {
-                return mapper.Map<IEnumerable<AssignRequestDTO>>(applications);
+                return mapper.Map<IEnumerable<AssignRequestDTO>>(assignRequests);
             }
 
-            logger.LogError("Failed to assign requests");
-            throw new Exception("Failed to assign requests");
+            logger.LogError(AssignRequestsServiceStrings.GetAssignRequestsNullException);
+            throw new Exception(AssignRequestsServiceStrings.GetAssignRequestsNullException);
         }
 
         public async Task<bool> AcceptAssignRequestAsync(Guid id, CancellationToken token)
         {
-            AssignRequest application;
+            AssignRequest request;
             try
             {
-                application = await mediator.Send(new GetAssignRequestByIdQuery(id), token);
+                request = await mediator.Send(new GetAssignRequestByIdQuery(id), token);
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while getting assign request : {Ex}", ex);
-                throw new Exception("An internal error occured while getting assign request");
+                logger.LogError
+                    ("{ExString}: {Ex}", AssignRequestsServiceStrings.GetAssignRequestException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.GetAssignRequestException);
             }
 
             bool addToRoleResult;
-            Roles role;
             try
             {
-                role = application.UserRole;
-                addToRoleResult = await mediator.Send(new AddToRoleCommand(application.UserId, role), default);
+                addToRoleResult = await mediator.Send(new AddToRoleCommand(request.UserId, request.UserRole), token);
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while adding user to role: {Ex}", ex);
-                throw new Exception("An internal error occured while adding user to role");
+                logger.LogError("{ExString}: {Ex}",AssignRequestsServiceStrings.AddToRoleException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.AddToRoleException);
             }
 
             if (!addToRoleResult)
             {
-                logger.LogError("Failed to add user to {Role} role. Wrong id", role);
+                logger.LogError(AssignRequestsServiceStrings.AddToRoleIdException);
                 return false;
             }
             else
             {
-                logger.LogInformation("User with {application.UserId} added to {Role} role", application.UserId, role);
+                logger.LogInformation(AssignRequestsServiceStrings.AddToRoleIdInformation);
             }
 
             return await DeleteAssignRequestAsync(id, token);
@@ -167,8 +172,9 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while getting assign request : {Ex}", ex);
-                throw new Exception("An internal error occured while getting assign request");
+                logger.LogError
+                    ("{ExString}: {Ex}", AssignRequestsServiceStrings.GetAssignRequestException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.GetAssignRequestException);
             }
 
             try
@@ -178,8 +184,9 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("Error occured while updating assign request: {Ex}", ex);
-                throw new Exception("An internal error occured while updating assign request");
+                logger.LogError
+                    ("{ExString}: {Ex}",AssignRequestsServiceStrings.UpdateAssignRequestException, ex.Message);
+                throw new Exception(AssignRequestsServiceStrings.UpdateAssignRequestException);
             }
         }
     }

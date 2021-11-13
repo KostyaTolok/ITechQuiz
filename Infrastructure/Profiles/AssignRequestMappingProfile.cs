@@ -36,7 +36,7 @@ namespace Infrastructure.Profiles
         public Roles Resolve(CreateAssignRequestModel source, AssignRequest destination, Roles destMember,
             ResolutionContext context)
         {
-            return Enum.TryParse(source.Role, out Roles role) ? role : 
+            return Enum.TryParse(source.Role,true, out Roles role) ? role : 
                 throw new Exception("Failed to map. Incorrect Role");
         }
     }

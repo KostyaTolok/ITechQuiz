@@ -27,7 +27,7 @@ namespace Infrastructure.Profiles
             public SurveyTypes Resolve(SurveyDTO source, Survey destination,
                 SurveyTypes destMember, ResolutionContext context)
             {
-                return Enum.TryParse(source.Type, out SurveyTypes type)
+                return Enum.TryParse(source.Type, true, out SurveyTypes type)
                     ? type
                     : throw new Exception("Failed to map. Incorrect Type");
             }

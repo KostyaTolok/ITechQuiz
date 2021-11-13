@@ -78,7 +78,7 @@ namespace WebApplication.Migrations
                         new
                         {
                             Id = new Guid("fb96bb35-90fd-4f70-99a0-954fcfb14baf"),
-                            ConcurrencyStamp = "8f7c348a-68c9-4aba-8c27-6b0d925bf8fa",
+                            ConcurrencyStamp = "48c643de-c89e-4f87-bd5b-18dfe6ebbc3c",
                             Description = "Управляет добавлением и удалением клиентов",
                             Name = "admin",
                             NormalizedName = "ADMIN"
@@ -86,7 +86,7 @@ namespace WebApplication.Migrations
                         new
                         {
                             Id = new Guid("f7d36113-51ff-4b07-8b5f-64fccc8091d5"),
-                            ConcurrencyStamp = "abf30b81-8149-4082-bf27-6a2a6fa073e7",
+                            ConcurrencyStamp = "891df178-e2b4-4a35-8d8e-a32f32438b5f",
                             Description = "Создает, удаляет и изменяет опросы. Имеет доступ к статистике ",
                             Name = "client",
                             NormalizedName = "CLIENT"
@@ -169,14 +169,14 @@ namespace WebApplication.Migrations
                         {
                             Id = new Guid("d91046a9-d12b-4c14-9810-ac3af195066a"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ef20ec72-3708-4323-a5d9-f284731a87ae",
+                            ConcurrencyStamp = "aee8f1ec-24de-4699-beb0-607354089768",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             IsDisabled = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEMsSKMWJcqYWadNIcvVnbFL7xV3LgV2aUez5KrUh7Tjhxo4PkFCntB9yRIp71rUq5A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEOXqyNBLAGabk3dtalUbODT5IOG0e1l0FvhRZToGRfq11YYGcXOf0qJ3ud2dikAQsA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -186,14 +186,14 @@ namespace WebApplication.Migrations
                         {
                             Id = new Guid("52f4c7c6-7f95-4d40-8308-b36a3ce86a52"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2eab55bd-9e45-4810-9703-7170e2ac4d20",
+                            ConcurrencyStamp = "7c823473-963c-4196-83c8-1c994e6cc3ef",
                             Email = "client@gmail.com",
                             EmailConfirmed = true,
                             IsDisabled = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "CLIENT@GMAIL.COM",
                             NormalizedUserName = "CLIENT",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJDoCx5kFaHFaTUTbDNyaApcZywpaUs17NNmwGM+0ospRA/RuzN7wtVgFEHIVbdjGQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELqszylyDK9HeAwY9m0JLSrdpFHpwq5w1a18AuoM+3kUr0Dbl5WrWIOnCd0nX1aiaA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -267,11 +267,6 @@ namespace WebApplication.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("date");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Subtitle")
                         .HasMaxLength(150)

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Entities.Surveys;
 using Domain.Enums;
 
 namespace Application.Interfaces.Services
@@ -14,7 +15,7 @@ namespace Application.Interfaces.Services
 
         Task<SurveyDTO> GetSurveyAsync(Guid id, CancellationToken token);
 
-        Task<Guid> AddSurveyAsync(SurveyDTO survey, CancellationToken token);
+        Task<Guid> AddSurveyAsync(SurveyDTO survey,string userEmail, CancellationToken token);
 
         Task UpdateSurveyAsync(SurveyDTO survey, CancellationToken token);
 

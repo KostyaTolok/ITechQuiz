@@ -9,8 +9,6 @@ namespace Domain.Entities.Surveys
     {
         public Guid Id { get; set; }
 
-        public string Name { get; set; }
-
         public string Title { get; set; }
 
         public SurveyTypes Type { get; set; }
@@ -19,7 +17,7 @@ namespace Domain.Entities.Surveys
 
         public DateTime CreatedDate { get; set; }
 
-        public ICollection<Question> Questions { get; set; }
+        public virtual ICollection<Question> Questions { get; set; }
 
         public User User { get; set; }
 

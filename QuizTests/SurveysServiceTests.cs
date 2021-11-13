@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Xunit;
 using Moq;
 using System.Collections.Generic;
@@ -14,7 +15,10 @@ using Application.Interfaces.Services;
 using Infrastructure.Services;
 using Application.Commands.Surveys;
 using Application.DTO;
+using Application.Queries.Auth;
 using AutoMapper;
+using Domain.Entities.Auth;
+using Domain.Service;
 
 namespace Application.UnitTests
 {
@@ -23,8 +27,11 @@ namespace Application.UnitTests
         private readonly Mock<IMediator> mediator = new();
         private readonly Mock<IMapper> mapper = new();
         private readonly IEnumerable<Survey> surveys = TestData.GetTestSurveys();
+        private readonly IEnumerable<SurveyDTO> surveyDtos = TestData.GetTestSurveyDtos();
         private readonly Survey survey = TestData.GetTestSurveys()[0];
         private readonly SurveyDTO surveyDto = TestData.GetTestSurveyDtos()[0];
+        private readonly User user = TestData.GetTestUsers()[0];
+        private const string ClientEmail = "client@mail.ru";
 
         [Fact]
         public async Task GetSurveysTest()
@@ -32,15 +39,16 @@ namespace Application.UnitTests
             mediator.Setup(m => m.Send(It.IsAny<GetSurveysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(surveys)
                 .Verifiable();
-            mapper.Setup(m => m.Map<Survey, SurveyDTO>(It.IsAny<Survey>())).Returns(surveyDto);
+            mapper.Setup(m => m.Map<IEnumerable<SurveyDTO>>(It.IsAny<IEnumerable<Survey>>()))
+                .Returns(surveyDtos);
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
-            var actual = await surveyService.GetSurveysAsync(Guid.Empty, default);
+            var actual = await surveyService.GetSurveysAsync(null, null, CancellationToken.None);
 
-            mediator.Verify();
+            mediator.VerifyAll();
             var actualSurveys = actual.ToList();
 
-            actualSurveys.Should().BeEquivalentTo(surveys, config: c => c.IgnoringCyclicReferences());
+            actualSurveys.Should().BeEquivalentTo(surveyDtos, c => c.IgnoringCyclicReferences());
         }
 
         [Fact]
@@ -49,51 +57,30 @@ namespace Application.UnitTests
             mediator.Setup(m => m.Send(It.IsAny<GetSurveysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((IEnumerable<Survey>)null)
                 .Verifiable();
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysAsync(null,null, default));
+
+            mediator.VerifyAll();
+
+            Assert.Equal(SurveyServiceStrings.GetSurveysNullException, exception.Message);
+        }
         
-            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
-
-            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysAsync(Guid.Empty, default));
-
-            mediator.Verify();
-
-            Assert.Equal("Failed to get surveys", exception.Message);
-        }
-
         [Fact]
-        public async Task GetSurveysByUserIdTest()
+        public async Task GetSurveysTestTrowsInternalException()
         {
-            var userId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2");
-            var expected = surveys.Where(survey => survey.UserId == userId);
-
-            var expectation = expected as Survey[] ?? expected.ToArray();
-            mediator.Setup(m => m.Send(It.IsAny<GetSurveysByUserIdQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectation)
+            mediator.Setup(m => m.Send(It.IsAny<GetSurveysQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception())
                 .Verifiable();
-
+            
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
 
-            var actual = await surveyService.GetSurveysAsync(userId, default);
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.GetSurveysAsync(null,null, default));
 
-            mediator.Verify();
-            var actualSurveys = actual.ToList();
+            mediator.VerifyAll();
 
-            actualSurveys.Should().BeEquivalentTo(expectation, config: c => c.IgnoringCyclicReferences());
-        }
-
-        [Fact]
-        public async Task GetSurveysByUserIdTestTrowsArgumentException()
-        {
-            mediator.Setup(m => m.Send(It.IsAny<GetSurveysByUserIdQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((IEnumerable<Survey>)null)
-                .Verifiable();
-
-            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
-
-            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveysAsync(new Guid(), default));
-
-            mediator.Verify();
-
-            Assert.Equal("Failed to get surveys", exception.Message);
+            Assert.Equal(SurveyServiceStrings.GetSurveysException, exception.Message);
         }
 
         [Fact]
@@ -102,14 +89,15 @@ namespace Application.UnitTests
             mediator.Setup(m => m.Send(It.IsAny<GetSurveyByIdQuery>(), It.IsAny<CancellationToken>()))
                .ReturnsAsync(survey)
                .Verifiable();
-
-            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
+            mapper.Setup(m => m.Map<SurveyDTO>(It.IsAny<Survey>()))
+                .Returns(surveyDto);
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
             var actual = await surveyService.GetSurveyAsync(survey.Id, default);
 
-            mediator.Verify();
+            mediator.VerifyAll();
 
-            actual.Should().BeEquivalentTo(survey, config: c => c.IgnoringCyclicReferences());
+            actual.Should().BeEquivalentTo(surveyDto, c => c.IgnoringCyclicReferences());
 
         }
 
@@ -124,50 +112,150 @@ namespace Application.UnitTests
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.GetSurveyAsync(new Guid(), default));
 
-            mediator.Verify();
+            mediator.VerifyAll();
 
-            Assert.Equal("Failed to get survey. Wrong id", exception.Message);
+            Assert.Equal(SurveyServiceStrings.GetSurveyIdException, exception.Message);
+
+        }
+        
+        [Fact]
+        public async Task GetSurveyTestThrowsInternalException()
+        {
+            mediator.Setup(m => m.Send(It.IsAny<GetSurveyByIdQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception())
+                .Verifiable();
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.GetSurveyAsync(new Guid(), default));
+
+            mediator.VerifyAll();
+
+            Assert.Equal(SurveyServiceStrings.GetSurveyException, exception.Message);
 
         }
 
         [Fact]
         public async Task AddSurveyTest()
         {
+            mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user).Verifiable();
             mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()))
                .Verifiable();
-
-            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
             
-            await surveyService.AddSurveyAsync(surveyDto, default);
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+            
+            await surveyService.AddSurveyAsync(surveyDto, user.Email, default);
 
-            mediator.Verify();
+            mediator.VerifyAll();
 
         }
 
         [Fact]
-        public async Task AddSurveyTestThrowsArgumentException()
+        public async Task AddSurveyTestThrowsTitleException()
         {
-            survey.Name = "";
-
-            mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()));
+            survey.Title = "";
+            mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user).Verifiable();
+            mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()))
+                .Verifiable();
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
 
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
-            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(surveyDto, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(surveyDto, user.Email, default));
 
-            Assert.Equal("Failed to add survey. Missing required fields", exception.Message);
+            Assert.Equal(SurveyServiceStrings.AddSurveyTitleException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task AddSurveyTestThrowsQuestionTitleException()
+        {
+            survey.Questions.First().Title = "";
+            mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user).Verifiable();
+            mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()))
+                .Verifiable();
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(surveyDto, user.Email, default));
+
+            Assert.Equal(SurveyServiceStrings.AddSurveyQuestionTitleException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task AddSurveyTestThrowsOptionTitleException()
+        {
+            survey.Questions.First().Options.First().Title = "";
+            mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user).Verifiable();
+            mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()))
+                .Verifiable();
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(surveyDto, user.Email, default));
+
+            Assert.Equal(SurveyServiceStrings.AddSurveyOptionTitleException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task AddSurveyTestGetUserThrowsInternalException()
+        {
+            mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception()).Verifiable();
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.AddSurveyAsync(surveyDto, ClientEmail, default));
+
+            Assert.Equal(UserServiceStrings.GetUserException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task AddSurveyTestMapperThrowsInternalException()
+        {
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Throws(new Exception());
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.AddSurveyAsync(surveyDto, ClientEmail, default));
+
+            Assert.Equal(SurveyServiceStrings.AddSurveyException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task AddSurveyTestThrowsInternalException()
+        {
+            mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user).Verifiable();
+            mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception())
+                .Verifiable();
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.AddSurveyAsync(surveyDto, ClientEmail, default));
+
+            Assert.Equal(SurveyServiceStrings.AddSurveyException, exception.Message);
         }
 
         [Fact]
-        public async Task AddSurveyTestThrowsArgumentExceptionNull()
+        public async Task AddSurveyTestThrowsExceptionNull()
         {
-            mediator.Setup(m => m.Send(It.IsAny<AddSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
 
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
-            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(null, default));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.AddSurveyAsync(null, user.Email, default));
 
-            Assert.Equal("Failed to add survey. Survey is null", exception.Message);
+            Assert.Equal(SurveyServiceStrings.AddSurveyNullException, exception.Message);
         }
 
         [Fact]
@@ -179,7 +267,7 @@ namespace Application.UnitTests
 
             await surveyService.DeleteSurveyAsync(survey.Id, default);
 
-            mediator.Verify();
+            mediator.VerifyAll();
 
         }
 
@@ -194,46 +282,176 @@ namespace Application.UnitTests
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.DeleteSurveyAsync(survey.Id, default));
 
-            Assert.Equal("Failed to delete survey. Wrong id", exception.Message);
+            Assert.Equal(SurveyServiceStrings.DeleteSurveyIdException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task DeleteSurveyTestThrowsInternalException()
+        {
+            mediator.Setup(m => m.Send(It.IsAny<DeleteSurveyCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.DeleteSurveyAsync(survey.Id, default));
+
+            Assert.Equal(SurveyServiceStrings.DeleteSurveyException, exception.Message);
         }
 
         [Fact]
         public async Task UpdateSurveyTest()
         {
             mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>())).Verifiable();
-
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
-            await surveyService.UpdateSurveyAsync(surveyDto, default);
+            await surveyService.UpdateSurveyAsync(surveyDto, CancellationToken.None);
 
-            mediator.Verify();
+            mediator.VerifyAll();
 
         }
 
         [Fact]
-        public async Task UpdateSurveyTestThrowsArgumentException()
+        public async Task UpdateSurveyTestThrowsTitleException()
         {
             survey.Title = "";
 
             mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
-
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
 
-            Assert.Equal("Failed to update survey. Missing required fields", exception.Message);
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyTitleException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsQuestionTitleException()
+        {
+            survey.Questions.First().Title = "";
+
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyQuestionTitleException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsOptionTitleException()
+        {
+            survey.Questions.First().Options.First().Title = "";
+
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyOptionTitleException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsIdException()
+        {
+            survey.Id = Guid.Empty;
+
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyIdException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsQuestionIdException()
+        {
+            survey.Questions.First().Id = Guid.Empty;
+
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyQuestionIdException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsOptionIdException()
+        {
+            survey.Questions.First().Options.First().Id = Guid.Empty;
+
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyOptionIdException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsDateException()
+        {
+            survey.CreatedDate = new DateTime();
+
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyDateException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestMapperThrowsInnerException()
+        {
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Throws(new Exception());
+            
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyException, exception.Message);
+        }
+        
+        [Fact]
+        public async Task UpdateSurveyTestThrowsInnerException()
+        {
+            mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
+
+            ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
+
+            var exception = await Assert.ThrowsAsync<Exception>(async () => await surveyService.UpdateSurveyAsync(surveyDto, default));
+
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyException, exception.Message);
         }
 
         [Fact]
         public async Task UpdateSurveyTestThrowsArgumentExceptionNull()
         {
             mediator.Setup(m => m.Send(It.IsAny<UpdateSurveyCommand>(), It.IsAny<CancellationToken>()));
-
+            mapper.Setup(m => m.Map<Survey>(surveyDto)).Returns(survey);
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await surveyService.UpdateSurveyAsync(null, default));
 
-            Assert.Equal("Failed to update survey. Survey is null", exception.Message);
+            Assert.Equal(SurveyServiceStrings.UpdateSurveyNullException, exception.Message);
         }
 
     }

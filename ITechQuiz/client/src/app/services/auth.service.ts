@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LoginModel} from "../models/login-model";
 import {catchError, map} from "rxjs/operators";
 import {throwError} from "rxjs";
 import {RegisterModel} from "../models/register-model";
 import {JwtTokenService} from "./jwt-token.service";
-import {LocalStorageService} from "./local-storage.service";
+import {ChangePasswordModel} from "../models/change-password-model";
 
 @Injectable()
 export class AuthService {
@@ -31,15 +31,16 @@ export class AuthService {
     }
 
     constructor(private http: HttpClient,
-                private jwtTokenService: JwtTokenService,
-                private localStorageService: LocalStorageService) {
+                private jwtTokenService: JwtTokenService) {
     }
 
     loginUser(model: LoginModel) {
-        return this.http.post(this.url + '/login', model, {responseType: 'text'})
+
+        return this.http.post(`${this.url}/login`, model, {
+            responseType: 'text'
+        })
             .pipe(map(data => {
                         this.jwtTokenService.setJwtToken(data)
-                        this.localStorageService.set("token", data)
                     }
                 ),
                 catchError(err => {
@@ -49,21 +50,30 @@ export class AuthService {
     }
 
     logoutUser() {
-        this.localStorageService.remove("token")
         this.jwtTokenService.removeToken()
     }
 
     registerUser(model: RegisterModel) {
-        return this.http.post(this.url + '/register', model, {responseType: "text"})
+        return this.http.post(`${this.url}/register`, model, {
+            responseType: "text"
+        })
             .pipe(
                 map(data => {
                         this.jwtTokenService.setJwtToken(data)
-                        this.localStorageService.set("token", data)
                     }
                 ),
                 catchError(err => {
                     return throwError(err.error)
                 })
             )
+    }
+
+    changePassword(model: ChangePasswordModel) {
+
+        return this.http.post(`${this.url}/change-password`, model, {
+            responseType: "text"
+        }).pipe(catchError(err => {
+            return throwError(err.error)
+        }))
     }
 }

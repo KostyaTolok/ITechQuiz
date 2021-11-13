@@ -1,9 +1,12 @@
 ﻿using Domain.Entities.Auth;
 using Domain.Entities.Surveys;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Application.DTO;
 using Domain.Enums;
+using Domain.Service;
 
 namespace Application.UnitTests
 {
@@ -11,48 +14,33 @@ namespace Application.UnitTests
     {
         public static List<User> GetTestUsers()
         {
-            var survey = new Survey()
-            {
-                Id = new Guid("827f753c-7544-463b-9fa4-d9c5c051cf17"),
-                Name = "MySurv",
-                CreatedDate = DateTime.Now.Date,
-                Title = "Это опрос",
-                Subtitle = "Спасибо за прохождение опроса",
-                Type = SurveyTypes.ForStatistics,
-                UserId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2"),
-                Questions = new List<Question>()
-                {
-                    new Question()
-                    {
-                        Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
-                        Title = "Первый вопрос",
-                        Multiple = false,
-                        MaxSelected = 1,
-                        Required = false,
-                        Options = new List<Option>()
-                        {
-                            new Option()
-                            {
-                                Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a438"),
-                                Title = "Это вариант",
-                                IsCorrect = true,
-                                Subtitle = "Блаблабла"
-                            }
-                        }
-                    }
-                }
-            };
-
             var user = new User()
             {
+                Id = new Guid("f7bebc87-14a1-4c55-b03d-2c2487b16d5a"),
                 Email = "user@mail.com",
                 UserName = "User",
                 ConcurrencyStamp = string.Empty,
-                Surveys = new List<Survey>() { survey }
+                IsDisabled = false,
+                LockoutEnabled = false,
+                Surveys = GetTestSurveys()
             };
+            
+            return new List<User> {user};;
+        }
 
-            var users = new List<User> { user };
-            return users;
+        public static List<UserDTO> GetTestUserDtos()
+        {
+            var user = new UserDTO
+            {
+                Email = "user@mail.com",
+                UserName = "User",
+                Surveys = GetTestSurveyDtos(),
+                IsDisabled = false,
+                LockoutEnabled = false,
+                Roles = new[] {"admin", "client"}
+            };
+            
+            return new List<UserDTO> {user};;
         }
 
         public static List<Survey> GetTestSurveys()
@@ -60,24 +48,23 @@ namespace Application.UnitTests
             var survey = new Survey()
             {
                 Id = new Guid("827f753c-7544-463b-9fa4-d9c5c051cf17"),
-                Name = "MySurv",
                 CreatedDate = DateTime.Now.Date,
                 Title = "Это опрос",
                 Subtitle = "Спасибо за прохождение опроса",
                 Type = SurveyTypes.ForStatistics,
                 UserId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2"),
-                Questions = new List<Question>()
+                Questions = new[]
                 {
-                    new Question()
+                    new Question
                     {
                         Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
                         Title = "Первый вопрос",
                         Multiple = false,
                         MaxSelected = 1,
                         Required = false,
-                        Options = new List<Option>()
+                        Options = new[]
                         {
-                            new Option()
+                            new Option
                             {
                                 Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a438"),
                                 Title = "Это вариант",
@@ -89,37 +76,31 @@ namespace Application.UnitTests
                 }
             };
 
-            var surveys = new List<Survey>()
-            {
-                survey
-            };
-
-            return surveys;
+            return new List<Survey> {survey};
         }
 
         public static List<SurveyDTO> GetTestSurveyDtos()
         {
-            var survey = new SurveyDTO()
+            var survey = new SurveyDTO
             {
                 Id = new Guid("827f753c-7544-463b-9fa4-d9c5c051cf17"),
-                Name = "MySurv",
                 CreatedDate = "01.01.1975",
                 Title = "Это опрос",
                 Subtitle = "Спасибо за прохождение опроса",
                 Type = "ForStatistics",
                 UserId = new Guid("78f33f64-29cc-4b47-82ab-bffd90c177a2"),
-                Questions = new List<QuestionDTO>()
+                Questions = new[]
                 {
-                    new ()
+                    new QuestionDTO
                     {
                         Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
                         Title = "Первый вопрос",
                         Multiple = false,
                         MaxSelected = 1,
                         Required = false,
-                        Options = new List<OptionDTO>()
+                        Options = new[]
                         {
-                            new ()
+                            new OptionDTO
                             {
                                 Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a438"),
                                 Title = "Это вариант",
@@ -130,13 +111,34 @@ namespace Application.UnitTests
                     }
                 }
             };
+            
+            return new List<SurveyDTO> {survey};
+        }
 
-            var surveys = new List<SurveyDTO>()
+        public static List<AssignRequest> GetTestRequests()
+        {
+            var request = new AssignRequest
             {
-                survey
+                UserId = new Guid("f7bebc87-14a1-4c55-b03d-2c2487b16d5a"),
+                UserRole = Roles.Client,
+                CreatedDate = DateTime.Now,
+                Id = new Guid("2c7c71b1-d1ca-4549-b33a-3292fbfb5569")
             };
 
-            return surveys;
+            return new List<AssignRequest> {request};
+        }
+        
+        public static List<AssignRequestDTO> GetTestRequestDtos()
+        {
+            var request = new AssignRequestDTO
+            {
+                UserName = "User",
+                RoleName = "client",
+                CreatedDate = "01.01.2000",
+                Id = new Guid("2c7c71b1-d1ca-4549-b33a-3292fbfb5569")
+            };
+
+            return new List<AssignRequestDTO> {request};
         }
     }
 }

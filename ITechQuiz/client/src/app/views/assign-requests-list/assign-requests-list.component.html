@@ -1,0 +1,42 @@
+﻿<div class="card mt-3 mb-3" 
+     [ngClass]="request.isRejected ? 'rejected-request': 'accepted-request'"
+     *ngFor="let request of requests">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <h5>Пользователь:</h5>
+            </div>
+            <div class="col">
+                <h5>{{request.userName}}</h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h5>Роль:</h5>
+            </div>
+            <div class="col">
+                <h5>{{request.roleName}}</h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h5>Дата создания:</h5>
+            </div>
+            <div class="col">
+                <h5>{{request.createdDate}}</h5>
+            </div>
+        </div>
+        <button type="button" class="btn btn-success me-3" *ngIf="isAdmin"
+                (click)="acceptAssignRequest(request.id)">
+            Принять
+        </button>
+        <button type="button" class="btn btn-danger me-3" *ngIf="isAdmin"
+                (click)="rejectAssignRequest(request.id)">
+            Отклонить
+        </button>
+        <button type="button" class="btn btn-danger"
+                (click)="deleteAssignRequest(request.id)">
+            Удалить
+        </button>
+    </div>
+</div>

@@ -27,7 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\src\app\views" />
+    <Folder Include="client\src\app\services\interceptors" />
+    <Folder Include="client\src\app\views\admin\assign-requests" />
   </ItemGroup>
 
 </Project>

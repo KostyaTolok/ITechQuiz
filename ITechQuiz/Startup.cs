@@ -17,8 +17,15 @@ using Infrastructure.Data;
 using Domain.Entities.Auth;
 using System;
 using System.Text;
+using Domain.Service;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace WebApplication
 {
@@ -45,10 +52,7 @@ namespace WebApplication
 
             services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
-                x =>
-                {
-                    x.MigrationsAssembly("WebApplication");
-                }));
+                x => { x.MigrationsAssembly("WebApplication"); }));
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -62,8 +66,19 @@ namespace WebApplication
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
                 options.Lockout.MaxFailedAccessAttempts = 3;
             }).AddEntityFrameworkStores<QuizDbContext>().AddSignInManager<SignInManager<User>>();
-            var a = configuration["Token:Issuer"];
-            services.AddAuthentication()
+
+            var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
+            services.AddMediatR(assembly);
+            services.AddAutoMapper(assembly);
+
+            services.AddMvc(options => { options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); });
+
+            services.AddAuthentication(opts =>
+                {
+                    opts.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddCookie().AddJwtBearer(
                     options =>
                     {
@@ -79,28 +94,50 @@ namespace WebApplication
                             ValidateLifetime = true
                         };
                     });
-            
-            var assembly = AppDomain.CurrentDomain.Load("Infrastructure");
-            services.AddMediatR(assembly);
-            services.AddAutoMapper(assembly);
+
+            services.AddAuthorization();
+
+            services.AddAntiforgery(opts => { opts.HeaderName = "X-XSRF-TOKEN"; });
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 })
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
-            services.AddMvcCore();
 
-            services.AddSwaggerGen();
-
-            services.AddSpaStaticFiles(options =>
+            services.AddSwaggerGen(options =>
             {
-                options.RootPath = "client/dist";
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description =
+                        "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
+
+            services.AddSpaStaticFiles(options => { options.RootPath = "client/dist"; });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app,
+            IWebHostEnvironment env, ILoggerFactory loggerFactory,
+            IAntiforgery antiforgery)
         {
             loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(),
                 configuration["LogsFileName"]));
@@ -111,9 +148,6 @@ namespace WebApplication
             }
 
             app.UseHttpsRedirection();
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseAuthentication();
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
@@ -122,18 +156,41 @@ namespace WebApplication
                 c.DocumentTitle = "ITechQuiz API";
                 c.RoutePrefix = "swagger";
             });
+
+            app.UseRouting();
+            app.UseAuthorization();
+            app.UseAuthentication();
+
+            app.Use(next => context =>
+            {
+                var path = context.Request.Path.Value;
+
+                if (path != null && path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) != -1)
+                {
+                    var tokens = antiforgery.GetAndStoreTokens(context);
+
+                    if (tokens.RequestToken != null)
+                        context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
+                            new CookieOptions()
+                            {
+                                HttpOnly = false
+                            });
+                }
+
+                return next(context);
+            });
+
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-            
+
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "client";
- 
+
                 if (env.IsDevelopment())
                 {
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
-            
         }
     }
 }
