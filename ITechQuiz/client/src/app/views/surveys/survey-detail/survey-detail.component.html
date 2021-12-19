@@ -1,0 +1,41 @@
+﻿<spinner *ngIf="!survey; else detail"></spinner>
+
+<ng-template #detail>
+    <h3 class="mt-3">{{survey?.title}}</h3>
+    <div>
+        <input [(ngModel)]="isAnonymous"
+               id="anonymous" type="checkbox"
+               (change)="setIsAnonymous(isAnonymous)"/>
+        <label for="anonymous" class="ps-2">Анонимно</label>
+    </div>
+    <form #surveyForm="ngForm" method="post" (submit)="answerSurvey()">
+        <div class="card mt-3" *ngFor="let q of survey?.questions; let i=index">
+            <div class="card-body">
+                <h5 class="card-title">{{q?.title}}</h5>
+                <span class="text-danger" *ngIf="q?.required">Обязательный вопрос</span>
+
+                <div *ngFor="let o of q?.options">
+
+                    <div *ngIf="q?.multiple; else radio" [attr.required]="q?.required">
+                        <input id="{{o?.id}}-check" type="checkbox"
+                               (change)="addOrRemoveSelectedOption(i, o)"/>
+                        <label class="ps-2" for="{{o?.id}}-check">
+                            {{o?.title}}
+                        </label>
+                    </div>
+
+                    <ng-template class="card-text" #radio>
+                        <input id="{{o?.id}}-radio" name="{{q?.title}}" type="radio"/>
+                        <label class="ps-2" for="{{o?.id}}-radio">
+                            {{o?.title}}
+                        </label>
+                    </ng-template>
+                </div>
+
+            </div>
+        </div>
+        <button [disabled]="surveyForm.form.invalid"
+                class="btn btn-submit mt-3" type="submit">Ответить на опрос</button>
+    </form>
+
+</ng-template>
