@@ -1,4 +1,5 @@
 ﻿import {Option} from "./option";
+import {Survey} from "./survey";
 
 export class Question{
     public constructor(
@@ -8,7 +9,7 @@ export class Question{
         public maxSelected?:number,
         public required?:boolean,
         public surveyId?:string,
-        public options: Option[] = []
+        public options: Option[] = [],
     )
     { }
 }

@@ -31,7 +31,7 @@ export class ClientSurveysListComponent implements OnInit, OnDestroy {
     }
 
     loadSurveys() {
-        this.subscription = this.surveysService.getSurveys(this.data?.type)
+        this.subscription = this.surveysService.getSurveys(false,false, this.data?.type)
             .subscribe((data: Survey[]) => this.surveys = data)
     }
 }

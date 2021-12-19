@@ -20,7 +20,7 @@ namespace Infrastructure.Handlers.Surveys
         public async Task<IEnumerable<Survey>> Handle(GetSurveysQuery request,
             CancellationToken token)
         {
-            return await surveysRepository.GetSurveysAsync(request.UserId, request.Type, token);
+            return await surveysRepository.GetSurveysAsync(token);
         }
     }
 }

@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
-  selector: 'tech-quiz',
-  templateUrl: 'app.component.html',
-  styles: []
+    selector: 'tech-quiz',
+    templateUrl: 'app.component.html',
+    styles: []
 })
 export class AppComponent {
-  title = 'ITechQuiz';
+    title = 'ITechQuiz';
 }

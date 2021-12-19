@@ -1,0 +1,23 @@
+﻿<form #categoryForm="ngForm" (submit)="saveCategory()">
+    <div class="form-group">
+        <div *ngIf="nameError" class="alert alert-danger">Категория с данным именем уже существует</div>
+        <input class="form-control mt-3"
+               placeholder="Название категории"
+               name="category-title" id="category-title"
+               value="{{category.title}}" [(ngModel)]="category.title"
+               #title="ngModel" required>
+
+        <span class="text-danger" *ngIf="title.touched && title.invalid
+              && title.errors?.required">
+                Требуется ввести название категории
+            </span>
+
+        <div class="form-group mt-3 mb-3">
+            <input [disabled]="categoryForm.form.invalid"
+                   type="submit" value="Сохранить" class="btn btn-submit"/>
+
+            <input type="button" (click)="deleteCategory()"
+                   value="Удалить" class="btn btn-danger ms-2"/>
+        </div>
+    </div>
+</form>

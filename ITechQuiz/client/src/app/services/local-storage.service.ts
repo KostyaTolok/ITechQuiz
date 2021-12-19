@@ -7,7 +7,7 @@ export class LocalStorageService {
         localStorage.setItem(key, value);
     }
 
-    get(key: string, defaultValue: string) {
+    get(key: string, defaultValue: any) {
         const value = localStorage.getItem(key);
         if (value)
             return value

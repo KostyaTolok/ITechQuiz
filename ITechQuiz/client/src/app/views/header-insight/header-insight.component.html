@@ -41,6 +41,14 @@
                             <a class="nav-link" [routerLinkActive]="['active']"
                                routerLink="profile">Личный кабинет</a>
                         </li>
+                        <li class="nav-item" *ngIf="authService.isClient">
+                            <a class="nav-link" [routerLinkActive]="['active']"
+                               routerLink="statistics">Статистика<span *ngIf="signalrService.notify">&#128276;</span></a>
+                        </li>
+                        <li class="nav-item" *ngIf="!authService.loginRequired">
+                            <a class="nav-link" [routerLinkActive]="['active']"
+                               routerLink="user-statistics">Статистика пользователя</a>
+                        </li>
                     </ul>
                 </ng-template>
             </div>

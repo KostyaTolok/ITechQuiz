@@ -21,6 +21,8 @@ namespace Domain.Entities.Surveys
         public Survey Survey { get; set; }
 
         public Guid SurveyId { get; set; }
+        
+        public virtual ICollection<Answer> Answers { get; set; }
 
     }
 }

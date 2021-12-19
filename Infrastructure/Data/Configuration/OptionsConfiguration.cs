@@ -17,6 +17,7 @@ namespace Infrastructure.Data.Configuration
             builder.HasOne(o => o.Question).WithMany(q => q.Options)
                 .HasForeignKey(o=>o.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(o => o.Answers).WithMany(a => a.SelectedOptions);
         }
     }
 }

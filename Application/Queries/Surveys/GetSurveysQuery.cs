@@ -6,6 +6,6 @@ using Domain.Enums;
 
 namespace Application.Queries.Surveys
 {
-    public record GetSurveysQuery(Guid? UserId, SurveyTypes? Type) :
+    public record GetSurveysQuery() :
         IRequest<IEnumerable<Survey>>;
 }

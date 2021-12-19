@@ -83,6 +83,29 @@ namespace Infrastructure.Services
             throw new ArgumentException(UserServiceStrings.GetUsersNullException);
         }
 
+        public async Task<Guid?> GetUserIdByEmail(string userEmail, CancellationToken token)
+        {
+            Guid? userId = null;
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                try
+                {
+                    var user = await mediator.Send(new GetUserByEmailQuery(userEmail), token);
+
+                    userId = user.Id;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("{ExString}: {Ex}",
+                        UserServiceStrings.GetUserException, ex.Message);
+
+                    throw new Exception(UserServiceStrings.GetUserException);
+                }
+            }
+
+            return userId;
+        }
+
         public async Task<UserDTO> GetUserByIdAsync(Guid id)
         {
             User user;

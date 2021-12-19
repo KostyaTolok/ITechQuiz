@@ -18,9 +18,7 @@ namespace Infrastructure.Handlers.Surveys
 
         public async Task<Unit> Handle(UpdateSurveyCommand command, CancellationToken token)
         {
-            Survey survey = command.Survey;
-
-            await surveysRepository.UpdateSurveyAsync(survey, token);
+            await surveysRepository.UpdateSurveyAsync(command.Survey, token);
             return Unit.Value;
         }
     }

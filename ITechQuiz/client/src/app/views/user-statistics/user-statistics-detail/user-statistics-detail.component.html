@@ -1,0 +1,43 @@
+﻿<spinner *ngIf="!answers; else statistics"></spinner>
+
+<ng-template #statistics>
+    <h3 class="mt-3" *ngIf="answers?.length == 0">Статистики нет</h3>
+    <h3 class="mt-3" *ngIf="answers?.length!=0">Статистика</h3>
+    <h4 class="mt-3">{{survey?.title}}</h4>
+    <span class="text-danger" *ngIf="answers?.length!=0">* - Обязательный вопрос</span>
+    
+    <div class="row mt-3 mb-3" *ngFor="let a of this.answers; let i=index">
+        <h5 *ngIf="!isSameDate(a?.createdDate)">Дата прохождения: {{a?.createdDate}}</h5>
+        <div class="col-4">
+            <h5 class="mt-3">
+                {{currentIndex + 1}}. {{a?.questionTitle}}<span class="text-danger" *ngIf="a?.questionRequired">*</span>
+            </h5>
+        </div>
+        <div class="col-8">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Ответ</th>
+                    <th>Правильный ответ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let o of a?.selectedOptions">
+                    <th class="title">{{o?.title}}</th>
+                    <th class="isCorrect"><span *ngIf="o?.isCorrect">&#10003;</span>
+                        <span *ngIf="!o?.isCorrect">&#10007;</span></th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="isSummary(a)">
+            <h5 class="mt-3">
+                Количество правильных ответов: {{this.correctAmount}}
+            </h5>
+            <h5 class="mt-3">
+                Количество неправильных ответов: {{this.incorrectAmount}}
+            </h5>
+            <mat-divider class="mt-3 mb-3"></mat-divider>
+        </div>
+    </div>
+</ng-template>

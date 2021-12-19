@@ -1,4 +1,6 @@
-﻿using Domain.Entities.Surveys;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Domain.Entities.Surveys;
 using MediatR;
 
 namespace Application.Commands.Surveys

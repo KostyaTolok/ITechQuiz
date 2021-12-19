@@ -24,8 +24,9 @@ namespace Application.UnitTests
                 LockoutEnabled = false,
                 Surveys = GetTestSurveys()
             };
-            
-            return new List<User> {user};;
+
+            return new List<User> {user};
+            ;
         }
 
         public static List<UserDTO> GetTestUserDtos()
@@ -39,8 +40,9 @@ namespace Application.UnitTests
                 LockoutEnabled = false,
                 Roles = new[] {"admin", "client"}
             };
-            
-            return new List<UserDTO> {user};;
+
+            return new List<UserDTO> {user};
+            ;
         }
 
         public static List<Survey> GetTestSurveys()
@@ -111,7 +113,7 @@ namespace Application.UnitTests
                     }
                 }
             };
-            
+
             return new List<SurveyDTO> {survey};
         }
 
@@ -127,7 +129,7 @@ namespace Application.UnitTests
 
             return new List<AssignRequest> {request};
         }
-        
+
         public static List<AssignRequestDTO> GetTestRequestDtos()
         {
             var request = new AssignRequestDTO
@@ -139,6 +141,101 @@ namespace Application.UnitTests
             };
 
             return new List<AssignRequestDTO> {request};
+        }
+
+        public static List<Answer> GetTestAnswers()
+        {
+            var answer = new Answer
+            {
+                UserId = new Guid("f7bebc87-14a1-4c55-b03d-2c2487b16d5a"),
+                Id = new Guid("e4aa336f-a274-459f-b44b-f09abb56c0bd"),
+                QuestionId = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
+                Question = new Question
+                {
+                    Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
+                    Title = "Первый вопрос",
+                    Multiple = false,
+                    MaxSelected = 1,
+                    Required = false
+                },
+                SelectedOptions = new[]
+                {
+                    new Option
+                    {
+                        Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a438"),
+                        Title = "Это вариант",
+                        IsCorrect = true,
+                        Subtitle = "Блаблабла"
+                    }
+                },
+                User = GetTestUsers()[0],
+                IsAnonymous = false
+            };
+
+            return new List<Answer> {answer};
+        }
+
+        public static List<AnswerDTO> GetTestAnswerDtos()
+        {
+            var answer = new AnswerDTO
+            {
+                SelectedOptions = new[]
+                {
+                    new OptionDTO
+                    {
+                        Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a438"),
+                        Title = "Это вариант",
+                        IsCorrect = true,
+                        Subtitle = "Блаблабла"
+                    }
+                },
+                IsAnonymous = false,
+                QuestionId = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638")
+            };
+
+            return new List<AnswerDTO> {answer};
+        }
+
+        public static List<Category> GetTestCategories()
+        {
+            var category = new Category()
+            {
+                Id = Guid.NewGuid(),
+                Title = "Категория",
+                Surveys = GetTestSurveys()
+            };
+
+            return new List<Category>() {category};
+        }
+        
+        public static List<CategoryDTO> GetTestCategoryDtos()
+        {
+            var categoryDto = new CategoryDTO()
+            {
+                Id = Guid.NewGuid(),
+                Title = "Категория",
+            };
+
+            return new List<CategoryDTO>() {categoryDto};
+        }
+        
+        public static List<QuestionStatisticsDTO> GetTestStatistics()
+        {
+            var statistics = new QuestionStatisticsDTO()
+            {
+                QuestionTitle = "Вопрос",
+                Required = true,
+                OptionsStatistics = new List<OptionStatisticsDTO>()
+                {
+                    new()
+                    {
+                        AnswersAmount = 1,
+                        OptionTitle = "Ответ"
+                    }
+                }
+            };
+
+            return new List<QuestionStatisticsDTO>() {statistics};
         }
     }
 }

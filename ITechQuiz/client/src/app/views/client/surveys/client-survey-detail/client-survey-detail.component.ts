@@ -6,6 +6,8 @@ import {ActivatedRoute, Data, Router} from "@angular/router";
 import {Option} from "../../../../models/option";
 import {Question} from "../../../../models/question";
 import {SurveyTypes} from "../../../../utils/survey-types";
+import {CategoriesService} from "../../../../services/categories.service";
+import {Category} from "../../../../models/category";
 
 @Component({
     selector: 'client-survey-detail',
@@ -17,9 +19,14 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
     subscription?: Subscription
     data: Data | undefined
     types: { [name: string]: string } = SurveyTypes
+    categories: Category[] = []
+    category: Category| undefined
+    errorMessage = ""
 
     public constructor(private surveysService: SurveysService,
-                       private activatedRoute: ActivatedRoute, private router: Router) {
+                       private activatedRoute: ActivatedRoute,
+                       private router: Router,
+                       private categoriesService: CategoriesService) {
         this.id = activatedRoute.snapshot.params["id"]
     }
 
@@ -33,6 +40,8 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
             this.survey = new Survey()
             this.survey.type = this.data?.type
         }
+        this.categoriesService.getCategories()
+            .subscribe((data: Category[]) => this.categories = data)
     }
 
     ngOnDestroy() {
@@ -45,7 +54,7 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
     }
 
     saveSurvey() {
-        if (this.id) {
+        if (this.id && this.survey) {
             this.surveysService.updateSurvey(this.survey)
                 .subscribe((data) => {
                         console.log(data)
@@ -56,7 +65,7 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
                         } else this.router.navigateByUrl("/")
                     }
                 )
-        } else {
+        } else if (this.survey) {
             this.surveysService.addSurvey(this.survey)
                 .subscribe((data) => {
                         console.log(data)
@@ -75,11 +84,12 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
         let question = new Question()
         question.surveyId = this.id
         question.maxSelected = 0
-        this.survey.questions?.push(question)
+        if (this.survey)
+            this.survey.questions?.push(question)
     }
 
     deleteQuestion(question: Question) {
-        if (question) {
+        if (question && this.survey) {
             const index = this.survey.questions.indexOf(question)
             this.survey.questions.splice(index, 1)
         }
@@ -119,5 +129,26 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
                     } else this.router.navigateByUrl("/")
                 })
         }
+    }
+    
+    addCategory(){
+        if (this.category){
+            let addCategory = true
+            for (const category of this.survey.categories) {
+                if (category.id == this.category.id){
+                    addCategory =false
+                }
+            }
+            if (addCategory) {
+                this.survey.categories.push(this.category)
+                this.errorMessage = ""
+            }
+            else
+                this.errorMessage = "Данная категория уже добавлена"
+        }
+    }
+    
+    removeCategory(ind: number){
+        this.survey.categories.splice(ind, 1)
     }
 }

@@ -25,5 +25,7 @@ namespace Application.Interfaces.Services
 
         Task<bool> RemoveUserFromRoleAsync(RemoveUserFromRoleModel model,string currentEmail,
             CancellationToken token);
+
+        Task<Guid?> GetUserIdByEmail(string userEmail, CancellationToken token);
     }
 }

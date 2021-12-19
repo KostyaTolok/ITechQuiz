@@ -24,10 +24,10 @@ namespace Application.UnitTests
         public async Task GetSurveysHandlerTest()
         {
             surveysRepository
-                .Setup(m => m.GetSurveysAsync(null, null, CancellationToken.None)).ReturnsAsync(surveys).Verifiable();
+                .Setup(m => m.GetSurveysAsync(CancellationToken.None)).ReturnsAsync(surveys).Verifiable();
 
             var handler = new GetSurveysHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new GetSurveysQuery(null, null), CancellationToken.None);
+            var actual = await handler.Handle(new GetSurveysQuery(), CancellationToken.None);
 
             surveysRepository.Verify();
             var actualSurveys = actual.ToList();
@@ -54,7 +54,7 @@ namespace Application.UnitTests
             surveysRepository.Setup(m => m.AddSurveyAsync(survey, default)).Verifiable();
 
             var handler = new AddSurveyHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new AddSurveyCommand(survey), default);
+            await handler.Handle(new AddSurveyCommand(survey), default);
 
             surveysRepository.Verify();
         }
@@ -64,12 +64,25 @@ namespace Application.UnitTests
         {
             surveysRepository.Setup(m => m.DeleteSurveyAsync(survey, default)).Verifiable();
             surveysRepository
-                .Setup(m => m.GetSurveyAsync(survey.Id, default)).
-                ReturnsAsync(survey).Verifiable();
-            
-            var handler = new DeleteSurveyHandler(surveysRepository.Object);
-            await handler.Handle(new DeleteSurveyCommand(survey.Id), default);
+                .Setup(m => m.GetSurveyAsync(survey.Id, default)).ReturnsAsync(survey).Verifiable();
 
+            var handler = new DeleteSurveyHandler(surveysRepository.Object);
+            var actual = await handler.Handle(new DeleteSurveyCommand(survey.Id), default);
+
+            surveysRepository.VerifyAll();
+            Assert.True(actual);
+        }
+
+        [Fact]
+        public async Task DeleteSurveyHandlerTestReturnsFalse()
+        {
+            surveysRepository
+                .Setup(m => m.GetSurveyAsync(survey.Id, default)).ReturnsAsync((Survey) null).Verifiable();
+
+            var handler = new DeleteSurveyHandler(surveysRepository.Object);
+            var actual = await handler.Handle(new DeleteSurveyCommand(survey.Id), default);
+    
+            Assert.False(actual);
             surveysRepository.Verify();
         }
 
@@ -79,7 +92,7 @@ namespace Application.UnitTests
             surveysRepository.Setup(m => m.UpdateSurveyAsync(survey, default)).Verifiable();
 
             var handler = new UpdateSurveyHandler(surveysRepository.Object);
-            var actual = await handler.Handle(new UpdateSurveyCommand(survey), default);
+            await handler.Handle(new UpdateSurveyCommand(survey), default);
 
             surveysRepository.Verify();
         }

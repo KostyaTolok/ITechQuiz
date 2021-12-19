@@ -42,6 +42,8 @@
 
         public const string AddSurveyTitleException = BaseAddSurveyException + "Missing title";
         
+        public const string AddSurveyUserIdException = BaseAddSurveyException + "Missing user id";
+        
         public const string AddSurveyDateException = BaseAddSurveyException + "Missing date of creation";
 
         public const string DeleteSurveyIdException = "Failed to delete survey. Missing id";

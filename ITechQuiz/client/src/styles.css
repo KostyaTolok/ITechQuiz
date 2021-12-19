@@ -11,6 +11,9 @@ header{ min-height:50px; background:var(--main-color); }
 footer{ min-height:50px; background:var(--main-color); }
 
 footer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-top:auto;
 }
 html, body { height: 100%; }

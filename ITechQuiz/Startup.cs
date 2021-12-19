@@ -18,6 +18,7 @@ using Domain.Entities.Auth;
 using System;
 using System.Text;
 using Domain.Service;
+using Infrastructure.Hubs;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -45,10 +46,15 @@ namespace WebApplication
             services.AddTransient<IQuestionsRepository, EFQuestionsRepository>();
             services.AddTransient<IOptionsRepository, EFOptionsRepository>();
             services.AddTransient<IAssignRequestsRepository, EFAssignRequestsRepository>();
+            services.AddTransient<IAnswersRepository, EFAnswersRepository>();
+            services.AddTransient<ICategoriesRepository, EFCategoriesRepository>();
             services.AddTransient<ISurveysService, SurveysService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IAssignRequestsService, AssignRequestsService>();
+            services.AddTransient<IAnswersService, AnswersService>();
+            services.AddTransient<ICategoriesService, CategoriesService>();
+            services.AddTransient<IStatisticsService, StatisticsService>();
 
             services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
@@ -100,10 +106,9 @@ namespace WebApplication
             services.AddAntiforgery(opts => { opts.HeaderName = "X-XSRF-TOKEN"; });
 
             services.AddControllers().AddNewtonsoftJson(options =>
-                {
-                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Latest);
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
 
 
             services.AddSwaggerGen(options =>
@@ -133,6 +138,8 @@ namespace WebApplication
             });
 
             services.AddSpaStaticFiles(options => { options.RootPath = "client/dist"; });
+
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app,
@@ -180,7 +187,11 @@ namespace WebApplication
                 return next(context);
             });
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<NotificationHub>("/notify");
+            });
 
             app.UseSpa(spa =>
             {

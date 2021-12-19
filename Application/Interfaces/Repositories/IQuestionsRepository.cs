@@ -8,7 +8,7 @@ namespace Application.Interfaces.Repositories
 {
     public interface IQuestionsRepository
     {
-        Task<IEnumerable<Question>> GetQuestionsAsync(CancellationToken token);
+        Task<IEnumerable<Question>> GetQuestionsBySurveyIdAsync(Guid surveyId, CancellationToken token);
 
         Task<Question> GetQuestionAsync(Guid id, CancellationToken token);
 

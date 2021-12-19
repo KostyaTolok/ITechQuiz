@@ -10,12 +10,12 @@ namespace Application.Interfaces.Services
 {
     public interface ISurveysService
     {
-        Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId,
-            string type, CancellationToken token);
+        Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId, bool client,
+            string type, ICollection<Guid> categoryIds, CancellationToken token);
 
         Task<SurveyDTO> GetSurveyAsync(Guid id, CancellationToken token);
 
-        Task<Guid> AddSurveyAsync(SurveyDTO survey,string userEmail, CancellationToken token);
+        Task<Guid> AddSurveyAsync(SurveyDTO survey, Guid? userId, CancellationToken token);
 
         Task UpdateSurveyAsync(SurveyDTO survey, CancellationToken token);
 

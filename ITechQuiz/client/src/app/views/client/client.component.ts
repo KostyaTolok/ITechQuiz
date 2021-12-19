@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SurveyLinks} from "../../utils/survey-types";
+import {ClientValues} from "../../utils/client-values";
 
 @Component({
     selector: 'client-view',
@@ -8,7 +9,7 @@ import {SurveyLinks} from "../../utils/survey-types";
 })
 export class ClientComponent implements OnInit {
 
-    links: { [link: string]: string } = SurveyLinks
+    links: { [link: string]: string } = ClientValues
 
     constructor() {
     }

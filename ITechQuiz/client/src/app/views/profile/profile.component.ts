@@ -7,6 +7,8 @@ import {AuthService} from "../../services/auth.service";
 import {Router} from "@angular/router";
 import {AssignRequestService} from "../../services/assign-request.service";
 import {Roles} from "../../utils/roles";
+import {Survey} from "../../models/survey";
+import {SurveysService} from "../../services/surveys.service";
 
 @Component({
     selector: 'profile',
@@ -18,22 +20,30 @@ export class ProfileComponent implements OnInit {
     roles: { [key: string]: string } = Roles
     role: string = "admin"
     subscription?: Subscription
+    passedSurveys?: Survey[] | undefined
 
     constructor(private jwtTokenService: JwtTokenService,
                 private usersService: UsersService,
                 private authService: AuthService,
                 private router: Router,
-                private assignRequestService: AssignRequestService) {
+                private assignRequestService: AssignRequestService,
+                private surveysService: SurveysService) {
     }
 
     ngOnInit(): void {
         this.loadUser()
+        this.loadPassedSurveys()
     }
 
     loadUser() {
         this.subscription = this.usersService.getUserByEmail(
             this.jwtTokenService.getEmail())
             .subscribe((data: User) => this.user = data)
+    }
+
+    loadPassedSurveys() {
+        this.subscription = this.surveysService.getSurveys(true)
+            .subscribe((data: Survey[]) => this.passedSurveys = data)
     }
 
     logout() {

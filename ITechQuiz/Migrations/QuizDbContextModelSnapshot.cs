@@ -19,6 +19,36 @@ namespace WebApplication.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("AnswerOption", b =>
+                {
+                    b.Property<Guid>("AnswersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SelectedOptionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AnswersId", "SelectedOptionsId");
+
+                    b.HasIndex("SelectedOptionsId");
+
+                    b.ToTable("AnswerOption");
+                });
+
+            modelBuilder.Entity("CategorySurvey", b =>
+                {
+                    b.Property<Guid>("CategoriesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SurveysId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CategoriesId", "SurveysId");
+
+                    b.HasIndex("SurveysId");
+
+                    b.ToTable("CategorySurvey");
+                });
+
             modelBuilder.Entity("Domain.Entities.Auth.AssignRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -78,7 +108,7 @@ namespace WebApplication.Migrations
                         new
                         {
                             Id = new Guid("fb96bb35-90fd-4f70-99a0-954fcfb14baf"),
-                            ConcurrencyStamp = "48c643de-c89e-4f87-bd5b-18dfe6ebbc3c",
+                            ConcurrencyStamp = "ec4fcba8-7657-4a52-85d7-031e4615ce1b",
                             Description = "Управляет добавлением и удалением клиентов",
                             Name = "admin",
                             NormalizedName = "ADMIN"
@@ -86,7 +116,7 @@ namespace WebApplication.Migrations
                         new
                         {
                             Id = new Guid("f7d36113-51ff-4b07-8b5f-64fccc8091d5"),
-                            ConcurrencyStamp = "891df178-e2b4-4a35-8d8e-a32f32438b5f",
+                            ConcurrencyStamp = "cf349df0-f60d-489e-bc6e-af73f952378e",
                             Description = "Создает, удаляет и изменяет опросы. Имеет доступ к статистике ",
                             Name = "client",
                             NormalizedName = "CLIENT"
@@ -169,14 +199,14 @@ namespace WebApplication.Migrations
                         {
                             Id = new Guid("d91046a9-d12b-4c14-9810-ac3af195066a"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "aee8f1ec-24de-4699-beb0-607354089768",
+                            ConcurrencyStamp = "d77299c1-109f-4932-9c6b-cf7594491dee",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             IsDisabled = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEOXqyNBLAGabk3dtalUbODT5IOG0e1l0FvhRZToGRfq11YYGcXOf0qJ3ud2dikAQsA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBwa+rzOIuVptSo9/wfhQr4idhk8iBRJqS0m7YLpZEZGSuJ6YlnY0msDdi+H1t0TBw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -186,19 +216,61 @@ namespace WebApplication.Migrations
                         {
                             Id = new Guid("52f4c7c6-7f95-4d40-8308-b36a3ce86a52"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7c823473-963c-4196-83c8-1c994e6cc3ef",
+                            ConcurrencyStamp = "b706b9e8-4e02-4d71-9609-037700e478a4",
                             Email = "client@gmail.com",
                             EmailConfirmed = true,
                             IsDisabled = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "CLIENT@GMAIL.COM",
                             NormalizedUserName = "CLIENT",
-                            PasswordHash = "AQAAAAEAACcQAAAAELqszylyDK9HeAwY9m0JLSrdpFHpwq5w1a18AuoM+3kUr0Dbl5WrWIOnCd0nX1aiaA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEF+ITSsz4hXYJa7+RbCnC9NDIuL1+/hCyVRWoXfiNMu9WyISYfXUzHlk/Pw6ouq07A==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
                             UserName = "client"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.Surveys.Answer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Answers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Surveys.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Surveys.Option", b =>
@@ -268,6 +340,12 @@ namespace WebApplication.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("date");
 
+                    b.Property<bool>("IsAnonymousAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMultipleAnswersAllowed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Subtitle")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
@@ -279,6 +357,9 @@ namespace WebApplication.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -403,6 +484,36 @@ namespace WebApplication.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("AnswerOption", b =>
+                {
+                    b.HasOne("Domain.Entities.Surveys.Answer", null)
+                        .WithMany()
+                        .HasForeignKey("AnswersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Surveys.Option", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedOptionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CategorySurvey", b =>
+                {
+                    b.HasOne("Domain.Entities.Surveys.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Surveys.Survey", null)
+                        .WithMany()
+                        .HasForeignKey("SurveysId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Entities.Auth.AssignRequest", b =>
                 {
                     b.HasOne("Domain.Entities.Auth.User", "User")
@@ -410,6 +521,23 @@ namespace WebApplication.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Surveys.Answer", b =>
+                {
+                    b.HasOne("Domain.Entities.Surveys.Question", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Auth.User", "User")
+                        .WithMany("Answers")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Question");
 
                     b.Navigation("User");
                 });
@@ -500,6 +628,8 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("Domain.Entities.Auth.User", b =>
                 {
+                    b.Navigation("Answers");
+
                     b.Navigation("AssignRequests");
 
                     b.Navigation("Surveys");
@@ -507,6 +637,8 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("Domain.Entities.Surveys.Question", b =>
                 {
+                    b.Navigation("Answers");
+
                     b.Navigation("Options");
                 });
 

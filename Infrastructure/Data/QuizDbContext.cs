@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Infrastructure.Data
 {
@@ -20,9 +21,12 @@ namespace Infrastructure.Data
 
         public DbSet<AssignRequest> AssignRequests { get; set; }
 
+        public DbSet<Answer> Answers { get; set; }
+
+        public DbSet<Category> Categories { get; set; }
+
         public QuizDbContext(DbContextOptions<QuizDbContext> options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -34,6 +38,9 @@ namespace Infrastructure.Data
             builder.ApplyConfiguration(new OptionsConfiguration());
             builder.ApplyConfiguration(new UsersConfiguration());
             builder.ApplyConfiguration(new AssignRequestsConfiguration());
+            builder.ApplyConfiguration(new AnswersConfiguration());
+            builder.ApplyConfiguration(new CategoriesConfiguration());
+
 
             builder.Entity<Role>().HasData(new Role()
             {

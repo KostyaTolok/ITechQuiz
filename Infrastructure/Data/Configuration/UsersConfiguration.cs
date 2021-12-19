@@ -13,6 +13,8 @@ namespace Infrastructure.Data.Configuration
             builder.Property(u => u.Id).ValueGeneratedOnAdd().IsRequired();
             builder.Property(u => u.IsDisabled).IsRequired();
             builder.HasMany(u => u.Surveys).WithOne(s => s.User);
+            builder.HasMany(u => u.Answers).WithOne(a => a.User)
+                .HasForeignKey(a=>a.UserId);
         }
     }
 }

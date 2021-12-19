@@ -16,10 +16,12 @@ namespace Infrastructure.Data.Configuration
             builder.Property(s => s.Type).IsRequired();
             builder.Property(s => s.Subtitle).HasMaxLength(150);
             builder.Property(s => s.CreatedDate).HasColumnType("date").IsRequired();
+            builder.Property(s => s.UpdatedDate).HasColumnType("date");
             builder.HasMany(s => s.Questions).WithOne(q => q.Survey);
             builder.HasOne(s => s.User).WithMany(u => u.Surveys)
                 .HasForeignKey(s=>s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(s => s.Categories).WithMany(c => c.Surveys);
         }
     }
 }

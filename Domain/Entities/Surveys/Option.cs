@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.Surveys
@@ -16,5 +18,7 @@ namespace Domain.Entities.Surveys
         public Question Question { get; set; }
 
         public Guid QuestionId { get; set; }
+
+        public virtual ICollection<Answer> Answers { get; set; }
     }
 }

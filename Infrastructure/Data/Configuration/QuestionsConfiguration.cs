@@ -19,6 +19,8 @@ namespace Infrastructure.Data.Configuration
             builder.HasOne(q => q.Survey).WithMany(s => s.Questions)
                 .HasForeignKey(q => q.SurveyId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(q => q.Answers).WithOne(a => a.Question)
+                .HasForeignKey(a => a.QuestionId);
         }
     }
 }

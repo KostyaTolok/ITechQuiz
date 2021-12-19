@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -9,6 +10,7 @@ using Application.Commands.Surveys;
 using Application.DTO;
 using Application.Interfaces.Services;
 using Application.Queries.Auth;
+using Application.Queries.Categories;
 using Application.Queries.Surveys;
 using AutoMapper;
 using Domain.Entities.Surveys;
@@ -78,11 +80,6 @@ namespace Infrastructure.Services
                     logger.LogError(SurveyServiceStrings.UpdateSurveyQuestionTitleException);
                     throw new ArgumentException(SurveyServiceStrings.UpdateSurveyQuestionTitleException);
                 }
-                else if (question.Id == default)
-                {
-                    logger.LogError(SurveyServiceStrings.UpdateSurveyQuestionIdException);
-                    throw new ArgumentException(SurveyServiceStrings.UpdateSurveyQuestionIdException);
-                }
 
                 foreach (var option in question.Options)
                 {
@@ -91,17 +88,12 @@ namespace Infrastructure.Services
                         logger.LogError(SurveyServiceStrings.UpdateSurveyOptionTitleException);
                         throw new ArgumentException(SurveyServiceStrings.UpdateSurveyOptionTitleException);
                     }
-                    else if(option.Id == default)
-                    {
-                        logger.LogError(SurveyServiceStrings.UpdateSurveyOptionIdException);
-                        throw new ArgumentException(SurveyServiceStrings.UpdateSurveyOptionIdException);
-                    }
                 }
-                
             }
 
             try
             {
+                survey.UpdatedDate = DateTime.Now;
                 await mediator.Send(new UpdateSurveyCommand(survey), token);
             }
             catch (Exception ex)
@@ -114,14 +106,26 @@ namespace Infrastructure.Services
         }
 
         public async Task<Guid> AddSurveyAsync(SurveyDTO surveyDTO,
-            string userEmail, CancellationToken token)
+            Guid? userId, CancellationToken token)
         {
             if (surveyDTO == null)
             {
                 logger.LogError(SurveyServiceStrings.AddSurveyNullException);
                 throw new ArgumentException(SurveyServiceStrings.AddSurveyNullException);
             }
-            
+
+            if (!userId.HasValue)
+            {
+                logger.LogError(SurveyServiceStrings.AddSurveyUserIdException);
+                throw new ArgumentException(SurveyServiceStrings.AddSurveyUserIdException);
+            }
+
+            if (string.IsNullOrEmpty(surveyDTO.Title))
+            {
+                logger.LogError(SurveyServiceStrings.AddSurveyTitleException);
+                throw new ArgumentException(SurveyServiceStrings.AddSurveyTitleException);
+            }
+
             Survey survey;
             try
             {
@@ -133,27 +137,6 @@ namespace Infrastructure.Services
                     SurveyServiceStrings.AddSurveyException, ex.Message);
 
                 throw new Exception(SurveyServiceStrings.AddSurveyException);
-            }
-
-            Guid userId;
-            try
-            {
-                var user = await mediator.Send(new GetUserByEmailQuery(userEmail), token);
-
-                userId = user.Id;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("{ExString}: {Ex}",
-                    UserServiceStrings.GetUserException, ex.Message);
-
-                throw new Exception(UserServiceStrings.GetUserException);
-            }
-
-            if (string.IsNullOrEmpty(survey.Title))
-            {
-                logger.LogError(SurveyServiceStrings.AddSurveyTitleException);
-                throw new ArgumentException(SurveyServiceStrings.AddSurveyTitleException);
             }
 
             foreach (var question in survey.Questions)
@@ -172,7 +155,8 @@ namespace Infrastructure.Services
             try
             {
                 survey.CreatedDate = DateTime.Now;
-                survey.UserId = userId;
+                survey.UpdatedDate = DateTime.Now;
+                survey.UserId = userId.Value;
                 return await mediator.Send(new AddSurveyCommand(survey), token);
             }
             catch (Exception ex)
@@ -226,7 +210,7 @@ namespace Infrastructure.Services
         }
 
         public async Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId,
-            string type, CancellationToken token)
+            bool client, string type, ICollection<Guid> categoryIds, CancellationToken token)
         {
             IEnumerable<Survey> surveys;
             try
@@ -234,7 +218,35 @@ namespace Infrastructure.Services
                 SurveyTypes? surveyType =
                     Enum.TryParse(type, true, out SurveyTypes result) ? result : null;
 
-                surveys = await mediator.Send(new GetSurveysQuery(userId, surveyType), token);
+                var categories = new List<Category>();
+                foreach (var id in categoryIds)
+                {
+                    var category = await mediator.Send(new GetCategoryQuery(id), token);
+
+                    if (category == null)
+                    {
+                        logger.LogError
+                            ("{ExString}", SurveyServiceStrings.GetSurveysException);
+                        throw new Exception(SurveyServiceStrings.GetSurveysException);
+                    }
+
+                    categories.Add(category);
+                }
+
+                if (client && userId.HasValue)
+                {
+                    surveys = await mediator.Send(new GetSurveysByClientIdQuery(userId.Value), token);
+                }
+                else if (userId.HasValue)
+                {
+                    surveys = await mediator.Send(new GetSurveysByUserIdQuery(userId.Value, categories), token);
+                }
+                else if (surveyType.HasValue)
+                {
+                    surveys = await mediator.Send(new GetSurveysByTypeQuery(surveyType.Value, categories), token);
+                }
+                else
+                    surveys = await mediator.Send(new GetSurveysQuery(), token);
             }
             catch (Exception ex)
             {

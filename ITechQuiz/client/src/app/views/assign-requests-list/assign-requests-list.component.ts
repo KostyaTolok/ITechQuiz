@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AssignRequest} from "../../models/assign-request";
 import {AssignRequestService} from "../../services/assign-request.service";
 import {Subscription} from "rxjs";
-import {B} from "@angular/cdk/keycodes";
 
 @Component({
     selector: 'assign-requests-list',

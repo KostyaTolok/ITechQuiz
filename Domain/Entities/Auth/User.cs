@@ -15,5 +15,7 @@ namespace Domain.Entities.Auth
         public bool IsDisabled { get; set; }
 
         public DateTime? DisabledEnd { get; set; }
+        
+        public virtual ICollection<Answer> Answers { get; set; }
     }
 }

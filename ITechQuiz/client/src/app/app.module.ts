@@ -5,12 +5,12 @@ import {AppComponent} from './app.component';
 import {HeaderInsightComponent} from "./views/header-insight/header-insight.component";
 import {FooterInsightComponent} from "./views/footer-insight/footer-insight.component";
 import {RouterModule, Routes} from "@angular/router";
-import {SurveysListComponent} from "./views/surveys/surveys-list.component";
+import {SurveysListComponent} from "./views/surveys/surveys-list/surveys-list.component";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {SurveyDetailComponent} from "./views/surveys/survey-detail.component";
+import {SurveyDetailComponent} from "./views/surveys/survey-detail/survey-detail.component";
 import {LoginComponent} from './views/login/login.component';
 import {RegisterComponent} from './views/register/register.component';
 import {ClientComponent} from './views/client/client.component';
@@ -36,7 +36,18 @@ import {UserDetailComponent} from './views/user-detail/user-detail.component';
 import {ProfileComponent} from './views/profile/profile.component';
 import {ChangePasswordComponent} from './views/change-password/change-password.component';
 import {TokenInterceptor} from "./services/interceptors/token-interceptor.service";
-import { SpinnerComponent } from './views/spinner/spinner.component';
+import {SpinnerComponent} from './views/spinner/spinner.component';
+import {ClientCategoriesListComponent} from './views/client/categories/client-categories-list/client-categories-list.component';
+import {ClientCategoryDetailComponent} from './views/client/categories/client-category-detail/client-category-detail.component';
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {StatisticsListComponent} from './views/client-statistics/statistics-list/statistics-list.component';
+import {StatisticsDetailComponent} from './views/client-statistics/statistics-detail/statistics-detail.component';
+import {StatisticsService} from "./services/statistics.service";
+import {UserStatisticsListComponent} from './views/user-statistics/user-statistics-list/user-statistics-list.component';
+import { UserStatisticsDetailComponent } from './views/user-statistics/user-statistics-detail/user-statistics-detail.component';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatDividerModule} from '@angular/material/divider';
+import { SurveysCategoriesListComponent } from './views/surveys-categories-list/surveys-categories-list.component';
 
 const routes: Routes = [
     {path: 'statistic-surveys', component: SurveysListComponent, data: {type: "ForStatistics"}},
@@ -82,6 +93,18 @@ const routes: Routes = [
         data: {type: "ForQuiz"}
     },
     {
+        path: 'client/categories', component: ClientCategoriesListComponent,
+        canActivate: [ClientActivatorService, AuthActivatorService]
+    },
+    {
+        path: 'client/categories/add-category', component: ClientCategoryDetailComponent,
+        canActivate: [ClientActivatorService, AuthActivatorService]
+    },
+    {
+        path: 'client/categories/:id', component: ClientCategoryDetailComponent,
+        canActivate: [ClientActivatorService, AuthActivatorService]
+    },
+    {
         path: 'admin', component: AdminComponent,
         canActivate: [AdminActivatorService, AuthActivatorService]
     },
@@ -103,6 +126,22 @@ const routes: Routes = [
     },
     {
         path: 'profile/change-password', component: ChangePasswordComponent,
+        canActivate: [AuthActivatorService]
+    },
+    {
+        path: 'statistics', component: StatisticsListComponent,
+        canActivate: [AuthActivatorService, ClientActivatorService]
+    },
+    {
+        path: 'statistics/:id', component: StatisticsDetailComponent,
+        canActivate: [AuthActivatorService, ClientActivatorService]
+    },
+    {
+        path: 'user-statistics', component: UserStatisticsListComponent,
+        canActivate: [AuthActivatorService]
+    },
+    {
+        path: 'user-statistics/:id', component: UserStatisticsDetailComponent,
         canActivate: [AuthActivatorService]
     },
     {path: '**', redirectTo: "/"}
@@ -130,7 +169,14 @@ const routes: Routes = [
         UserDetailComponent,
         ProfileComponent,
         ChangePasswordComponent,
-        SpinnerComponent
+        SpinnerComponent,
+        ClientCategoriesListComponent,
+        ClientCategoryDetailComponent,
+        StatisticsListComponent,
+        StatisticsDetailComponent,
+        UserStatisticsListComponent,
+        UserStatisticsDetailComponent,
+        SurveysCategoriesListComponent
     ],
     imports: [
         BrowserModule,
@@ -139,6 +185,9 @@ const routes: Routes = [
         MatProgressSpinnerModule,
         BrowserAnimationsModule,
         FormsModule,
+        MatTooltipModule,
+        MatExpansionModule,
+        MatDividerModule
     ],
     providers: [
         CookieService,
@@ -153,6 +202,7 @@ const routes: Routes = [
         ClientActivatorService,
         LocalStorageService,
         UsersService,
+        StatisticsService,
         AssignRequestService,
         {
             provide: HTTP_INTERCEPTORS,

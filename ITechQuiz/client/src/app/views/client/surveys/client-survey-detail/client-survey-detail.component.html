@@ -8,15 +8,52 @@
               && title.errors?.required">
                 Требуется ввести название опроса
             </span>
+        <div class="input-group mt-3">
+            <select [(ngModel)]="category" name="category-title"
+                    class="form-select form-select-sm form-control">
+                <option *ngFor="let category of categories" [ngValue]="category">{{category.title}}</option>
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-submit" [disabled]="!category"
+                        type="button" (click)="addCategory()">
+                    Добавить категорию
+                </button>
+            </div>
+        </div>
+        <span *ngIf="errorMessage" class="text-danger mt-2">{{errorMessage}}</span>
+        <ul class="list-group mt-3">
+            <li class="list-group-item d-flex w-100 justify-content-between"
+                *ngFor="let c of survey?.categories; let i=index">
+                {{c.title}}
+                <button type="button" (click)="removeCategory(i)"
+                        class="btn btn-sm btn-danger">Удалить</button>
+            </li>
+        </ul>
+        <div class="form-check mt-2">
+            <input type="checkbox" id="anonymous-allowed"
+                   name="anonymous-allowed" value="{{survey?.isAnonymousAllowed}}"
+                   [(ngModel)]="survey.isAnonymousAllowed"/>
+            <label for="anonymous-allowed" class="ps-2">
+                Разрешить анонимно отвечать на опрос
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input type="checkbox" id="multiple-answers-allowed"
+                   name="multiple-answers-allowed" value="{{survey?.isMultipleAnswersAllowed}}"
+                   [(ngModel)]="survey.isMultipleAnswersAllowed"/>
+            <label for="multiple-answers-allowed" class="ps-2">
+                Разрешить проходить опрос несколько раз неанонимно
+            </label>
+        </div>
 
         <select [(ngModel)]="survey.type" name="type"
-                class="form-select form-select-sm mt-3"
-                aria-label=".form-select-sm example">
+                class="mt-3">
             <option *ngFor="let type of types|mapToArray" value="{{type.key}}">{{type.value}}</option>
         </select>
     </div>
 
-    <div class="card mt-3" *ngFor="let q of survey.questions; let i=index">
+    <div class="card mt-3" *ngFor="let q of survey?.questions; let i=index">
         <div class="card-body">
             <div class="form-group">
                 <input class="form-control" name="question-{{i}}"
@@ -88,7 +125,7 @@
                         Правильный ответ
                     </label>
                 </div>
-                <button type="button" class="btn btn-submit mt-3 ps-2"
+                <button type="button" class="btn btn-danger mt-3 ps-2"
                         (click)="deleteOption(q, o)">
                     Удалить ответ
                 </button>
@@ -97,7 +134,7 @@
                     (click)="addOption(q)">
                 Добавить ответ
             </button>
-            <button type="button" class="btn btn-submit mt-3 ms-2" (click)="deleteQuestion(q)">
+            <button type="button" class="btn btn-danger mt-3 ms-2" (click)="deleteQuestion(q)">
                 Удалить вопрос
             </button>
         </div>
@@ -108,15 +145,15 @@
     </button>
     <div class="form-group">
         <input class="form-control form-control-sm mt-3"
-               placeholder="Подзаголовок Опроса" value="{{survey.subtitle}}"
+               placeholder="Подзаголовок Опроса" value="{{survey?.subtitle}}"
                [(ngModel)]="survey.subtitle" name="survey-subtitle"
                id="survey-subtitle"/>
     </div>
     <div class="form-group">
-        <input [disabled]="surveyForm.form.invalid || survey.questions.length == 0"
+        <input [disabled]="surveyForm.form.invalid || survey?.questions?.length == 0"
                type="submit" value="Сохранить" class="btn btn-submit mt-3 mb-3"/>
         <button *ngIf="id" type="button"
-                class="btn btn-submit ms-3" (click)="deleteSurvey()">
+                class="btn btn-danger ms-3" (click)="deleteSurvey()">
             Удалить опрос
         </button>
     </div>

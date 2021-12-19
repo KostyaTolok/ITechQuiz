@@ -16,7 +16,11 @@ namespace Infrastructure.Profiles
                 .ForMember(d => d.Type, opt => opt.MapFrom<SurveyResolver>());
 
             CreateMap<Survey, SurveyDTO>().ForMember(d => d.CreatedDate,
-                opt => { opt.MapFrom(src => src.CreatedDate.ToString("dd.MM.yyyy")); });
+                    opt => opt.MapFrom(src => src.CreatedDate.ToString("dd.MM.yyyy")))
+                .ForMember(d => d.UpdatedDate,
+                    opt => opt.MapFrom(src => src.UpdatedDate.ToString("dd.MM.yyyy")));
+
+            CreateMap<Category, CategoryDTO>().ReverseMap();
 
             CreateMap<Option, OptionDTO>().ReverseMap();
             CreateMap<Question, QuestionDTO>().ReverseMap();

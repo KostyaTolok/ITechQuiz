@@ -1,0 +1,10 @@
+﻿.title{
+    table-layout: fixed;
+    width: 300px;
+    overflow: hidden;
+}
+
+.isCorrect{
+    table-layout: fixed;
+    min-width: 100px;
+}

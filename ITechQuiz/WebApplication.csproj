@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>c9a8a444-f760-4a14-b8a2-fc23de787ab9</UserSecretsId>
+    <LangVersion>10</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,8 @@
   <ItemGroup>
     <Folder Include="client\src\app\services\interceptors" />
     <Folder Include="client\src\app\views\admin\assign-requests" />
+    <Folder Include="client\src\app\views\client\categories" />
+    <Folder Include="client\src\app\views\client-statistics" />
   </ItemGroup>
 
 </Project>

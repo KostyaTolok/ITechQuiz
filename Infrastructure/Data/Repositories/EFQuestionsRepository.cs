@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Interfaces.Repositories;
+using AutoMapper.Internal;
 using Domain.Entities.Surveys;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -38,15 +40,18 @@ namespace Infrastructure.Data.Repositories
             CancellationToken token)
         {
             return await context.Questions
-                        .Include(question => question.Options)
-                        .SingleOrDefaultAsync(question => question.Id == id, token);
+                .Include(question => question.Options)
+                .SingleOrDefaultAsync(question => question.Id == id, token);
         }
 
-        public async Task<IEnumerable<Question>> GetQuestionsAsync(CancellationToken token)
+        public async Task<IEnumerable<Question>> GetQuestionsBySurveyIdAsync(Guid surveyId, CancellationToken token)
         {
             return await context.Questions
-                        .Include(question => question.Options)
-                        .ToListAsync(token);
+                .Include("Options.Answers")
+                .Include(q => q.Survey)
+                .Where(question => question.SurveyId == surveyId)
+                .AsSplitQuery()
+                .ToListAsync(token);
         }
 
         public async Task UpdateQuestionAsync(Question question,
