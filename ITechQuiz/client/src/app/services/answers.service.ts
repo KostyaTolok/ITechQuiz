@@ -12,9 +12,9 @@ export class AnswersService {
     constructor(private http: HttpClient) {
     }
 
-    addAnswers(answers: Answer[], isAnonymous: boolean) {
+    addAnswers(answers: Answer[], isAnonymous: boolean, surveyId: string = "") {
         return this.http.post(`${this.url}`, answers, {
-            params: {isAnonymous: isAnonymous},
+            params: {isAnonymous: isAnonymous, surveyId: surveyId},
             responseType: "text",
         })
     }

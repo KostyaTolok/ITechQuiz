@@ -15,8 +15,6 @@ namespace Application.DTO
         public bool LockoutEnabled { get; set; }
         
         public string LockoutEnd { get; set; }
-        
-        public virtual ICollection<SurveyDTO> Surveys { get; set; }
 
         public virtual ICollection<AssignRequestDTO> AssignRequests { get; set; }
 

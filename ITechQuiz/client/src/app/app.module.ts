@@ -48,6 +48,7 @@ import { UserStatisticsDetailComponent } from './views/user-statistics/user-stat
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDividerModule} from '@angular/material/divider';
 import { SurveysCategoriesListComponent } from './views/surveys-categories-list/surveys-categories-list.component';
+import {SignalrService} from "./services/signalr.service";
 
 const routes: Routes = [
     {path: 'statistic-surveys', component: SurveysListComponent, data: {type: "ForStatistics"}},
@@ -216,8 +217,10 @@ const routes: Routes = [
 })
 export class AppModule {
 
-    constructor(private jwtTokenStorage: JwtTokenService) {
+    constructor(private jwtTokenStorage: JwtTokenService,
+                private signalrService: SignalrService) {
         jwtTokenStorage.setJwtTokenFromStorage()
+        this.signalrService.startConnection()
     }
 
 }

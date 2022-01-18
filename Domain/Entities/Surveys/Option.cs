@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.Surveys
 {
-    public class Option
+    public class Option : IEquatable<Option>
     {
         public Guid Id { get; set; }
 
@@ -20,5 +20,25 @@ namespace Domain.Entities.Surveys
         public Guid QuestionId { get; set; }
 
         public virtual ICollection<Answer> Answers { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Option);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public bool Equals(Option other)
+        {
+            if (other == null)
+                return false;
+            
+            return Id == other.Id && Title == other.Title &&
+                   IsCorrect == other.IsCorrect && Subtitle == other.Subtitle &&
+                   QuestionId == other.QuestionId;
+        }
     }
 }

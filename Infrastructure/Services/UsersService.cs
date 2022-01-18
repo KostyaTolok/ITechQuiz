@@ -12,6 +12,7 @@ using Application.Queries.Users;
 using Application.Commands.Users;
 using Application.DTO;
 using Application.Queries.Auth;
+using Application.Queries.Surveys;
 using AutoMapper;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -53,7 +54,7 @@ namespace Infrastructure.Services
             }
             else
             {
-                Roles? roleEnum = Enum.TryParse(role,true, out Roles result) ? result : null;
+                Roles? roleEnum = Enum.TryParse(role, true, out Roles result) ? result : null;
                 if (roleEnum.HasValue)
                 {
                     try
@@ -63,7 +64,7 @@ namespace Infrastructure.Services
                     catch (Exception ex)
                     {
                         logger.LogError
-                            ("{ExString}: {Ex}",UserServiceStrings.GetUsersException, ex.Message);
+                            ("{ExString}: {Ex}", UserServiceStrings.GetUsersException, ex.Message);
                         throw new Exception(UserServiceStrings.GetUsersException);
                     }
                 }
@@ -73,7 +74,7 @@ namespace Infrastructure.Services
                     throw new ArgumentException(UserServiceStrings.GetUsersRoleException);
                 }
             }
-            
+
             if (users != null)
             {
                 return users;
@@ -106,6 +107,23 @@ namespace Infrastructure.Services
             return userId;
         }
 
+        public async Task<string> GetUserEmailBySurveyId(Guid surveyId, CancellationToken token)
+        {
+            try
+            {
+                var user = await mediator.Send(new GetUserBySurveyIdQuery(surveyId), token);
+                
+                return user.Email;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ExString}: {Ex}",
+                    UserServiceStrings.GetUserException, ex.Message);
+
+                throw new Exception(UserServiceStrings.GetUserException);
+            }
+        }
+
         public async Task<UserDTO> GetUserByIdAsync(Guid id)
         {
             User user;
@@ -131,7 +149,7 @@ namespace Infrastructure.Services
                     logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
                     throw new Exception(UserServiceStrings.GetUserException);
                 }
-                
+
                 try
                 {
                     userDto.Roles = await mediator.Send(new GetRolesByUserQuery(user));
@@ -148,7 +166,7 @@ namespace Infrastructure.Services
             logger.LogError(UserServiceStrings.GetUserIdException);
             throw new ArgumentException(UserServiceStrings.GetUserIdException);
         }
-        
+
         public async Task<UserDTO> GetUserByEmailAsync(string email)
         {
             User user;
@@ -174,7 +192,7 @@ namespace Infrastructure.Services
                     logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetUserException, ex.Message);
                     throw new Exception(UserServiceStrings.GetUserException);
                 }
-                
+
                 try
                 {
                     userDto.Roles = await mediator.Send(new GetRolesByUserQuery(user));
@@ -184,6 +202,7 @@ namespace Infrastructure.Services
                     logger.LogError("{ExString}: {Ex}", UserServiceStrings.GetRolesException, ex.Message);
                     throw new Exception(UserServiceStrings.GetRolesException);
                 }
+
                 return userDto;
             }
 
@@ -256,7 +275,7 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError("{ExString}: {Ex}",UserServiceStrings.EnableUserException, ex.Message);
+                logger.LogError("{ExString}: {Ex}", UserServiceStrings.EnableUserException, ex.Message);
                 throw new Exception(UserServiceStrings.EnableUserException);
             }
 
@@ -271,7 +290,7 @@ namespace Infrastructure.Services
                 return true;
             }
         }
-        
+
         public async Task<bool> RemoveUserFromRoleAsync(RemoveUserFromRoleModel model,
             string currentEmail, CancellationToken token)
         {
@@ -280,7 +299,7 @@ namespace Infrastructure.Services
                 logger.LogError(UserServiceStrings.RemoveUserFromRoleExceptionRole);
                 throw new Exception(UserServiceStrings.RemoveUserFromRoleExceptionRole);
             }
-            
+
             User currentUser;
             try
             {
@@ -308,7 +327,7 @@ namespace Infrastructure.Services
                 logger.LogError("{ExString}", UserServiceStrings.RemoveFromRoleCurrentRoleException);
                 throw new Exception(UserServiceStrings.RemoveFromRoleCurrentRoleException);
             }
-            
+
             bool removeResult;
             try
             {

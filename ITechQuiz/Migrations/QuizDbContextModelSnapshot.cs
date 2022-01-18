@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace WebApplication.Migrations
 {
     [DbContext(typeof(QuizDbContext))]
@@ -15,9 +17,10 @@ namespace WebApplication.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.10")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("AnswerOption", b =>
                 {
@@ -71,7 +74,22 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AssignRequests");
+                    b.ToTable("AssignRequests", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Auth.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Auth.Role", b =>
@@ -102,13 +120,13 @@ namespace WebApplication.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("AspNetRoles", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("fb96bb35-90fd-4f70-99a0-954fcfb14baf"),
-                            ConcurrencyStamp = "ec4fcba8-7657-4a52-85d7-031e4615ce1b",
+                            ConcurrencyStamp = "d9076ecb-47f8-4651-aafc-02acac300ba5",
                             Description = "Управляет добавлением и удалением клиентов",
                             Name = "admin",
                             NormalizedName = "ADMIN"
@@ -116,7 +134,7 @@ namespace WebApplication.Migrations
                         new
                         {
                             Id = new Guid("f7d36113-51ff-4b07-8b5f-64fccc8091d5"),
-                            ConcurrencyStamp = "cf349df0-f60d-489e-bc6e-af73f952378e",
+                            ConcurrencyStamp = "d042573f-f1cb-4152-a95d-31094234014e",
                             Description = "Создает, удаляет и изменяет опросы. Имеет доступ к статистике ",
                             Name = "client",
                             NormalizedName = "CLIENT"
@@ -192,21 +210,21 @@ namespace WebApplication.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AspNetUsers", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("d91046a9-d12b-4c14-9810-ac3af195066a"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d77299c1-109f-4932-9c6b-cf7594491dee",
+                            ConcurrencyStamp = "d4760d0f-7d9d-42ab-8fe4-54080a4b23af",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             IsDisabled = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEBwa+rzOIuVptSo9/wfhQr4idhk8iBRJqS0m7YLpZEZGSuJ6YlnY0msDdi+H1t0TBw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEPd1t5Y0iFKYWGTmRvNmZG01dYAOLa6JbSSDD+gen2cc9fYF583eT/4QwvpcEoLy5A==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -216,14 +234,14 @@ namespace WebApplication.Migrations
                         {
                             Id = new Guid("52f4c7c6-7f95-4d40-8308-b36a3ce86a52"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b706b9e8-4e02-4d71-9609-037700e478a4",
+                            ConcurrencyStamp = "20b951c3-f754-4a72-b8ee-f24a62bcbde5",
                             Email = "client@gmail.com",
                             EmailConfirmed = true,
                             IsDisabled = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "CLIENT@GMAIL.COM",
                             NormalizedUserName = "CLIENT",
-                            PasswordHash = "AQAAAAEAACcQAAAAEF+ITSsz4hXYJa7+RbCnC9NDIuL1+/hCyVRWoXfiNMu9WyISYfXUzHlk/Pw6ouq07A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAENp5KPz0z8xANCGtw2QNx3wMS9KQ6PR0Fdyd9fkk/2oc7iSkogv1DWrQj6dsHCkfug==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -243,19 +261,14 @@ namespace WebApplication.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("Answers");
+                    b.ToTable("Answers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Surveys.Category", b =>
@@ -270,7 +283,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Surveys.Option", b =>
@@ -298,7 +311,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("Options");
+                    b.ToTable("Options", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Surveys.Question", b =>
@@ -328,7 +341,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("SurveyId");
 
-                    b.ToTable("Questions");
+                    b.ToTable("Questions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Surveys.Survey", b =>
@@ -368,15 +381,16 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Surveys");
+                    b.ToTable("Surveys", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -391,15 +405,16 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -414,7 +429,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
@@ -435,7 +450,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
@@ -450,7 +465,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
+                    b.ToTable("AspNetUserRoles", (string)null);
 
                     b.HasData(
                         new
@@ -481,7 +496,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("AnswerOption", b =>
@@ -527,17 +542,9 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("Domain.Entities.Surveys.Answer", b =>
                 {
-                    b.HasOne("Domain.Entities.Surveys.Question", "Question")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Auth.User", "User")
                         .WithMany("Answers")
                         .HasForeignKey("UserId");
-
-                    b.Navigation("Question");
 
                     b.Navigation("User");
                 });
@@ -637,8 +644,6 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("Domain.Entities.Surveys.Question", b =>
                 {
-                    b.Navigation("Answers");
-
                     b.Navigation("Options");
                 });
 

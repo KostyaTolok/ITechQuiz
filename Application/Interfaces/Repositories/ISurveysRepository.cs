@@ -15,9 +15,9 @@ namespace Application.Interfaces.Repositories
         Task<IEnumerable<Survey>> GetSurveysByTypeAsync(SurveyTypes type, ICollection<Category> categories,
             CancellationToken token);
 
-        Task<IEnumerable<Survey>> GetSurveysByUserId(Guid userId, ICollection<Category> categories,
-            CancellationToken token);
-        
+        Task<IEnumerable<Survey>> GetSurveysByUserId(Guid userId,
+            ICollection<Category> categories, bool sortedByDate, CancellationToken token);
+
         Task<IEnumerable<Survey>> GetSurveysByClientId(Guid clientId,
             CancellationToken token);
 

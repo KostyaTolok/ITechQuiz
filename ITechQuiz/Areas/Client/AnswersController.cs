@@ -5,11 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.DTO;
 using Application.Interfaces.Services;
-using Domain.Entities.Surveys;
-using Domain.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using WebApplication.Hubs;
 
 namespace WebApplication.Areas.Client
 {
@@ -20,11 +20,14 @@ namespace WebApplication.Areas.Client
     {
         private readonly IAnswersService answersService;
         private readonly IUsersService usersService;
+        private readonly IHubContext<NotificationHub> hub;
 
-        public AnswersController(IAnswersService answersService, IUsersService usersService)
+        public AnswersController(IAnswersService answersService,
+            IUsersService usersService, IHubContext<NotificationHub> hub)
         {
             this.answersService = answersService;
             this.usersService = usersService;
+            this.hub = hub;
         }
 
         [HttpGet]
@@ -51,7 +54,7 @@ namespace WebApplication.Areas.Client
         [HttpPost]
         [Produces("application/json")]
         public async Task<ActionResult<Guid>> Post(IEnumerable<AnswerDTO> answerDtos,
-            bool isAnonymous, CancellationToken token)
+            bool isAnonymous, Guid? surveyId, CancellationToken token)
         {
             try
             {
@@ -61,8 +64,14 @@ namespace WebApplication.Areas.Client
                     var userEmail = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     userId = await usersService.GetUserIdByEmail(userEmail, token);
                 }
-
+                
                 await answersService.AddAnswersAsync(answerDtos, userId, token);
+                /*if (surveyId.HasValue)
+                {
+                    var userEmail = await usersService.GetUserEmailBySurveyId(surveyId.Value, token);
+                    await hub.Clients.User(userEmail).SendAsync("Receive", true, token);
+                }*/
+                
                 return Created("", answerDtos);
             }
             catch (ArgumentException ex)

@@ -21,7 +21,6 @@ namespace Infrastructure.Handlers.Auth
         public async Task<User> Handle(GetUserByEmailQuery request, CancellationToken token)
         {
             return await userManager.Users
-                .Include(user => user.Surveys.OrderByDescending(s => s.CreatedDate))
                 .Include(user => user.AssignRequests)
                 .AsSplitQuery()
                 .OrderBy(user => user.Email)

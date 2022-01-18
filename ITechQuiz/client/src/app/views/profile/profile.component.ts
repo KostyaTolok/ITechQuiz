@@ -9,6 +9,7 @@ import {AssignRequestService} from "../../services/assign-request.service";
 import {Roles} from "../../utils/roles";
 import {Survey} from "../../models/survey";
 import {SurveysService} from "../../services/surveys.service";
+import {SignalrService} from "../../services/signalr.service";
 
 @Component({
     selector: 'profile',
@@ -21,18 +22,22 @@ export class ProfileComponent implements OnInit {
     role: string = "admin"
     subscription?: Subscription
     passedSurveys?: Survey[] | undefined
+    createdSurveys?: Survey[] | undefined
+    sortedByDate = true
 
     constructor(private jwtTokenService: JwtTokenService,
                 private usersService: UsersService,
                 private authService: AuthService,
                 private router: Router,
                 private assignRequestService: AssignRequestService,
-                private surveysService: SurveysService) {
+                private surveysService: SurveysService,
+                private signalrService : SignalrService) {
     }
 
     ngOnInit(): void {
         this.loadUser()
         this.loadPassedSurveys()
+        this.loadCreatedSurveys()
     }
 
     loadUser() {
@@ -42,12 +47,22 @@ export class ProfileComponent implements OnInit {
     }
 
     loadPassedSurveys() {
-        this.subscription = this.surveysService.getSurveys(true)
+        this.subscription = this.surveysService.getSurveys(true,false, null,
+            [], this.sortedByDate)
             .subscribe((data: Survey[]) => this.passedSurveys = data)
+    }
+
+
+    loadCreatedSurveys() {
+        this.subscription = this.surveysService.getSurveys(false, true)
+            .subscribe((data: Survey[]) => {
+                this.createdSurveys = data
+            })
     }
 
     logout() {
         this.authService.logoutUser()
+        this.signalrService.restartConnection()
         this.router.navigateByUrl("/")
     }
 
@@ -58,5 +73,10 @@ export class ProfileComponent implements OnInit {
                     console.log(data)
                     this.loadUser()
                 })
+    }
+    
+    setSortedByDate(value: boolean){
+        this.sortedByDate = value
+        this.loadPassedSurveys()
     }
 }

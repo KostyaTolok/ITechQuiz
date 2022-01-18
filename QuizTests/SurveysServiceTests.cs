@@ -43,7 +43,7 @@ namespace Application.UnitTests
             ISurveysService surveyService =
                 new SurveysService(mediator.Object, NullLoggerFactory.Instance, mapper.Object);
 
-            var actual = await surveyService.GetSurveysAsync(null, TODO, null, new List<Guid>(), CancellationToken.None);
+            var actual = await surveyService.GetSurveysAsync(null, false, null, new List<Guid>(), true, CancellationToken.None);
 
             mediator.VerifyAll();
             var actualSurveys = actual.ToList();
@@ -61,7 +61,7 @@ namespace Application.UnitTests
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
 
             var exception = await Assert.ThrowsAsync<ArgumentException>
-                (async () => await surveyService.GetSurveysAsync(null, TODO, null, new List<Guid>(), default));
+                (async () => await surveyService.GetSurveysAsync(null, false, null, new List<Guid>(), true, default));
 
             mediator.VerifyAll();
 
@@ -78,7 +78,7 @@ namespace Application.UnitTests
             ISurveysService surveyService = new SurveysService(mediator.Object, NullLoggerFactory.Instance, null);
 
             var exception = await Assert.ThrowsAsync<Exception>
-                (async () => await surveyService.GetSurveysAsync(null, TODO, null, new List<Guid>(), default));
+                (async () => await surveyService.GetSurveysAsync(null, false, null, new List<Guid>(), true, default));
 
             mediator.VerifyAll();
 

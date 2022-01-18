@@ -20,7 +20,7 @@
                 </button>
             </div>
         </div>
-        <span *ngIf="errorMessage" class="text-danger mt-2">{{errorMessage}}</span>
+        <span *ngIf="categoryErrorMessage" class="text-danger mt-2">{{categoryErrorMessage}}</span>
         <ul class="list-group mt-3">
             <li class="list-group-item d-flex w-100 justify-content-between"
                 *ngFor="let c of survey?.categories; let i=index">
@@ -32,7 +32,7 @@
         <div class="form-check mt-2">
             <input type="checkbox" id="anonymous-allowed"
                    name="anonymous-allowed" value="{{survey?.isAnonymousAllowed}}"
-                   [(ngModel)]="survey.isAnonymousAllowed"/>
+                   [(ngModel)]="survey.isAnonymousAllowed">
             <label for="anonymous-allowed" class="ps-2">
                 Разрешить анонимно отвечать на опрос
             </label>
@@ -41,7 +41,7 @@
         <div class="form-check mt-2">
             <input type="checkbox" id="multiple-answers-allowed"
                    name="multiple-answers-allowed" value="{{survey?.isMultipleAnswersAllowed}}"
-                   [(ngModel)]="survey.isMultipleAnswersAllowed"/>
+                   [(ngModel)]="survey.isMultipleAnswersAllowed">
             <label for="multiple-answers-allowed" class="ps-2">
                 Разрешить проходить опрос несколько раз неанонимно
             </label>
@@ -59,7 +59,7 @@
                 <input class="form-control" name="question-{{i}}"
                        value="{{q.title}}" id="question-{{i}}"
                        [(ngModel)]="q.title" placeholder="Вопрос"
-                       #questionTitle="ngModel" required/>
+                       #questionTitle="ngModel" required>
                 <span class="text-danger" *ngIf="questionTitle.touched && questionTitle.invalid
                         && questionTitle.errors?.required">
                         Требуется ввести вопрос
@@ -69,7 +69,7 @@
             <div class="form-check mt-2">
                 <input type="checkbox" id="question-multiple-{{i}}"
                        name="question-multiple-{{i}}" value="{{q.multiple}}"
-                       [(ngModel)]="q.multiple"/>
+                       [(ngModel)]="q.multiple">
                 <label for="question-multiple-{{i}}" class="ps-2">
                     Несколько вариантов ответа
                 </label>
@@ -78,7 +78,7 @@
             <div class="form-check mt-2">
                 <input type="checkbox" id="question-required-{{i}}"
                        name="question-required-{{i}}" value="{{q.required}}"
-                       [(ngModel)]="q.required"/>
+                       [(ngModel)]="q.required">
                 <label for="question-required-{{i}}" class="ps-2">
                     Обязательный вопрос
                 </label>
@@ -91,7 +91,7 @@
                 <input type="number" id="question-max-selected-{{i}}"
                        name="question-max-selected-{{i}}" value="{{q.maxSelected}}"
                        [(ngModel)]="q.maxSelected" min="1" max="{{q.options?.length}}"
-                       class="ps-2" required #maxSelected="ngModel"/>
+                       class="ps-2" required #maxSelected="ngModel">
                 <br/>
                 <span class="text-danger" *ngIf="maxSelected.touched && maxSelected.invalid
                         && maxSelected.errors">
@@ -105,7 +105,7 @@
                     <input class="form-control form-control-sm mt-2"
                            name="option-title-{{i}}-{{j}}" id="option-title-{{i}}-{{j}}"
                            value="{{o.title}}" [(ngModel)]="o.title" placeholder="Ответ"
-                           #optionTitle="ngModel" required/>
+                           #optionTitle="ngModel" required>
                     <span class="text-danger" *ngIf="optionTitle.touched && optionTitle.invalid
                               && optionTitle.errors?.required">
                             Требуется ввести ответ
@@ -115,12 +115,12 @@
                     <input class="form-control form-control-sm mt-2"
                            name="option-subtitle-{{i}}-{{j}}" id="option-subtitle-{{i}}-{{j}}"
                            value="{{o.subtitle}}" [(ngModel)]="o.subtitle"
-                           placeholder="Подзаголовок ответа"/>
+                           placeholder="Подзаголовок ответа">
                 </div>
                 <div class="form-check mt-2">
                     <input type="checkbox" name="option-is-correct-{{i}}-{{j}}"
                            id='option-is-correct-{{i}}-{{j}}' value="{{o.isCorrect}}"
-                           [(ngModel)]="o.isCorrect"/>
+                           [(ngModel)]="o.isCorrect">
                     <label for="option-is-correct-{{i}}-{{j}}" class="ps-2">
                         Правильный ответ
                     </label>
@@ -147,15 +147,16 @@
         <input class="form-control form-control-sm mt-3"
                placeholder="Подзаголовок Опроса" value="{{survey?.subtitle}}"
                [(ngModel)]="survey.subtitle" name="survey-subtitle"
-               id="survey-subtitle"/>
+               id="survey-subtitle">
     </div>
     <div class="form-group">
-        <input [disabled]="surveyForm.form.invalid || survey?.questions?.length == 0"
-               type="submit" value="Сохранить" class="btn btn-submit mt-3 mb-3"/>
+        <input [disabled]="surveyForm.form.invalid || !surveyForm.form.dirty || survey?.questions?.length == 0"
+               type="submit" value="Сохранить" class="btn btn-submit mt-3 mb-3">
         <button *ngIf="id" type="button"
                 class="btn btn-danger ms-3" (click)="deleteSurvey()">
             Удалить опрос
         </button>
     </div>
+    <span *ngIf="errorMessage" class="text-danger">{{errorMessage}}</span>
 
 </form>

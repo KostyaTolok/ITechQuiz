@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Application.Interfaces.Services;
 using Domain.Models;
 using Domain.Service;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

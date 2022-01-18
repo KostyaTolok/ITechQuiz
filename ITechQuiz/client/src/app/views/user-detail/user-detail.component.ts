@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {User} from "../../models/user";
 import {JwtTokenService} from "../../services/jwt-token.service";
 import {AuthService} from "../../services/auth.service";
@@ -16,6 +16,8 @@ export class UserDetailComponent implements OnInit {
     @Input() user: User | undefined
     @Input() isAdmin = false
     @Input() passedSurveys: Survey[] | undefined
+    @Input() createdSurveys: Survey[] | undefined
+    @Output() sortedByDateEvent = new EventEmitter<boolean>()
     
     openCreatedSurveys = false
     openPassedSurveys = false
@@ -25,6 +27,10 @@ export class UserDetailComponent implements OnInit {
     }
 
     ngOnInit(): void {
+    }
+    
+    setSortedByDate(value: boolean){
+        this.sortedByDateEvent.emit(value)
     }
     
 

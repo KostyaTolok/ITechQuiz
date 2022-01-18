@@ -34,6 +34,8 @@
         
         public const string UpdateSurveyDateException = BaseUpdateSurveyException + "Missing date of creation";
         
+        public const string UpdateSurveyNoChangesException = BaseUpdateSurveyException + "Survey is not changed";
+        
         public const string AddSurveyNullException = BaseAddSurveyException + "Survey is null";
         
         public const string AddSurveyQuestionTitleException = BaseAddSurveyException + "Missing question title";

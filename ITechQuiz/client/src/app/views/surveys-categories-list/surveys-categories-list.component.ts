@@ -16,8 +16,8 @@ export class SurveysCategoriesListComponent implements OnInit, OnDestroy {
 
     @Input() isStatistics = false
     data: Data | undefined
-    surveys: Survey[] | undefined = []
-    categories: Category[] | undefined = []
+    surveys: Survey[] | undefined
+    categories: Category[] | undefined
     subscription?: Subscription
     categoryIds: string[] = []
     selectedCategories: boolean[] = []
@@ -47,7 +47,8 @@ export class SurveysCategoriesListComponent implements OnInit, OnDestroy {
 
     loadSurveys() {
         if (this.isStatistics) {
-            this.subscription = this.surveysService.getSurveys(true,false, this.data?.type, this.categoryIds)
+            this.subscription = this.surveysService
+                .getSurveys(true,false, this.data?.type, this.categoryIds, true)
                 .subscribe((data: Survey[]) =>{ 
                     this.surveys = data
                 })

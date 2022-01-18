@@ -2,7 +2,8 @@
 
 <ng-template #detail>
     <div class="container">
-        <user-detail [user]="user" [isAdmin]="true"></user-detail>
+        <user-detail [user]="user" [isAdmin]="true">
+        </user-detail>
         <h5 class="mt-3" *ngIf="user?.assignRequests?.length != 0">Запросы пользователя</h5>
         <assign-requests-list (updateRequestsEvent)="loadUser(user.id)"
                               [requests]="user?.assignRequests" [isAdmin]="true"></assign-requests-list>

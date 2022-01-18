@@ -9,6 +9,7 @@ export class Survey {
         public subtitle?: string,
         public createdDate?: string,
         public updatedDate?: string,
+        public lastPassageDate?: string,
         public questions: Question[] = [],
         public isAnonymousAllowed?: boolean,
         public isMultipleAnswersAllowed?: boolean,

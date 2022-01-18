@@ -57,23 +57,23 @@
         <h5>{{user?.roles?.toString()}}</h5>
     </div>
 </div>
-<div class="row mt-3" *ngIf="user?.surveys?.length != 0">
+<div class="row mt-3" *ngIf="createdSurveys?.length != 0 && !isAdmin">
     <div class="col">
         <h5>Общее количество созданных опросов:</h5>
     </div>
     <div class="col">
-        <h5>{{user?.surveys?.length}}</h5>
+        <h5>{{createdSurveys?.length}}</h5>
     </div>
 </div>
 
-<mat-expansion-panel class="mt-3" *ngIf="user?.surveys?.length != 0"
+<mat-expansion-panel class="mt-3" *ngIf="createdSurveys?.length != 0 && !isAdmin"
                      (opened)="openCreatedSurveys = true"
                      (closed)="openCreatedSurveys = false">
     <mat-expansion-panel-header>
         <h5 class="mt-2 mb-2">Последние созданные опросы</h5>
     </mat-expansion-panel-header>
     <div class="list-group mt-3">
-        <a class="list-group-item list-group-item-action" *ngFor="let s of user?.surveys"
+        <a class="list-group-item list-group-item-action" *ngFor="let s of createdSurveys"
            [routerLink]="['/statistics/',s?.id]">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">{{s?.title}}</h5>
@@ -83,16 +83,23 @@
     </div>
 </mat-expansion-panel>
 
-<mat-expansion-panel class="mt-3" *ngIf="!isAdmin"
+<mat-expansion-panel class="mt-3" *ngIf="passedSurveys?.length != 0 && !isAdmin"
                      (opened)="openPassedSurveys = true"
                      (closed)="openPassedSurveys = false">
     <mat-expansion-panel-header>
         <h5 class="mt-2 mb-2">Последние пройденные опросы</h5>
     </mat-expansion-panel-header>
+    <input checked name="sortType" id="byDate" type="radio" (change)="setSortedByDate(true)">
+    <label class="ps-1" for="byDate">Сортировать по дате прохождения</label>
+    <input class="ms-3" name="sortType" id="byTitle" type="radio" (change)="setSortedByDate(false)">
+    <label class="ps-1" for="byTitle">Сортировать по названию</label>
     <div class="list-group mt-3">
         <a class="list-group-item list-group-item-action" *ngFor="let s of passedSurveys"
            [routerLink]="['/user-statistics/',s?.id]">
+            <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">{{s?.title}}</h5>
+                <small>{{s?.lastPassageDate}}</small>
+            </div>
         </a>
     </div>
 </mat-expansion-panel>

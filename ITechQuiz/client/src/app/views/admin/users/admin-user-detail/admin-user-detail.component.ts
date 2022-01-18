@@ -3,6 +3,8 @@ import {User} from "../../../../models/user";
 import {Subscription} from "rxjs";
 import {UsersService} from "../../../../services/users.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Survey} from "../../../../models/survey";
+import {SurveysService} from "../../../../services/surveys.service";
 
 @Component({
     selector: 'admin-user-detail',
@@ -18,7 +20,8 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
     subscription?: Subscription
 
     constructor(private usersService: UsersService,
-                private router: Router, private activatedRoute: ActivatedRoute) {
+                private router: Router,
+                private activatedRoute: ActivatedRoute) {
         this.id = activatedRoute.snapshot.params["id"]
         this.disableEnd = new Date().toISOString().slice(0, 16)
         this.dateNow = new Date().toISOString().slice(0, 16)
@@ -73,9 +76,9 @@ export class AdminUserDetailComponent implements OnInit, OnDestroy {
                 })
         }
     }
-    
-    removeFromRole(){
-        if (this.id && this.role){
+
+    removeFromRole() {
+        if (this.id && this.role) {
             this.usersService.removeFromRole(this.id, this.role)
                 .subscribe((data) => {
                     console.log(data)

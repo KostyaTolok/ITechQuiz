@@ -27,5 +27,7 @@ namespace Application.Interfaces.Services
             CancellationToken token);
 
         Task<Guid?> GetUserIdByEmail(string userEmail, CancellationToken token);
+
+        Task<string> GetUserEmailBySurveyId(Guid surveyId, CancellationToken token);
     }
 }

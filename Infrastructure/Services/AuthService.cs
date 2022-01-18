@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -104,7 +105,6 @@ namespace Infrastructure.Services
                 {
                     try
                     {
-                        logger.LogInformation(AuthServiceStrings.RegisterException);
                         return await mediator.Send(new CreateTokenCommand(model.Email));
                     }
                     catch (Exception ex)
@@ -137,7 +137,7 @@ namespace Infrastructure.Services
                 throw new Exception(AuthServiceStrings.LogoutException);
             }
         }
-        
+
         public async Task ChangePasswordAsync(ChangePasswordModel model,
             CancellationToken token)
         {
@@ -158,12 +158,12 @@ namespace Infrastructure.Services
                 logger.LogError(AuthServiceStrings.ChangePasswordExceptionUserNotFound);
                 throw new ArgumentException(AuthServiceStrings.ChangePasswordExceptionUserNotFound);
             }
-            
+
             IdentityResult changeResult;
             try
             {
                 changeResult = await mediator.Send(
-                    new ChangePasswordCommand(user, model.OldPassword,model.NewPassword), token);
+                    new ChangePasswordCommand(user, model.OldPassword, model.NewPassword), token);
             }
             catch (Exception ex)
             {

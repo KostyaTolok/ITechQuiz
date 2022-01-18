@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Infrastructure.Handlers.Surveys
 {
-    public class GetSurveysByUserIdHandler: IRequestHandler<GetSurveysByUserIdQuery, IEnumerable<Survey>>
+    public class GetSurveysByUserIdHandler : IRequestHandler<GetSurveysByUserIdQuery, IEnumerable<Survey>>
     {
         private readonly ISurveysRepository surveysRepository;
 
@@ -20,7 +20,8 @@ namespace Infrastructure.Handlers.Surveys
         public async Task<IEnumerable<Survey>> Handle(GetSurveysByUserIdQuery request,
             CancellationToken token)
         {
-            return await surveysRepository.GetSurveysByUserId(request.UserId, request.Categories, token);
+            return await surveysRepository.GetSurveysByUserId(request.UserId, request.Categories,
+                request.SortedByDate, token);
         }
     }
 }

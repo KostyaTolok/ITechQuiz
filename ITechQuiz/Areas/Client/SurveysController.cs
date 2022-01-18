@@ -32,7 +32,8 @@ namespace WebApplication.Areas.Client
         [HttpGet]
         [Produces("application/json")]
         public async Task<ActionResult<IEnumerable<SurveyDTO>>> Get(bool personal,
-            bool client, string surveyType, [FromQuery] ICollection<Guid> categoryIds, CancellationToken token)
+            bool client, string surveyType, [FromQuery] ICollection<Guid> categoryIds,
+            bool sortedByDate, CancellationToken token)
         {
             try
             {
@@ -42,7 +43,9 @@ namespace WebApplication.Areas.Client
                     var userEmail = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     userId = await usersService.GetUserIdByEmail(userEmail, token);
                 }
-                return Ok(await surveyService.GetSurveysAsync(userId, client, surveyType, categoryIds, token));
+
+                return Ok(await surveyService.GetSurveysAsync(userId, client, surveyType, categoryIds,
+                    sortedByDate, token));
             }
             catch (ArgumentException ex)
             {

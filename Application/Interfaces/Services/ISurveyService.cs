@@ -11,7 +11,7 @@ namespace Application.Interfaces.Services
     public interface ISurveysService
     {
         Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId, bool client,
-            string type, ICollection<Guid> categoryIds, CancellationToken token);
+            string type, ICollection<Guid> categoryIds, bool sortedByDate, CancellationToken token);
 
         Task<SurveyDTO> GetSurveyAsync(Guid id, CancellationToken token);
 

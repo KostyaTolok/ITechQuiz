@@ -22,6 +22,7 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
     categories: Category[] = []
     category: Category| undefined
     errorMessage = ""
+    categoryErrorMessage = ""
 
     public constructor(private surveysService: SurveysService,
                        private activatedRoute: ActivatedRoute,
@@ -63,6 +64,10 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
                         } else if (this.data?.type == "ForQuiz") {
                             this.router.navigateByUrl("/client/quiz-surveys")
                         } else this.router.navigateByUrl("/")
+                    },
+                    error => {
+                        console.log(error)
+                        this.errorMessage = error
                     }
                 )
         } else if (this.survey) {
@@ -141,10 +146,10 @@ export class ClientSurveyDetailComponent implements OnInit, OnDestroy {
             }
             if (addCategory) {
                 this.survey.categories.push(this.category)
-                this.errorMessage = ""
+                this.categoryErrorMessage = ""
             }
             else
-                this.errorMessage = "Данная категория уже добавлена"
+                this.categoryErrorMessage = "Данная категория уже добавлена"
         }
     }
     

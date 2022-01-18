@@ -10,6 +10,7 @@ import {LocalStorageService} from "../../../services/local-storage.service";
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DataRowOutlet} from "@angular/cdk/table";
 import {AuthService} from "../../../services/auth.service";
+import {SignalrService} from "../../../services/signalr.service";
 
 @Component({
     selector: 'survey-detail',
@@ -29,7 +30,8 @@ export class SurveyDetailComponent implements OnInit, OnDestroy {
                        private activeRoute: ActivatedRoute,
                        private localStorageService: LocalStorageService,
                        public authService: AuthService,
-                       private router: Router) {
+                       private router: Router,
+                       private signalrService: SignalrService) {
         this.id = activeRoute.snapshot.params["id"]
     }
 
@@ -59,7 +61,8 @@ export class SurveyDetailComponent implements OnInit, OnDestroy {
 
                     this.answers.push(answer)
                 }
-                this.loadPreviousAnswers()
+                if (!this.authService.loginRequired)
+                    this.loadPreviousAnswers()
             })
     }
 
@@ -108,10 +111,12 @@ export class SurveyDetailComponent implements OnInit, OnDestroy {
         if (this.survey?.isAnonymousAllowed)
             this.answers.forEach(a => a.isAnonymousAllowed = true)
 
-        this.answersService.addAnswers(this.answers, this.isAnonymous)
-            .subscribe((data) => {
-                console.log(data)
+        if (this.survey?.id) {
+            this.signalrService.invokeNotify(this.survey.id)
+        }
 
+        this.answersService.addAnswers(this.answers, this.isAnonymous, this.survey?.id)
+            .subscribe(() => {
                 this.localStorageService.remove(`${this.id}-isAnonymous`)
                 this.router.navigateByUrl("/")
             })

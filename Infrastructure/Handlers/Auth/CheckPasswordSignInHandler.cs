@@ -42,6 +42,7 @@ namespace Infrastructure.Handlers.Auth
                 else
                 {
                     user.IsDisabled = false;
+                    await userManager.UpdateAsync(user);
                 }
             }
 

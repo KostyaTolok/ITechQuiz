@@ -43,7 +43,9 @@
                         </li>
                         <li class="nav-item" *ngIf="authService.isClient">
                             <a class="nav-link" [routerLinkActive]="['active']"
-                               routerLink="statistics">Статистика<span *ngIf="signalrService.notify">&#128276;</span></a>
+                               routerLink="statistics">Статистика
+                                <span *ngIf="signalrService.notify"><i class="fa fa-bell"></i></span>
+                            </a>
                         </li>
                         <li class="nav-item" *ngIf="!authService.loginRequired">
                             <a class="nav-link" [routerLinkActive]="['active']"

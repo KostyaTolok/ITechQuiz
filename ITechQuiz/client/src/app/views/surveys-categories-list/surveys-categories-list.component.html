@@ -1,4 +1,4 @@
-﻿<spinner *ngIf="!surveys; else list"></spinner>
+﻿<spinner *ngIf="!surveys || !categories; else list"></spinner>
 
 <ng-template #list>
     <div class="row mt-3">
@@ -7,7 +7,7 @@
             <ul style="list-style-type: none;">
                 <li *ngFor="let category of categories; let i=index">
                     <input type="checkbox" name="category-{{i}}" [(ngModel)]="selectedCategories[i]"
-                           id="category-{{i}}" (change)="addCategoryId(category?.id)"/>
+                           id="category-{{i}}" (change)="addCategoryId(category?.id)">
                     <label for="category-{{i}}" class="ps-2">
                         {{category?.title}}
                     </label>
@@ -32,7 +32,10 @@
             <div class="list-group">
                 <a class="list-group-item list-group-item-action"
                    *ngFor="let s of surveys" [routerLink]="[s?.id]">
-                    <h5 class="mb-1">{{s?.title}}</h5>
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{s?.title}}</h5>
+                        <small>{{s?.lastPassageDate}}</small>
+                    </div>
                 </a>
             </div>
         </div>

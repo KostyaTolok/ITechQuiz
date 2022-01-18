@@ -51,10 +51,9 @@ namespace Infrastructure.Data.Repositories
         {
             return await context.Answers
                 .Include(a => a.SelectedOptions)
-                .Include(a => a.Question)
                 .Where(a => surveyId.HasValue && userId.HasValue ? 
-                    a.Question.SurveyId == surveyId.Value && a.UserId == userId.Value 
-                    : surveyId.HasValue ? a.Question.SurveyId == surveyId.Value 
+                    a.SelectedOptions.First().Question.SurveyId == surveyId.Value && a.UserId == userId.Value 
+                    : surveyId.HasValue ? a.SelectedOptions.First().Question.SurveyId == surveyId.Value 
                         : userId.HasValue ?  a.UserId == userId.Value : true)
                 .ToListAsync(token);
         }

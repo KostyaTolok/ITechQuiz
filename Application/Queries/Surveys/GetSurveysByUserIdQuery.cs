@@ -5,5 +5,6 @@ using MediatR;
 
 namespace Application.Queries.Surveys
 {
-    public record GetSurveysByUserIdQuery(Guid UserId, ICollection<Category> Categories) : IRequest<IEnumerable<Survey>>;
+    public record GetSurveysByUserIdQuery(Guid UserId, ICollection<Category> Categories,
+        bool SortedByDate) : IRequest<IEnumerable<Survey>>;
 }

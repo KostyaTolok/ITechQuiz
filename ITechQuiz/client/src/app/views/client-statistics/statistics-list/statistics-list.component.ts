@@ -4,6 +4,8 @@ import {Category} from "../../../models/category";
 import {Data} from "@angular/router";
 import {Subscription} from "rxjs";
 import {SurveysService} from "../../../services/surveys.service";
+import {SignalrService} from "../../../services/signalr.service";
+import {LocalStorageService} from "../../../services/local-storage.service";
 
 @Component({
     selector: 'statistic-surveys-list',
@@ -13,12 +15,16 @@ export class StatisticsListComponent implements OnInit, OnDestroy {
 
     surveys: Survey[] | undefined
     subscription?: Subscription
-    
-    constructor(private surveysService :SurveysService) {
+
+    constructor(private surveysService: SurveysService,
+                private signalrService: SignalrService,
+                private localStorageService: LocalStorageService) {
     }
 
     ngOnInit(): void {
         this.loadSurveys()
+        this.signalrService.notify = false;
+        this.localStorageService.set("notify", "false")
     }
 
     loadSurveys() {

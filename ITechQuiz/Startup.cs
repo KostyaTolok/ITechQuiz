@@ -17,16 +17,15 @@ using Infrastructure.Data;
 using Domain.Entities.Auth;
 using System;
 using System.Text;
-using Domain.Service;
-using Infrastructure.Hubs;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using WebApplication.Hubs;
 
 namespace WebApplication
 {
@@ -48,6 +47,7 @@ namespace WebApplication
             services.AddTransient<IAssignRequestsRepository, EFAssignRequestsRepository>();
             services.AddTransient<IAnswersRepository, EFAnswersRepository>();
             services.AddTransient<ICategoriesRepository, EFCategoriesRepository>();
+            services.AddTransient<INotificationsRepository, EFNotificationsRepository>();
             services.AddTransient<ISurveysService, SurveysService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IAuthService, AuthService>();
@@ -55,6 +55,7 @@ namespace WebApplication
             services.AddTransient<IAnswersService, AnswersService>();
             services.AddTransient<ICategoriesService, CategoriesService>();
             services.AddTransient<IStatisticsService, StatisticsService>();
+            services.AddTransient<INotificationsService, NotificationsService>();
 
             services.AddDbContext<QuizDbContext>(options => options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
@@ -98,6 +99,18 @@ namespace WebApplication
                             IssuerSigningKey = new SymmetricSecurityKey
                                 (Encoding.UTF8.GetBytes(configuration["Token:Key"])),
                             ValidateLifetime = true
+                        };
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnMessageReceived = context =>
+                            {
+                                var accessToken = context.Request.Query["access_token"];
+                                if (!string.IsNullOrEmpty(accessToken))
+                                {
+                                    context.Token = accessToken;
+                                }
+                                return Task.CompletedTask;
+                            }
                         };
                     });
 

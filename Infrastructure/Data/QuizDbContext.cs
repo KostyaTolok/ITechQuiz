@@ -24,6 +24,8 @@ namespace Infrastructure.Data
         public DbSet<Answer> Answers { get; set; }
 
         public DbSet<Category> Categories { get; set; }
+        
+        public DbSet<Notification> Notifications { get; set; }
 
         public QuizDbContext(DbContextOptions<QuizDbContext> options) : base(options)
         {
@@ -40,8 +42,8 @@ namespace Infrastructure.Data
             builder.ApplyConfiguration(new AssignRequestsConfiguration());
             builder.ApplyConfiguration(new AnswersConfiguration());
             builder.ApplyConfiguration(new CategoriesConfiguration());
-
-
+            builder.ApplyConfiguration(new NotificationsConfiguration());
+            
             builder.Entity<Role>().HasData(new Role()
             {
                 Id = new Guid("fb96bb35-90fd-4f70-99a0-954fcfb14baf"),

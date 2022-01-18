@@ -26,7 +26,6 @@ namespace Application.UnitTests
             };
 
             return new List<User> {user};
-            ;
         }
 
         public static List<UserDTO> GetTestUserDtos()
@@ -35,14 +34,12 @@ namespace Application.UnitTests
             {
                 Email = "user@mail.com",
                 UserName = "User",
-                Surveys = GetTestSurveyDtos(),
                 IsDisabled = false,
                 LockoutEnabled = false,
                 Roles = new[] {"admin", "client"}
             };
 
             return new List<UserDTO> {user};
-            ;
         }
 
         public static List<Survey> GetTestSurveys()
@@ -149,15 +146,6 @@ namespace Application.UnitTests
             {
                 UserId = new Guid("f7bebc87-14a1-4c55-b03d-2c2487b16d5a"),
                 Id = new Guid("e4aa336f-a274-459f-b44b-f09abb56c0bd"),
-                QuestionId = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
-                Question = new Question
-                {
-                    Id = new Guid("bc6d54ae-5da2-477f-a02f-fbff4c73a638"),
-                    Title = "Первый вопрос",
-                    Multiple = false,
-                    MaxSelected = 1,
-                    Required = false
-                },
                 SelectedOptions = new[]
                 {
                     new Option

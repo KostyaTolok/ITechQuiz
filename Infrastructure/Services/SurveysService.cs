@@ -91,6 +91,23 @@ namespace Infrastructure.Services
                 }
             }
 
+            Survey oldSurvey;
+            try
+            {
+                oldSurvey = await mediator.Send(new GetSurveyByIdQuery(survey.Id), token);
+            }
+            catch (Exception)
+            {
+                logger.LogError(SurveyServiceStrings.UpdateSurveyException);
+                throw new ArgumentException(SurveyServiceStrings.UpdateSurveyException);
+            }
+
+            if (oldSurvey.Equals(survey))
+            {
+                logger.LogError(SurveyServiceStrings.UpdateSurveyNoChangesException);
+                throw new ArgumentException(SurveyServiceStrings.UpdateSurveyNoChangesException);
+            }
+
             try
             {
                 survey.UpdatedDate = DateTime.Now;
@@ -210,7 +227,7 @@ namespace Infrastructure.Services
         }
 
         public async Task<IEnumerable<SurveyDTO>> GetSurveysAsync(Guid? userId,
-            bool client, string type, ICollection<Guid> categoryIds, CancellationToken token)
+            bool client, string type, ICollection<Guid> categoryIds, bool sortedByDate, CancellationToken token)
         {
             IEnumerable<Survey> surveys;
             try
@@ -239,7 +256,8 @@ namespace Infrastructure.Services
                 }
                 else if (userId.HasValue)
                 {
-                    surveys = await mediator.Send(new GetSurveysByUserIdQuery(userId.Value, categories), token);
+                    surveys = await mediator.Send(
+                        new GetSurveysByUserIdQuery(userId.Value, categories, sortedByDate), token);
                 }
                 else if (surveyType.HasValue)
                 {

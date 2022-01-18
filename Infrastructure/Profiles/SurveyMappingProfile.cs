@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Application.DTO;
 using AutoMapper;
 using Domain.Entities.Auth;
@@ -18,7 +19,10 @@ namespace Infrastructure.Profiles
             CreateMap<Survey, SurveyDTO>().ForMember(d => d.CreatedDate,
                     opt => opt.MapFrom(src => src.CreatedDate.ToString("dd.MM.yyyy")))
                 .ForMember(d => d.UpdatedDate,
-                    opt => opt.MapFrom(src => src.UpdatedDate.ToString("dd.MM.yyyy")));
+                    opt => opt.MapFrom(src => src.UpdatedDate.ToString("dd.MM.yyyy")))
+                .ForMember(d => d.LastPassageDate,
+                    opt => opt.MapFrom(src => src.Questions.First().Options.First()
+                        .Answers.Max(a => a.CreatedDate).ToString("dd.MM.yyyy")));
 
             CreateMap<Category, CategoryDTO>().ReverseMap();
 

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Commands.Auth;
 using Domain.Entities.Auth;
-using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -58,7 +56,7 @@ namespace Infrastructure.Handlers.Auth
                 expires: DateTime.UtcNow.AddYears
                     (Convert.ToInt32(configuration["Token:Lifetime"]))
             );
-
+            
             return new JwtSecurityTokenHandler().WriteToken(jwtToken);
         }
     }

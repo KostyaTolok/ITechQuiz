@@ -6,7 +6,7 @@
     <div *ngIf="survey?.isAnonymousAllowed && !authService.loginRequired">
         <input [(ngModel)]="isAnonymous"
                id="anonymous" type="checkbox"
-               (change)="setIsAnonymous(isAnonymous)"/>
+               (change)="setIsAnonymous(isAnonymous)">
         <label for="anonymous" class="ps-2">Анонимно</label>
     </div>
     <form #surveyForm="ngForm" method="post" (submit)="answerSurvey()">
@@ -22,7 +22,7 @@
 
                     <div *ngIf="q?.multiple; else radio">
                         <input id="{{o?.id}}-check" type="checkbox"
-                               (change)="addOrRemoveSelectedOption(i, j, o)"/>
+                               (change)="addOrRemoveSelectedOption(i, j, o)">
                         <label matTooltip="{{o?.subtitle}}"
                                [matTooltipDisabled]="disableTooltip(i, j, o)"
                                class="ps-2" for="{{o?.id}}-check">
@@ -33,7 +33,7 @@
                     <ng-template class="card-text" #radio>
                         <input id="{{o?.id}}-radio"
                                name="{{q?.title}}" type="radio"
-                               (change)="addOrRemoveSelectedOption(i, j, o)"/>
+                               (change)="addOrRemoveSelectedOption(i, j, o)">
                         <label matTooltip="{{o?.subtitle}}"
                                [matTooltipDisabled]="disableTooltip(i, j, o)"
                                class="ps-2" for="{{o?.id}}-radio">
@@ -45,7 +45,8 @@
             </div>
         </div>
         <button [disabled]="surveyForm.form.invalid"
-                class="btn btn-submit mt-3" type="submit">Ответить на опрос
+                class="btn btn-submit mt-3" type="submit">
+            Ответить на опрос
         </button>
     </form>
 

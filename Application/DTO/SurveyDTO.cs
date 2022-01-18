@@ -21,6 +21,8 @@ namespace Application.DTO
         public string CreatedDate { get; set; }
         
         public string UpdatedDate { get; set; }
+        
+        public string LastPassageDate { get; set; }
 
         public ICollection<QuestionDTO> Questions { get; set; }
 
